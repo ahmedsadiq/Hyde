@@ -1,0 +1,24 @@
+{
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "3c87655c-013b-4859-94e2-b06d06f82098++5930" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "3c87655c-013b-4859-94e2-b06d06f82098++5930" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4B844AF2-A507-4311-A6A4-141AC541C31A",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "3c87655c-013b-4859-94e2-b06d06f82098++5930" : "HydePark\/SVProgressHUD\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "HydePark",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "HydePark.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/exairo.svn.beanstalkapp.com\/internal",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "3c87655c-013b-4859-94e2-b06d06f82098++5930"
+    }
+  ]
+}

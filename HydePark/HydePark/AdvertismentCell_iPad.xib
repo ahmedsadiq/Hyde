@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="yYe-KZ-HPa" customClass="AdvertismentCell">
+            <rect key="frame" x="0.0" y="0.0" width="768" height="200"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="yYe-KZ-HPa" id="ODK-my-sUz">
+                <rect key="frame" x="0.0" y="0.0" width="768" height="199"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2qe-VT-axq">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="2"/>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ads14.jpeg" translatesAutoresizingMaskIntoConstraints="NO" id="6vh-SA-y28">
+                        <rect key="frame" x="286" y="22" width="196" height="153"/>
+                    </imageView>
+                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eAP-gr-2yv">
+                        <rect key="frame" x="0.0" y="197" width="768" height="1"/>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ads1.png" translatesAutoresizingMaskIntoConstraints="NO" id="INC-7R-5z9">
+                        <rect key="frame" x="39" y="22" width="196" height="153"/>
+                    </imageView>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ads3.png" translatesAutoresizingMaskIntoConstraints="NO" id="Oea-QS-vzp">
+                        <rect key="frame" x="533" y="22" width="196" height="153"/>
+                    </imageView>
+                </subviews>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="ad1" destination="INC-7R-5z9" id="GUb-cu-isc"/>
+                <outlet property="ad2" destination="6vh-SA-y28" id="xnX-GN-nnr"/>
+                <outlet property="ad3" destination="Oea-QS-vzp" id="U1E-S7-zvL"/>
+            </connections>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="ads1.png" width="300" height="300"/>
+        <image name="ads14.jpeg" width="520" height="293"/>
+        <image name="ads3.png" width="1361" height="987"/>
+    </resources>
+</document>
