@@ -38,6 +38,7 @@
     mybeamsObj = [[myBeamsModel alloc]init];
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     CommentsModelObj = [[CommentsModel alloc] init];
+    pageNum = 1;
     [self getmyBeams];
     
 }
@@ -48,13 +49,15 @@
 }
 
 - (void) getmyBeams{
-    [SVProgressHUD showWithStatus:@"Getting Your Beams..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
+    NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_MY_BEAMS,@"method",
-                              token,@"session_token",@"1",@"page_no",nil];
+                              token,@"session_token",pageStr,@"page_no",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -64,55 +67,62 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
-        [SVProgressHUD dismiss];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSLog(@"%@",result);
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *beams = [result objectForKey:@"beams"];
             
             if(success == 1) {
                 
-                beamsArray = [result objectForKey:@"beams"];
-                mybeamsObj.trendingArray = [[NSMutableArray alloc] init];
-                mybeamsObj.mainArray = [[NSMutableArray alloc]init];
-                mybeamsObj.imagesArray = [[NSMutableArray alloc]init];
-                mybeamsObj.ThumbnailsArray = [[NSMutableArray alloc]init];
+                NSArray *tempArray = [result objectForKey:@"beams"];
                 
-                for(NSDictionary *tempDict in beamsArray){
+                if(tempArray.count> 0) {
+                    beamsArray = [result objectForKey:@"beams"];
+                    if(pageNum == 1) {
+                        mybeamsObj.trendingArray = [[NSMutableArray alloc] init];
+                        mybeamsObj.mainArray = [[NSMutableArray alloc]init];
+                        mybeamsObj.imagesArray = [[NSMutableArray alloc]init];
+                        mybeamsObj.ThumbnailsArray = [[NSMutableArray alloc]init];
+                    }
                     
-                    myBeamsModel *_Videos = [[myBeamsModel alloc] init];
                     
-                    _Videos.title = [tempDict objectForKey:@"caption"];
-                    _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
-                    _Videos.userName = [tempDict objectForKey:@"full_name"];
-                    _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
-                    _Videos.user_id = [tempDict objectForKey:@"user_id"];
-                    _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
-                    _Videos.like_count = [tempDict objectForKey:@"like_count"];
-                    _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
-                    _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] integerValue];
-                    _Videos.video_link = [tempDict objectForKey:@"video_link"];
-                    _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
-                    _Videos.VideoID = [tempDict objectForKey:@"id"];
-                    _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                    
-                    [mybeamsObj.imagesArray addObject:_Videos.profile_image];
-                    [mybeamsObj.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
-                    [mybeamsObj.mainArray addObject:_Videos.video_link];
-                    [mybeamsObj.trendingArray addObject:_Videos];
-                    
-                    beamsArray = mybeamsObj.trendingArray;
-                    videosArray = mybeamsObj.mainArray;
-                    arrImages = mybeamsObj.imagesArray;
-                    arrThumbnail = mybeamsObj.ThumbnailsArray;
-                    
+                    for(NSDictionary *tempDict in beamsArray){
+                        
+                        myBeamsModel *_Videos = [[myBeamsModel alloc] init];
+                        
+                        _Videos.title = [tempDict objectForKey:@"caption"];
+                        _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
+                        _Videos.userName = [tempDict objectForKey:@"full_name"];
+                        _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
+                        _Videos.user_id = [tempDict objectForKey:@"user_id"];
+                        _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
+                        _Videos.like_count = [tempDict objectForKey:@"like_count"];
+                        _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
+                        _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] integerValue];
+                        _Videos.video_link = [tempDict objectForKey:@"video_link"];
+                        _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
+                        _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.video_length = [tempDict objectForKey:@"video_length"];
+                        
+                        [mybeamsObj.imagesArray addObject:_Videos.profile_image];
+                        [mybeamsObj.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
+                        [mybeamsObj.mainArray addObject:_Videos.video_link];
+                        [mybeamsObj.trendingArray addObject:_Videos];
+                        
+                        beamsArray = mybeamsObj.trendingArray;
+                        videosArray = mybeamsObj.mainArray;
+                        arrImages = mybeamsObj.imagesArray;
+                        arrThumbnail = mybeamsObj.ThumbnailsArray;
+                        
+                    }
+                    [_TableBeams reloadData];
                 }
-               // NSLog(@"%d",beamsArray.count);
-                [_TableBeams reloadData];
-                [SVProgressHUD dismiss];
+                else {
+                    cannotScroll = true;
+                }
+                
             }
         }
         else{
@@ -362,6 +372,26 @@
         //..
         _optionsView.hidden = NO;
         [self.view addSubview:self.optionsView];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)aScrollView
+{
+    NSArray *visibleRows = [_TableBeams visibleCells];
+    UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+    NSIndexPath *path = [_TableBeams indexPathForCell:lastVisibleCell];
+    if(path.section == 0 && path.row == beamsArray.count-1)
+    {
+        if(!cannotScroll) {
+            if(goSearch) {
+                searchPageNum++;
+            }
+            else {
+                pageNum++;
+                [self getmyBeams];
+            }
+        }
+        
     }
 }
 

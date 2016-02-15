@@ -54,6 +54,11 @@
     IBOutlet UILabel *commentsCountCommnetview;
     IBOutlet UILabel *videoLengthComments;
     
+    int pageNum;
+    int searchPageNum;
+    BOOL cannotScroll;
+    BOOL goSearch;
+    
 }
 @property (strong, nonatomic) IBOutlet UITableView *TableBeams;
 @property (strong, nonatomic) IBOutlet UIView *optionsView;
