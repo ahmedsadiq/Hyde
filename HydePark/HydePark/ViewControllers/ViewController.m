@@ -108,14 +108,14 @@ static NSString * const kClientId = Client_Id;
     signIn.delegate = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionStateChanged:) name:FBSessionStateChangedNotification object:nil];
-    
+    //[socialScrollview setContentOffset:CGPointMake(320, 0) animated:YES];
     if(IS_IPHONE_4){
         
         _socialLogin.frame = CGRectMake(0, 0, 320, 480);
         socialLoginView.frame = CGRectMake(0, 0, 320, 480);
         _CustomLoginView.frame = CGRectMake(320, 0, 320, 480);
         _ForgetPasswordView.frame = CGRectMake(0, 0, 320, 480);
-        socialScrollview.contentSize = CGSizeMake(320*2, 433);
+        socialScrollview.contentSize = CGSizeMake(320*2, socialScrollview.frame.size.height);
     }else if (IS_IPHONE_5){
         _socialLogin.frame = CGRectMake(0, 0, 320, 568);
         socialLoginView.frame = CGRectMake(0, 0, 320, 568);
@@ -133,7 +133,7 @@ static NSString * const kClientId = Client_Id;
         socialLoginView.frame = CGRectMake(0, 0, 414, 736);
         _CustomLoginView.frame = CGRectMake(414, 0, 414, 736);
         _ForgetPasswordView.frame = CGRectMake(0, 0, 414, 736);
-        socialScrollview.contentSize = CGSizeMake(414*2, socialScrollview.frame.size.height);
+        socialScrollview.contentSize = CGSizeMake(414*2,socialScrollview.frame.size.height);
         logo.frame = CGRectMake(67, 94,280,52);
         logo1.frame = CGRectMake(67, 94,280,52);
         logo2.frame = CGRectMake(67 , 94,280,52);
@@ -150,6 +150,7 @@ static NSString * const kClientId = Client_Id;
     socialScrollview.pagingEnabled = YES;
     [socialScrollview setShowsHorizontalScrollIndicator:NO];
     [socialScrollview setShowsVerticalScrollIndicator:NO];
+   self.automaticallyAdjustsScrollViewInsets = NO;
     [socialScrollview addSubview:self.CustomLoginView];
     
     
@@ -804,9 +805,7 @@ static NSString * const kClientId = Client_Id;
 - (IBAction)switchtoSocialLogin:(id)sender {
     [SVProgressHUD dismiss];
     [socialScrollview setContentOffset:CGPointMake(0, 0) animated:YES];
-    if (IS_IPAD) {
-        [socialScrollview setContentOffset:CGPointMake(0, 0) animated:YES];
-    }
+   
     //socialBgimg.image = [UIImage imageNamed:@"social_bg.png"];
     // socialTabLine.hidden = NO;
     // LoginTabLine.hidden = YES;

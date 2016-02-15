@@ -114,7 +114,7 @@
     
     _TableHome.dataSource = self;
     _TablemyChannel.dataSource = self;
-    _forumTable.dataSource = self;
+    _forumTable.dataSource = self; 
     [self setUserCoverImage];
     [self setUserProfileImage];
     
@@ -123,20 +123,38 @@
     count = 10;
     
     if (IS_IPHONE_4) {
+        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
         _BottomBar.autoresizingMask = UIViewAutoresizingNone;
         _BottomBar.frame = CGRectMake(0, 433, 320, 47);
     }else if (IS_IPAD){
         _BottomBar.frame = CGRectMake(0, 854, 768, 170);
+        [_mainScroller setContentSize:CGSizeMake(2304, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        originalChannelFrame.size.width = 768;
+        originalChannelFrame.size.height = 568;
+        originalChannelFrame.origin.y = 390;
     }
     else if(IS_IPHONE_6){
+        originalChannelFrame.size.width = 375;
+        originalChannelFrame.size.height = 568;
+        originalChannelFrame.origin.y = 390;
         _optionsView.frame = CGRectMake(0, 0, 375, 667);
         searchView.frame = CGRectMake(0, 0, 375, 667);
         commentsTable.frame = CGRectMake(0,297,375,370);
+        [_mainScroller setContentSize:CGSizeMake(1125, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        profilePic.frame = CGRectMake(profilePic.frame.origin.x-10, profilePic.frame.origin.y+20, profilePic.frame.size.width+20, profilePic.frame.size.height+20);
     }
     else if(IS_IPHONE_6Plus)
     {
         _optionsView.frame = CGRectMake(0, 0, 414, 736);
         searchView.frame = CGRectMake(0, 0, 414, 736);
+        originalChannelFrame.size.width = 414;
+        originalChannelFrame.size.height = 650;
+        originalChannelFrame.origin.y = 390;
+        [_mainScroller setContentSize:CGSizeMake(1472, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
         
     }else if(IS_IPHONE_5)
     {
@@ -147,6 +165,8 @@
         //camLabel.autoresizingMask = UIViewAutoresizingNone;
         camLabel.frame = CGRectMake(beamLabel.frame.origin.x + 160,beamLabel.frame.origin.y , beamLabel.frame.size.width, beamLabel.frame.size.height);
         cameraIcon.frame = CGRectMake(beamIcon.frame.origin.x + 160, beamIcon.frame.origin.y, beamIcon.frame.size.width + 5, beamIcon.frame.size.height);
+        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
     }
     
     channelContainerHeight = channelContainerView.frame.size.height;
@@ -162,44 +182,10 @@
     [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.view addGestureRecognizer:sgr];
     
-    if(IS_IPHONE_4 || IS_IPHONE_5) {
-        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-    }
-    else if (IS_IPHONE_6) {
-        [_mainScroller setContentSize:CGSizeMake(1125, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-        profilePic.frame = CGRectMake(profilePic.frame.origin.x-10, profilePic.frame.origin.y+20, profilePic.frame.size.width+20, profilePic.frame.size.height+20);
-    }
-    else if(IS_IPAD ) {
-        [_mainScroller setContentSize:CGSizeMake(2304, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-    }
-    else if(IS_IPHONE_6Plus)
-    {
-        [_mainScroller setContentSize:CGSizeMake(1472, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-    }
     [_uploadbeamScroller setContentSize:CGSizeMake(_uploadbeamScroller.frame.size.width,600)];
     mainScrollerFrame = _mainScroller.frame;
     originalChannelFrame = _TablemyChannel.frame;
     originalChannelInnerViewFrame = channgelInnerView.frame;
-    
-    if(IS_IPHONE_6) {
-        originalChannelFrame.size.width = 375;
-        originalChannelFrame.size.height = 568;
-        originalChannelFrame.origin.y = 390;
-    }else if (IS_IPAD){
-        originalChannelFrame.size.width = 768;
-        originalChannelFrame.size.height = 568;
-        originalChannelFrame.origin.y = 390;
-    }
-    else if (IS_IPHONE_6Plus){
-        originalChannelFrame.size.width = 414;
-        originalChannelFrame.size.height = 650;
-        originalChannelFrame.origin.y = 390;
-    }
-    
 #pragma mark profileView
     
     profilePic.layer.cornerRadius = profilePic.frame.size.width / 2;
@@ -258,8 +244,8 @@
 #pragma mark Server Calls
 
 - (void) getTrendingVideos{
-   // if(forumPageNumber == 1){
-       [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    // if(forumPageNumber == 1){
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     //}
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
@@ -321,7 +307,7 @@
                     arrThumbnail = getTrendingVideos.ThumbnailsArray;
                     
                     [forumsVideo addObject:_Videos];
-                   
+                    
                 }
                 self.isLoading = NO;
                 [_forumTable reloadData];
@@ -352,20 +338,20 @@
         {
             [SVProgressHUD dismiss];
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        
+            
             int success = [[result objectForKey:@"success"] intValue];
             if(success == 1){
                 FollowingsArray = [result objectForKey:@"following"];
                 
-                 for(NSDictionary *tempDict in FollowingsArray){
-                     Followings *_responseData = [[Followings alloc] init];
-                     
-                     _responseData.f_id = [tempDict objectForKey:@"id"];
-                     _responseData.fullName = [tempDict objectForKey:@"full_name"];
-                     _responseData.is_celeb = [tempDict objectForKey:@"is_celeb"];
-                     _responseData.profile_link = [tempDict objectForKey:@"profile_link"];
-                     _responseData.status = [tempDict objectForKey:@"state"];
-                     [FollowingsAM addObject:_responseData];
+                for(NSDictionary *tempDict in FollowingsArray){
+                    Followings *_responseData = [[Followings alloc] init];
+                    
+                    _responseData.f_id = [tempDict objectForKey:@"id"];
+                    _responseData.fullName = [tempDict objectForKey:@"full_name"];
+                    _responseData.is_celeb = [tempDict objectForKey:@"is_celeb"];
+                    _responseData.profile_link = [tempDict objectForKey:@"profile_link"];
+                    _responseData.status = [tempDict objectForKey:@"state"];
+                    [FollowingsAM addObject:_responseData];
                 }
                 [searchTable reloadData];
             }
@@ -817,12 +803,12 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    if(tableView.tag == 3) {
-//        if(indexPath.row == trendArray.count-1 && !self.isLoading){
-//            forumPageNumber++;
-//            [self getTrendingVideos];
-//        }
-//    }
+    //    if(tableView.tag == 3) {
+    //        if(indexPath.row == trendArray.count-1 && !self.isLoading){
+    //            forumPageNumber++;
+    //            [self getTrendingVideos];
+    //        }
+    //    }
     
 }
 
@@ -1234,63 +1220,63 @@
             cell = [nib objectAtIndex:0];
         }
         if(loadFollowings == false){
-        PopularUsersModel *tempUsers = [[PopularUsersModel alloc]init];
-        tempUsers  = [usersArray objectAtIndex:indexPath.row];
-        cell.friendsName.text = tempUsers.full_name;
-        
-        cell.profilePic.imageURL = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
-        NSURL *url = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
-        [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-        
-        cell.profilePic.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
-        for (UIView* subview in cell.profilePic.subviews)
-            subview.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
-        
-        cell.profilePic.layer.shadowColor = [UIColor blackColor].CGColor;
-        cell.profilePic.layer.shadowOpacity = 0.7f;
-        cell.profilePic.layer.shadowOffset = CGSizeMake(0, 5);
-       // cell.profilePic.layer.shadowRadius = 5.0f;
-        cell.profilePic.layer.masksToBounds = NO;
-        
-        cell.profilePic.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
-        cell.profilePic.layer.masksToBounds = NO;
-        cell.profilePic.clipsToBounds = YES;
-        
-        cell.profilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
-        cell.profilePic.layer.borderColor = [UIColor whiteColor].CGColor;
-        cell.profilePic.layer.borderWidth = 0.0f;
-        
-        [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.statusImage setTag:indexPath.row];
-        
-        if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
+            PopularUsersModel *tempUsers = [[PopularUsersModel alloc]init];
+            tempUsers  = [usersArray objectAtIndex:indexPath.row];
+            cell.friendsName.text = tempUsers.full_name;
             
-            [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-        }else if ([tempUsers.status isEqualToString:@"PENDING"]){
+            cell.profilePic.imageURL = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
+            NSURL *url = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
+            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
             
-            [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
-        }else if ([tempUsers.status isEqualToString:@"FRIEND"]) {
-            [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
-        }else if ([tempUsers.status isEqualToString:@"ACCEPT_REQUEST"]){
-            [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
-            [self sendDeleteFriend];
+            cell.profilePic.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
+            for (UIView* subview in cell.profilePic.subviews)
+                subview.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
             
-        }
-        
-        [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.friendsChannelBtn setTag:indexPath.row];
-        
-        if (SearchforTag == YES) {
-            cell.tagbtn.hidden = NO;
-            cell.statusImage.hidden = YES;
+            cell.profilePic.layer.shadowColor = [UIColor blackColor].CGColor;
+            cell.profilePic.layer.shadowOpacity = 0.7f;
+            cell.profilePic.layer.shadowOffset = CGSizeMake(0, 5);
+            // cell.profilePic.layer.shadowRadius = 5.0f;
+            cell.profilePic.layer.masksToBounds = NO;
             
-        }else{
-            cell.tagbtn.hidden = YES;
-            cell.statusImage.hidden = NO;
-        }
-        [cell.tagbtn addTarget:self action:@selector(TagFriend:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.tagbtn setTag:indexPath.row];
-        return cell;
+            cell.profilePic.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
+            cell.profilePic.layer.masksToBounds = NO;
+            cell.profilePic.clipsToBounds = YES;
+            
+            cell.profilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
+            cell.profilePic.layer.borderColor = [UIColor whiteColor].CGColor;
+            cell.profilePic.layer.borderWidth = 0.0f;
+            
+            [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.statusImage setTag:indexPath.row];
+            
+            if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
+                
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+            }else if ([tempUsers.status isEqualToString:@"PENDING"]){
+                
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
+            }else if ([tempUsers.status isEqualToString:@"FRIEND"]) {
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
+            }else if ([tempUsers.status isEqualToString:@"ACCEPT_REQUEST"]){
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
+                [self sendDeleteFriend];
+                
+            }
+            
+            [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.friendsChannelBtn setTag:indexPath.row];
+            
+            if (SearchforTag == YES) {
+                cell.tagbtn.hidden = NO;
+                cell.statusImage.hidden = YES;
+                
+            }else{
+                cell.tagbtn.hidden = YES;
+                cell.statusImage.hidden = NO;
+            }
+            [cell.tagbtn addTarget:self action:@selector(TagFriend:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.tagbtn setTag:indexPath.row];
+            return cell;
         }
         else{
             Followings *tempUsers = [[Followings alloc]init];
@@ -1319,7 +1305,7 @@
             }
             [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
             [cell.friendsChannelBtn setTag:indexPath.row];
-              cell.statusImage.hidden = NO;
+            cell.statusImage.hidden = NO;
             return cell;
         }
     }
@@ -2173,7 +2159,7 @@
 - (IBAction)showFollowings:(id)sender {
     loadFollowings = true;
     FollowingsAM  = nil;
-     FollowingsAM = [[NSMutableArray alloc]init];
+    FollowingsAM = [[NSMutableArray alloc]init];
     [self getFollowing];
     [self.view addSubview:searchView];
     
@@ -3184,7 +3170,7 @@
         [_progressview setProgress:0.0];
     else if(_progressview.progress < 0.8)
         [_progressview setProgress:progress animated:YES];
-
+    
 }
 - (void)request:(ASIHTTPRequest *)request incrementUploadSizeBy:(long long)newLength {
     NSLog(@"data length: %lld", newLength);
@@ -3194,7 +3180,7 @@
     [_progressview setProgress:1.0];
     if(currentState == 0)
         [self getHomeContent];
-
+    
     
     NSString *
     responsse = [[NSString alloc] initWithData:[request responseData] encoding:NSUTF8StringEncoding];
@@ -3566,7 +3552,7 @@
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-  
+    
     if([text isEqualToString:@"\n"]) {
         changeColorForTag = false;
         [textView resignFirstResponder];

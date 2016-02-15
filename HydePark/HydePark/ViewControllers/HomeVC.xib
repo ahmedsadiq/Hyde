@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
     </dependencies>
@@ -92,10 +92,6 @@
                 <outlet property="optionsView" destination="zNz-C1-rWZ" id="Ojv-qv-nfR"/>
                 <outlet property="profilePic" destination="k7F-sg-2Ms" id="eZ3-vD-848"/>
                 <outlet property="progressview" destination="cAs-fK-aie" id="vVx-gV-BqH"/>
-                <outlet property="radio1" destination="tRq-7y-Qs3" id="8Hd-nu-Gm1"/>
-                <outlet property="radio2" destination="I6f-ZP-rkp" id="wPe-5H-4hc"/>
-                <outlet property="radio3" destination="g6K-Qs-xcJ" id="tJF-fn-hiE"/>
-                <outlet property="radioBtn" destination="fXK-YB-Mne" id="amw-6H-LBG"/>
                 <outlet property="searchField" destination="6vj-sR-7lI" id="9s2-Ui-dOl"/>
                 <outlet property="searchField2" destination="5J8-Kr-fuj" id="Nwu-u8-Vvy"/>
                 <outlet property="searchTable" destination="Lm5-Cq-F45" id="HQs-0u-6Uq"/>
@@ -665,7 +661,7 @@
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-            <point key="canvasLocation" x="1104.5" y="-355.5"/>
+            <point key="canvasLocation" x="1144.5" y="-488.5"/>
         </view>
         <view contentMode="scaleToFill" id="Qpn-kT-ZeY">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -917,87 +913,7 @@
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <nil key="simulatedStatusBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-            <point key="canvasLocation" x="1533.5" y="-355.5"/>
-        </view>
-        <view contentMode="scaleToFill" id="zRJ-XU-emT">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="178"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <subviews>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="SIo-1k-Sdz">
-                    <rect key="frame" x="22" y="55" width="199" height="35"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                    <state key="normal" title="No Comments">
-                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="q3j-cn-BpL"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="MU6-el-5QD">
-                    <rect key="frame" x="22" y="91" width="240" height="36"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="50 Comments">
-                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="OSy-U4-xOd"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="fXK-YB-Mne">
-                    <rect key="frame" x="22" y="126" width="240" height="36"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Unlimited Comments">
-                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="rTc-dL-VlP"/>
-                    </connections>
-                </button>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Select Option" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1Hy-aY-wyT">
-                    <rect key="frame" x="22" y="18" width="213" height="21"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
-                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                    <nil key="highlightedColor"/>
-                </label>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="tRq-7y-Qs3">
-                    <rect key="frame" x="286" y="63" width="17" height="19"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="unchecked24.png">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="FxK-aX-XHX"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="I6f-ZP-rkp">
-                    <rect key="frame" x="286" y="99" width="17" height="19"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="unchecked24.png">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="SN2-bI-mYd"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="g6K-Qs-xcJ">
-                    <rect key="frame" x="286" y="135" width="17" height="19"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="checked24.png">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="commentRadio:" destination="-1" eventType="touchUpInside" id="ZnM-8t-JYl"/>
-                    </connections>
-                </button>
-            </subviews>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="1930" y="-593"/>
+            <point key="canvasLocation" x="1587.5" y="-380.5"/>
         </view>
         <view contentMode="scaleToFill" id="zin-sL-KOH">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -1773,7 +1689,6 @@
         <image name="beambgpressed.png" width="363" height="256"/>
         <image name="blueradio.png" width="31" height="31"/>
         <image name="btanonymous.png" width="26" height="29"/>
-        <image name="checked24.png" width="24" height="24"/>
         <image name="circle.png" width="143" height="143"/>
         <image name="comments_iPad.png" width="128" height="125"/>
         <image name="customplayer-bg.png" width="540" height="960"/>
@@ -1805,7 +1720,6 @@
         <image name="thumbnail_colored.png" width="300" height="300"/>
         <image name="transparent bg.png" width="640" height="1136"/>
         <image name="transparent-bottom.png" width="320" height="51"/>
-        <image name="unchecked24.png" width="24" height="24"/>
         <image name="unmute.png" width="104" height="220"/>
     </resources>
 </document>
