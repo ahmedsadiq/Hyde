@@ -102,7 +102,6 @@
                 <outlet property="tabLineChannel" destination="iTg-xU-0Ng" id="cKC-2k-eUw"/>
                 <outlet property="tabLineHome" destination="KGC-h7-Akr" id="s2w-B8-e7h"/>
                 <outlet property="tabLineTrending" destination="82W-06-nFW" id="mYd-kF-ZMJ"/>
-                <outlet property="tagFriendsView" destination="0rT-jE-BjO" id="wfF-CF-Mc5"/>
                 <outlet property="thumbnail1" destination="o5C-wp-Deo" id="BYq-AP-7mE"/>
                 <outlet property="thumbnail2" destination="hY8-Ir-YK9" id="Egt-PE-INE"/>
                 <outlet property="thumbnail3" destination="IEd-7f-Fkj" id="42O-4m-kTt"/>
@@ -137,6 +136,7 @@
                 <imageView userInteractionEnabled="NO" alpha="0.85000002384185802" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="transparent bg.png" id="MDq-fv-JoY">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </imageView>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Wr8-eO-FaB">
                     <rect key="frame" x="49" y="239" width="223" height="49"/>
@@ -615,53 +615,6 @@
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <point key="canvasLocation" x="407" y="335"/>
-        </view>
-        <view contentMode="scaleToFill" id="0rT-jE-BjO">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <subviews>
-                <imageView userInteractionEnabled="NO" alpha="0.85000002384185791" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="transparent bg.png" id="ePK-IV-dBO">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                </imageView>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="aQc-jq-cyP">
-                    <rect key="frame" x="33" y="238" width="309" height="63"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
-                    <state key="normal" title="Search Friends" backgroundImage="Buttonbg_ipad.png">
-                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="searchFriendsforTag:" destination="-1" eventType="touchUpInside" id="xN6-xI-Q82"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="BOy-iH-aFh">
-                    <rect key="frame" x="33" y="343" width="309" height="63"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
-                    <state key="normal" title="Cancel" backgroundImage="Buttonbg_ipad.png">
-                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="CancelTaging:" destination="-1" eventType="touchUpInside" id="Axn-C0-KCo"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="gLx-a7-259">
-                    <rect key="frame" x="322" y="18" width="40" height="41"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="redcross.png">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="CrossTagView:" destination="-1" eventType="touchUpInside" id="cXK-J5-WDn"/>
-                    </connections>
-                </button>
-            </subviews>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-            <point key="canvasLocation" x="1144.5" y="-488.5"/>
         </view>
         <view contentMode="scaleToFill" id="Qpn-kT-ZeY">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>

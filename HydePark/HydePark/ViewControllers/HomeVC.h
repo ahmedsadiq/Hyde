@@ -237,8 +237,15 @@ typedef enum enumStates{
     NSMutableArray *channelVideos;
     NSMutableArray *newsfeedsVideos;
     int currentState;
-    int forumPageNumber;
     CGRect TabBarFrame;
+    bool cannotScrollForum;
+    bool cannotScrollMyCorner;
+    int myCornerPageNum;
+    int forumPageNumber;
+    int pageNum;
+    int searchPageNum;
+    BOOL cannotScroll;
+    BOOL goSearch;
 }
 
 - (IBAction)fromCamera:(id)sender;

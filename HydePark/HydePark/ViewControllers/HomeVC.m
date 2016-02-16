@@ -91,20 +91,12 @@
     commentAllowed = @"-1";
     privacySelected = @"PUBLIC";
     TopicSelected = @"1";
-    forumPageNumber = 1;
+   
     [_progressview setProgress:0.0 animated:YES];
     CGAffineTransform transform = CGAffineTransformMakeScale(1.0f, 3.0f);
     _progressview.transform = transform;
     totalBytesUploaded = 0.0;
-    forumsVideo = [[NSMutableArray alloc] init];
-    newsfeedsVideos = [[NSMutableArray alloc] init];
-    getTrendingVideos  = [[GetTrendingVideos alloc]init];
-    myChannelObj = [[myChannelModel alloc]init];
-    userChannelObj = [[UserChannelModel alloc]init];
-    UsersModel = [[PopularUsersModel alloc]init];
-    CommentsModelObj = [[CommentsModel alloc]init];
-    getFollowings = [[Followings alloc] init];
-    FollowingsAM = [[NSMutableArray alloc]init];
+   
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     
     loadFollowings = false;
@@ -115,63 +107,15 @@
     
     _TableHome.dataSource = self;
     _TablemyChannel.dataSource = self;
-    _forumTable.dataSource = self; 
+    _forumTable.dataSource = self;
     [self setUserCoverImage];
     [self setUserProfileImage];
-    
+    [self initDataArrays];
     _statusText.delegate = self;
     
     count = 10;
-    
-    if (IS_IPHONE_4) {
-        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
-        _BottomBar.frame = CGRectMake(0, 433, 320, 47);
-    }else if (IS_IPAD){
-        _BottomBar.frame = CGRectMake(0, 854, 768, 170);
-        [_mainScroller setContentSize:CGSizeMake(2304, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-        originalChannelFrame.size.width = 768;
-        originalChannelFrame.size.height = 568;
-        originalChannelFrame.origin.y = 390;
-    }
-    else if(IS_IPHONE_6){
-        originalChannelFrame.size.width = 375;
-        originalChannelFrame.size.height = 568;
-        originalChannelFrame.origin.y = 390;
-        _optionsView.frame = CGRectMake(0, 0, 375, 667);
-        searchView.frame = CGRectMake(0, 0, 375, 667);
-        commentsTable.frame = CGRectMake(0,297,375,370);
-        [_mainScroller setContentSize:CGSizeMake(1125, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-        profilePic.frame = CGRectMake(profilePic.frame.origin.x-10, profilePic.frame.origin.y+20, profilePic.frame.size.width+20, profilePic.frame.size.height+20);
-    }
-    else if(IS_IPHONE_6Plus)
-    {
-        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
-          _BottomBar.frame = CGRectMake(0, 626, 414, 110);
-        _optionsView.frame = CGRectMake(0, 0, 414, 736);
-        searchView.frame = CGRectMake(0, 0, 414, 736);
-        originalChannelFrame.size.width = 414;
-        originalChannelFrame.size.height = 650;
-        originalChannelFrame.origin.y = 390;
-        [_mainScroller setContentSize:CGSizeMake(1472, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-        
-    }else if(IS_IPHONE_5)
-    {
-        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
-        _BottomBar.frame = CGRectMake(0, 525, 320, 50);
-        _optionsView.frame = CGRectMake(0, 0, 320, 568);
-        searchView.frame = CGRectMake(0, 0, 320, 568);
-        //camLabel.autoresizingMask = UIViewAutoresizingNone;
-        camLabel.frame = CGRectMake(beamLabel.frame.origin.x + 160,beamLabel.frame.origin.y , beamLabel.frame.size.width, beamLabel.frame.size.height);
-        cameraIcon.frame = CGRectMake(beamIcon.frame.origin.x + 160, beamIcon.frame.origin.y, beamIcon.frame.size.width + 5, beamIcon.frame.size.height);
-        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
-        [_mainScroller setContentOffset:CGPointMake(0,0)];
-    }
-    TabBarFrame = _BottomBar.frame;
+    [self setContentResolutions];
+        TabBarFrame = _BottomBar.frame;
     channelContainerHeight = channelContainerView.frame.size.height;
     channelContainerOriginalFrame = channelContainerView.frame;
     channelTableFrame = _TablemyChannel.frame;
@@ -214,6 +158,71 @@
     tapper.cancelsTouchesInView = NO;
     [self.view addGestureRecognizer:tapper];
 }
+-(void)initDataArrays{
+    pageNum = 1;
+    forumPageNumber = 1;
+    myCornerPageNum= 1;
+    forumsVideo = [[NSMutableArray alloc] init];
+    newsfeedsVideos = [[NSMutableArray alloc] init];
+    getTrendingVideos  = [[GetTrendingVideos alloc]init];
+    myChannelObj = [[myChannelModel alloc]init];
+    userChannelObj = [[UserChannelModel alloc]init];
+    UsersModel = [[PopularUsersModel alloc]init];
+    CommentsModelObj = [[CommentsModel alloc]init];
+    getFollowings = [[Followings alloc] init];
+    FollowingsAM = [[NSMutableArray alloc]init];
+}
+-(void)setContentResolutions{
+    if (IS_IPHONE_4) {
+        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
+        _BottomBar.frame = CGRectMake(0, 433, 320, 47);
+    }else if (IS_IPAD){
+        _BottomBar.frame = CGRectMake(0, 854, 768, 170);
+        [_mainScroller setContentSize:CGSizeMake(2304, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        originalChannelFrame.size.width = 768;
+        originalChannelFrame.size.height = 568;
+        originalChannelFrame.origin.y = 390;
+    }
+    else if(IS_IPHONE_6){
+        originalChannelFrame.size.width = 375;
+        originalChannelFrame.size.height = 568;
+        originalChannelFrame.origin.y = 390;
+        _optionsView.frame = CGRectMake(0, 0, 375, 667);
+        searchView.frame = CGRectMake(0, 0, 375, 667);
+        commentsTable.frame = CGRectMake(0,297,375,370);
+        [_mainScroller setContentSize:CGSizeMake(1125, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        profilePic.frame = CGRectMake(profilePic.frame.origin.x-10, profilePic.frame.origin.y+20, profilePic.frame.size.width+20, profilePic.frame.size.height+20);
+    }
+    else if(IS_IPHONE_6Plus)
+    {
+        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
+        _BottomBar.frame = CGRectMake(0, 626, 414, 110);
+        _optionsView.frame = CGRectMake(0, 0, 414, 736);
+        searchView.frame = CGRectMake(0, 0, 414, 736);
+        originalChannelFrame.size.width = 414;
+        originalChannelFrame.size.height = 650;
+        originalChannelFrame.origin.y = 390;
+        [_mainScroller setContentSize:CGSizeMake(1472, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+        
+    }else if(IS_IPHONE_5)
+    {
+        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
+        _BottomBar.frame = CGRectMake(0, 525, 320, 50);
+        _optionsView.frame = CGRectMake(0, 0, 320, 568);
+        searchView.frame = CGRectMake(0, 0, 320, 568);
+        //camLabel.autoresizingMask = UIViewAutoresizingNone;
+        camLabel.frame = CGRectMake(beamLabel.frame.origin.x + 160,beamLabel.frame.origin.y , beamLabel.frame.size.width, beamLabel.frame.size.height);
+        cameraIcon.frame = CGRectMake(beamIcon.frame.origin.x + 160, beamIcon.frame.origin.y, beamIcon.frame.size.width + 5, beamIcon.frame.size.height);
+        [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
+        [_mainScroller setContentOffset:CGPointMake(0,0)];
+    }
+
+}
 - (void)handleSingleTap:(UITapGestureRecognizer *) sender
 {
     [self.view endEditing:YES];
@@ -240,16 +249,12 @@
 #pragma mark Server Calls
 
 - (void) getTrendingVideos{
-    // if(forumPageNumber == 1){
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    //}
-    
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
     NSURL *url = [NSURL URLWithString:SERVER_URL];
-    NSString *pageNum = [NSString stringWithFormat:@"%d",forumPageNumber];
+    NSString *pageStr = [NSString stringWithFormat:@"%d",forumPageNumber];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_TRENDING_VIDEOS,@"method",
-                              token,@"session_token",pageNum,@"page_no",nil];
+                              token,@"session_token",pageStr,@"page_no",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -265,17 +270,19 @@
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             if(success == 1) {
-                
+                  NSArray *tempArray = [result objectForKey:@"posts"];
+                if(tempArray.count > 0)
+                {
                 trendArray = [result objectForKey:@"posts"];
-                getTrendingVideos.trendingArray = [[NSMutableArray alloc] init];
-                getTrendingVideos.mainArray = [[NSMutableArray alloc]init];
-                getTrendingVideos.ImagesArray = [[NSMutableArray alloc]init];
-                getTrendingVideos.ThumbnailsArray = [[NSMutableArray alloc]init];
-                
+                    if(forumPageNumber == 1){
+                        getTrendingVideos.trendingArray = [[NSMutableArray alloc] init];
+                        getTrendingVideos.mainArray = [[NSMutableArray alloc]init];
+                        getTrendingVideos.ImagesArray = [[NSMutableArray alloc]init];
+                        getTrendingVideos.ThumbnailsArray = [[NSMutableArray alloc]init];
+                    }
                 for(NSDictionary *tempDict in trendArray){
                     
-                    GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
-                    
+                    GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];  
                     _Videos.title = [tempDict objectForKey:@"caption"];
                     _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
                     _Videos.userName = [tempDict objectForKey:@"full_name"];
@@ -308,6 +315,8 @@
                 self.isLoading = NO;
                 [_forumTable reloadData];
             }
+            }else
+                cannotScrollForum = true;
         }
         else{
             [_refreshControl endRefreshing];
@@ -397,10 +406,10 @@
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
+       NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_HOME_CONTENTS,@"method",
-                              token,@"session_token",@"1",@"page_no",nil];
+                              token,@"session_token",pageStr,@"page_no",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -418,52 +427,59 @@
             int success = [[result objectForKey:@"success"] intValue];
             
             if(success == 1) {
+                NSArray *tempArray = [result objectForKey:@"posts"];
                 
-                newsfeedPostArray = [result objectForKey:@"posts"];
-                getTrendingVideos.homieArray = [[NSMutableArray alloc] init];
-                getTrendingVideos.mainhomeArray = [[NSMutableArray alloc]init];
-                getTrendingVideos.homeImagesArray = [[NSMutableArray alloc]init];
-                getTrendingVideos.homeThumbnailsArray = [[NSMutableArray alloc]init];
-                
-                for(NSDictionary *tempDict in newsfeedPostArray){
+                if(tempArray.count> 0) {
+                    newsfeedPostArray = [result objectForKey:@"posts"];
+                    if(pageNum == 1){
+                        getTrendingVideos.homieArray = [[NSMutableArray alloc] init];
+                        getTrendingVideos.mainhomeArray = [[NSMutableArray alloc]init];
+                        getTrendingVideos.homeImagesArray = [[NSMutableArray alloc]init];
+                        getTrendingVideos.homeThumbnailsArray = [[NSMutableArray alloc]init];
+                    }
+                    for(NSDictionary *tempDict in newsfeedPostArray){
+                        
+                        GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
+                        
+                        _Videos.title = [tempDict objectForKey:@"caption"];
+                        _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
+                        _Videos.userName = [tempDict objectForKey:@"full_name"];
+                        _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
+                        _Videos.user_id = [tempDict objectForKey:@"user_id"];
+                        _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
+                        _Videos.like_count = [tempDict objectForKey:@"like_count"];
+                        _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
+                        _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
+                        _Videos.video_angle = [tempDict objectForKey:@"video_angle"];
+                        _Videos.video_link = [tempDict objectForKey:@"video_link"];
+                        _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
+                        _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.video_length = [tempDict objectForKey:@"video_length"];
+                        _Videos.image_link = [tempDict objectForKey:@"image_link"];
+                        [getTrendingVideos.homeImagesArray addObject:_Videos.profile_image];
+                        [getTrendingVideos.homeThumbnailsArray addObject:_Videos.video_thumbnail_link];
+                        [getTrendingVideos.mainhomeArray addObject:_Videos.video_link];
+                        [getTrendingVideos.homieArray addObject:_Videos];
+                        
+                        newsfeedPostArray = getTrendingVideos.homieArray;
+                        newsfeedVideosArray = getTrendingVideos.mainhomeArray;
+                        newsfeedArrImage = getTrendingVideos.homeImagesArray;
+                        newsfeedArrThumbnail = getTrendingVideos.homeThumbnailsArray;
+                        
+                        [newsfeedsVideos addObject:_Videos];
+                        
+                    }
+                    if ([newsfeedsVideos count] == 0) {
+                        [noBeamsView setHidden:NO];
+                    }else{
+                        noBeamsView.hidden = YES;
+                    }
                     
-                    GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
-                    
-                    _Videos.title = [tempDict objectForKey:@"caption"];
-                    _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
-                    _Videos.userName = [tempDict objectForKey:@"full_name"];
-                    _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
-                    _Videos.user_id = [tempDict objectForKey:@"user_id"];
-                    _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
-                    _Videos.like_count = [tempDict objectForKey:@"like_count"];
-                    _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
-                    _Videos.video_angle = [tempDict objectForKey:@"video_angle"];
-                    _Videos.video_link = [tempDict objectForKey:@"video_link"];
-                    _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
-                    _Videos.VideoID = [tempDict objectForKey:@"id"];
-                    _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                    _Videos.image_link = [tempDict objectForKey:@"image_link"];
-                    [getTrendingVideos.homeImagesArray addObject:_Videos.profile_image];
-                    [getTrendingVideos.homeThumbnailsArray addObject:_Videos.video_thumbnail_link];
-                    [getTrendingVideos.mainhomeArray addObject:_Videos.video_link];
-                    [getTrendingVideos.homieArray addObject:_Videos];
-                    
-                    newsfeedPostArray = getTrendingVideos.homieArray;
-                    newsfeedVideosArray = getTrendingVideos.mainhomeArray;
-                    newsfeedArrImage = getTrendingVideos.homeImagesArray;
-                    newsfeedArrThumbnail = getTrendingVideos.homeThumbnailsArray;
-                    
-                    [newsfeedsVideos addObject:_Videos];
-                    
+                    [_TableHome reloadData];
                 }
-                if ([newsfeedsVideos count] == 0) {
-                    [noBeamsView setHidden:NO];
-                }else{
-                    noBeamsView.hidden = YES;
-                }
-                
-                [_TableHome reloadData];
             }
+            else
+                cannotScroll = true;
         }
         else{
             
@@ -479,10 +495,11 @@
 - (void) getMyChannel{
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    NSString *pageStr = [NSString stringWithFormat:@"%d",myCornerPageNum];
     
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_MY_CHENNAL,@"method",
-                              token,@"session_token",@"1",@"page_no",nil];
+                              token,@"session_token",pageStr,@"page_no",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -493,7 +510,6 @@
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
         [_refreshControlChannel endRefreshing];
-        [SVProgressHUD dismiss];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -501,12 +517,7 @@
             NSDictionary *posts = [result objectForKey:@"profile"];
             
             if(success == 1) {
-                
-                myChannelObj.trendingArray= [[NSMutableArray alloc] init];
-                myChannelObj.mainArray = [[NSMutableArray alloc]init];
-                myChannelObj.ImagesArray = [[NSMutableArray alloc]init];
-                myChannelObj.ThumbnailsArray = [[NSMutableArray alloc]init];
-                
+                NSArray *tempArray = [result objectForKey:@"posts"];
                 myChannelModel *_profile = [[myChannelModel alloc] init];
                 _profile.beams_count = [posts objectForKey:@"beams_count"];
                 _profile.friends_count = [posts objectForKey:@"following_count"];
@@ -535,8 +546,15 @@
                 userBeams.text = [[NSString alloc]initWithFormat:@"%@ Beams",_profile.beams_count ];
                 userFriends.text = [[NSString alloc]initWithFormat:@"%@ Following",_profile.friends_count];
                 userLikes.text = [[NSString alloc]initWithFormat:@"%@ Followers",_profile.likes_count];
-                
-                chPostArray = [result objectForKey:@"posts"];
+                if(tempArray.count > 0)
+                {
+                    chPostArray = [result objectForKey:@"posts"];
+                    if(myCornerPageNum == 1){
+                        myChannelObj.trendingArray= [[NSMutableArray alloc] init];
+                        myChannelObj.mainArray = [[NSMutableArray alloc]init];
+                        myChannelObj.ImagesArray = [[NSMutableArray alloc]init];
+                        myChannelObj.ThumbnailsArray = [[NSMutableArray alloc]init];
+                    }
                 channelVideos = [[NSMutableArray alloc] init];
                 
                 for(NSDictionary *tempDict in chPostArray){
@@ -557,7 +575,7 @@
                     _Videos.VideoID = [tempDict objectForKey:@"id"];
                     _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
                     _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                    _Videos.like_by_me = [posts objectForKey:@"like_by_me"];
+                    _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
                     _Videos.image_link = [tempDict objectForKey:@"image_link"];
                     [myChannelObj.ImagesArray addObject:_Videos.profile_image];
                     [myChannelObj.ThumbnailsArray  addObject:_Videos.video_thumbnail_link];
@@ -568,12 +586,12 @@
                     chVideosArray = myChannelObj.mainArray;
                     chArrImage = myChannelObj.ImagesArray;
                     chArrThumbnail = myChannelObj.ThumbnailsArray;
-                    
                     [channelVideos addObject:_Videos];
                 }
-                [_TablemyChannel reloadData];
-                
-            }
+                    [_TablemyChannel reloadData];
+                }
+                else
+                    cannotScrollMyCorner = true;
         }
         else{
             [_refreshControlChannel endRefreshing];
@@ -581,7 +599,7 @@
             [alert show];
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
+        }
     }];
 }
 
@@ -638,8 +656,9 @@
 }
 
 #pragma mark - Like Post
-- (void) LikePost{
+- (void) LikePost:(NSUInteger )indexToLike{
     
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_LIKE_POST,@"method",
@@ -653,30 +672,46 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        [SVProgressHUD dismiss];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             NSString *message = [result objectForKey:@"message"];
-            
-            if(success == 1) {
+            if(success == 1){
                 if ([message isEqualToString:@"Post is Successfully liked."]) {
-                    
                     liked = YES;
                 }else if ([message isEqualToString:@"Post is Successfully unliked by this user."])
                     liked = NO;
             }
-            if(currentState == 2)
+            if(currentState == 2){
                 [self getTrendingVideos];
+            }
             else if (currentState == 0)
+            {
+                //                GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
+                //                _Videos = [getTrendingVideos.homieArray objectAtIndex:indexToLike];
+                //                _Videos.like_count = [[getTrendingVideos.homieArray  objectAtIndex:indexToLike]valueForKey:@"like_count"];
+                //                NSInteger likeCount = [_Videos.like_count intValue];
+                //                likeCount++;
+                //                _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
+                //                _Videos.like_by_me = @"1";
+                //                [getTrendingVideos.homieArray replaceObjectAtIndex:indexToLike withObject:_Videos];
+                //                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                //                NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                //                [_TableHome reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
                 [self getHomeContent];
+            }
+            else if (currentState == 3)
+                [self getMyChannel];
         }
         else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
     }];
+    
 }
 
 - (void) SeenPost{
@@ -974,7 +1009,7 @@
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
         appDelegate.videotoPlay = [getTrendingVideos.mainhomeArray objectAtIndex:indexPath.row];
         
-        [cell.CH_heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
         }else{
@@ -1072,7 +1107,7 @@
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
         appDelegate.videotoPlay = [getTrendingVideos.mainArray objectAtIndex:indexPath.row];
         
-        [cell.CH_heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
         }else{
@@ -1188,7 +1223,8 @@
             
             
             [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.CH_heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
+            
             [cell.CH_flag addTarget:self action:@selector(editPost:) forControlEvents:UIControlEventTouchUpInside];
             [cell.CH_playVideo setTag:indexPath.row-1];
             [cell.CH_heart setTag:indexPath.row-1];
@@ -1371,7 +1407,7 @@
         
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
         appDelegate.videotoPlay = [userChannelObj.mainArray objectAtIndex:indexPath.row];
-        [cell.CH_heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         [cell.CH_flag addTarget:self action:@selector(editPost:) forControlEvents:UIControlEventTouchUpInside];
         [cell.CH_playVideo setTag:indexPath.row];
         [cell.CH_heart setTag:indexPath.row];
@@ -1480,7 +1516,7 @@
         
         appDelegate.videotoPlay = [CommentsModelObj.mainArray objectAtIndex:indexPath.row];
         
-        [cell.heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         
         if ([tempVideos.liked_by_me isEqualToString:@"1"]) {
             [cell.heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
@@ -1669,27 +1705,79 @@
         }
         self.lastContentPoint = currentOffset;
         if(self.forumTable.contentOffset.y >= (self.forumTable.contentSize.height - self.forumTable.bounds.size.height)) {
-            if(self.isLoading == NO)
-            {
-                self.isLoading  = YES;
-                forumPageNumber++;
-                [self getTrendingVideos];
-            }
+//            if(self.isLoading == NO)
+//            {
+//                self.isLoading  = YES;
+//                forumPageNumber++;
+//                [self getTrendingVideos];
+//            }
         }
     }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    if(scrollView.tag == 2) {
-        _lastContentOffset = scrollView.contentOffset.x;
-    }
+//    if(scrollView.tag == 2) {
+//        _lastContentOffset = scrollView.contentOffset.x;
+//    }
     
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if(scrollView.tag ==10) {
-        [self stoppedScrolling];
+    if (scrollView.tag == 10){
+        NSArray *visibleRows = [_TableHome visibleCells];
+        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+        NSIndexPath *path = [_TableHome indexPathForCell:lastVisibleCell];
+        if(path.section == 0 && path.row == newsfeedPostArray.count-1)
+        {
+            if(!cannotScroll) {
+                if(goSearch) {
+                    searchPageNum++;
+                }
+                else {
+                    pageNum++;
+                    [self getHomeContent];
+                }
+            }
+            
+        }
+    }
+    else if(scrollView.tag == 3)
+    {
+        NSArray *visibleRows = [_forumTable visibleCells];
+        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+        NSIndexPath *path = [_forumTable indexPathForCell:lastVisibleCell];
+        if(path.section == 0 && path.row == trendArray.count-1)
+        {
+            if(!cannotScrollForum) {
+                if(goSearch) {
+                    searchPageNum++;
+                }
+                else {
+                    forumPageNumber++;
+                    [self getTrendingVideos];
+                }
+            }
+            
+        }
+    }
+    else if(scrollView.tag == 2){
+        NSArray *visibleRows = [_TablemyChannel visibleCells];
+        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+        NSIndexPath *path = [_TablemyChannel indexPathForCell:lastVisibleCell];
+        if(path.section == 0 && path.row == chPostArray.count)
+        {
+            if(!cannotScrollMyCorner) {
+                if(goSearch) {
+                    searchPageNum++;
+                }
+                else {
+                    myCornerPageNum++;
+                    [self getMyChannel];
+                }
+            }
+            
+        }
     }
 }
 
@@ -1754,7 +1842,7 @@
 -(void)ShowBottomBar{
     
     [UIView animateWithDuration:0.5 animations:^{
-       // _BottomBar.frame =  CGRectMake(0, 567, 375, 100);
+        // _BottomBar.frame =  CGRectMake(0, 567, 375, 100);
         _BottomBar.frame = TabBarFrame;
     }];
 }
@@ -1840,24 +1928,33 @@
     
 }
 
-- (void)Hearts:(UIButton*)sender{
-    
+- (void)LikeHearts:(UIButton*)sender{
+    liked = nil;
     UIButton *LikeBtn = (UIButton *)sender;
     currentSelectedIndex = LikeBtn.tag;
-    
     GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
-    tempVideos  = [getTrendingVideos.trendingArray objectAtIndex:currentSelectedIndex];
+    myChannelModel *_profile = [[myChannelModel alloc]init];
+    if(currentState == 2){
+        tempVideos  = [getTrendingVideos.trendingArray objectAtIndex:currentSelectedIndex];
+        postID = tempVideos.VideoID;
+    }
+    else if(currentState == 0)
+    {
+        tempVideos =  [getTrendingVideos.homieArray  objectAtIndex:currentSelectedIndex];
+        postID = tempVideos.VideoID;
+    }
+    else if(currentState == 3)
+    {
+        _profile = [myChannelObj.trendingArray objectAtIndex:currentSelectedIndex];
+        postID = _profile.VideoID;
+    }
     
-    postID = tempVideos.VideoID;
-    [self LikePost];
+    [self LikePost:currentSelectedIndex];
     
     if (liked == YES) {
-        
-        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
-        
-    }else if (liked == NO){
-        
         [LikeBtn setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+    }else if (liked == NO){
+        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
     }
     
 }
@@ -2618,7 +2715,7 @@
     frame.origin.x = frame.size.width * 1;
     frame.origin.y = 0;
     [_mainScroller scrollRectToVisible:frame animated:YES];
-
+    
 }
 
 - (IBAction)TrendingPressed:(id)sender {
@@ -2627,7 +2724,7 @@
     frame.origin.x = frame.size.width * 2;
     frame.origin.y = 0;
     [_mainScroller scrollRectToVisible:frame animated:YES];
-
+    
 }
 
 - (IBAction)HomePressed:(id)sender {
@@ -2635,7 +2732,7 @@
     frame.origin.x = frame.size.width * 0;
     frame.origin.y = 0;
     currentState = 0;
-
+    
     [_mainScroller scrollRectToVisible:frame animated:YES];
 }
 
@@ -3157,10 +3254,6 @@
     if(currentState == 0)
         [self getHomeContent];
     
-    
-    NSString *
-    responsse = [[NSString alloc] initWithData:[request responseData] encoding:NSUTF8StringEncoding];
-    
     AudioServicesPlaySystemSound(1003);
 }
 
@@ -3484,20 +3577,9 @@
     
 }
 
-- (IBAction)searchFriendsforTag:(id)sender {
-    
-    SearchforTag = YES;
-    [self.view addSubview:searchView];
-}
 
-- (IBAction)CancelTaging:(id)sender {
-    [tagFriendsView removeFromSuperview];
-    
-}
 
-- (IBAction)CrossTagView:(id)sender {
-    [tagFriendsView removeFromSuperview];
-}
+
 
 - (IBAction)commentRadio:(RadioButton*)sender{
     
