@@ -23,8 +23,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    appdelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     // Do any additional setup after loading the view from its nib.
-    [self getProfile];
+    if(appdelegate.loaduserProfiel)
+        [self getUserProfile];
+        else{
+            [self getProfile];
+        }
     countryPicker.delegate = self;
     
     if (IS_IPHONE_6) {
@@ -34,7 +39,7 @@
   // [self setUserProfileImage];
     
     arr_gender = [[NSArray alloc] initWithObjects:@"MALE", @"FEMALE", nil];
-    
+    [EditProfileScrollView setContentSize:CGSizeMake(EditProfileScrollView.frame.size.width,600)];
  /*     ProfilePic.clipsToBounds = YES;
      ProfilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
     ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -47,14 +52,12 @@
 }
 
 #pragma mark GetProfile
-
-- (void) getProfile{
-    [SVProgressHUD showWithStatus:@"Getting Profile..."];
-    
+- (void) getUserProfile{
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
+    NSString *user_id = [NSString stringWithFormat:@"%d",appdelegate.userToView];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
-    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_PROFILE,@"method",token,@"session_token",nil];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_USERPROFILE,@"method",token,@"session_token",user_id,@"user_id",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -65,7 +68,7 @@
     
     [NSURLConnection sendAsynchronousRequest:requests queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
         NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
-        [SVProgressHUD dismiss];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
@@ -95,52 +98,98 @@
                 ProfileObj.is_celeb = [profile objectForKey:@"is_celeb"];
                 ProfileObj.beams_count = [profile objectForKey:@"beams_count"];
                 ProfileObj.gender = [profile objectForKey:@"gender"];
-                
-                //// Setting Profile Data
-                UserName.text = ProfileObj.full_name;
-                userEmail.text = ProfileObj.email;
-                lblBirthday.text = ProfileObj.date_of_birth;
-                txtBirthday.text = ProfileObj.date_of_birth;
-                txtEmail.text = ProfileObj.email;
-                
-                lblBeams.text = [[NSString alloc]initWithFormat:@"%@ Beams",ProfileObj.beams_count];
-                lblFriends.text = [[NSString alloc]initWithFormat:@"%@ Following",ProfileObj.friends_count];
-                lblLikes.text = [[NSString alloc]initWithFormat:@"%@ Followers",ProfileObj.likes_count];
-                gender.text = ProfileObj.gender;
-                location.text = [[NSString alloc]initWithFormat:@"%@ %@",ProfileObj.city,ProfileObj.country];
-                txtName.text = ProfileObj.full_name;
-                [txtgender setTitle:ProfileObj.gender  forState:UIControlStateNormal];
-                txtCity.text = ProfileObj.city;
-                txtCountry.text = ProfileObj.country;
-                
-                NSURL *url = [NSURL URLWithString:ProfileObj.profile_image];
-                NSData *data = [NSData dataWithContentsOfURL:url];
-                UIImage *img = [[UIImage alloc] initWithData:data];
-                CGSize size = img.size;
-                
-                ProfilePic.image = img;
-                editprofilepic.image = img;
-                
-                [self setUserProfileImage];
-                
-                NSURL *url1 = [NSURL URLWithString:ProfileObj.cover_link];
-                NSData *data1 = [NSData dataWithContentsOfURL:url1];
-                UIImage *img1 = [[UIImage alloc] initWithData:data1];
-                CGSize size1 = img1.size;
-                
-                coverImg.image = img1;
-                
-                }
+                workedAt = [profile objectForKey:@"worked_at"];
+               
+                [self setprofileData];
+            }
             
-                [SVProgressHUD dismiss];
         }
         else{
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
     }];
 }
-
+- (void) getProfile{
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_PROFILE,@"method",token,@"session_token",nil];
+    
+    NSData *postData = [Utils encodeDictionary:postDict];
+    
+    NSMutableURLRequest *requests = [[NSMutableURLRequest alloc] init];
+    [requests setURL:url];
+    [requests setHTTPMethod:@"POST"];
+    [requests setHTTPBody:postData];
+    
+    [NSURLConnection sendAsynchronousRequest:requests queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
+        NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
+          [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
+        {
+            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            NSLog(@"%@",result);
+            int success = [[result objectForKey:@"success"] intValue];
+            NSDictionary *profile = [result objectForKey:@"profile"];
+            
+            if(success == 1) {
+                
+                ProfileObj = [[ProfileModel alloc]init];
+                
+                ///Saving Profile Data
+                ProfileObj.user_id = [profile objectForKey:@"id"];
+                ProfileObj.full_name = [profile objectForKey:@"full_name"];
+                ProfileObj.account_type = [profile objectForKey:@"account_type"];
+                ProfileObj.likes_count = [profile objectForKey:@"followers_count"];
+                ProfileObj.profile_image = [profile objectForKey:@"profile_link"];
+                ProfileObj.profile_type = [profile objectForKey:@"profile_type"];
+                ProfileObj.session_token = [profile objectForKey:@"session_token"];
+                ProfileObj.email = [profile objectForKey:@"email"];
+                ProfileObj.friends_count = [profile objectForKey:@"following_count"];
+                ProfileObj.cover_link = [profile objectForKey:@"cover_link"];
+                ProfileObj.cover_type = [profile objectForKey:@"cover_type"];
+                ProfileObj.city = [profile objectForKey:@"city"];
+                ProfileObj.country = [profile objectForKey:@"country"];
+                ProfileObj.date_of_birth = [profile objectForKey:@"date_of_birth"];
+                ProfileObj.is_celeb = [profile objectForKey:@"is_celeb"];
+                ProfileObj.beams_count = [profile objectForKey:@"beams_count"];
+                ProfileObj.gender = [profile objectForKey:@"gender"];
+                workedAt = [profile objectForKey:@"worked_at"];
+                lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",workedAt];
+                [self setprofileData];
+                }
+          
+        }
+        else{
+              [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [alert show];
+        }
+    }];
+}
+-(void) setprofileData{
+    //// Setting Profile Data
+    UserName.text = ProfileObj.full_name;
+    userEmail.text = ProfileObj.email;
+    lblBirthday.text = ProfileObj.date_of_birth;
+    txtBirthday.text = ProfileObj.date_of_birth;
+    txtEmail.text = ProfileObj.email;
+    lblBeams.text = ProfileObj.beams_count;
+    //lblBeams.text = [[NSString alloc]initWithFormat:@",ProfileObj.beams_count];
+    lblFriends.text = [[NSString alloc]initWithFormat:@"%@ Following",ProfileObj.friends_count];
+    lblLikes.text = [[NSString alloc]initWithFormat:@"Followed by %@",ProfileObj.likes_count];
+    gender.text = ProfileObj.gender;
+    location.text = [[NSString alloc]initWithFormat:@"Lives in %@ %@",ProfileObj.city,ProfileObj.country];
+    txtName.text = ProfileObj.full_name;
+    [txtgender setTitle:ProfileObj.gender  forState:UIControlStateNormal];
+    txtCity.text = ProfileObj.city;
+    txtCountry.text = ProfileObj.country;
+    lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",workedAt];
+}
 #pragma mark UpdateProfile
 
 - (void) updateProfile{

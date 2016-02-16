@@ -11,6 +11,7 @@
 #import "CountryPicker.h"
 #import "NIDropDown.h"
 #import "ASIFormDataRequest.h"
+#import "AppDelegate.h"
 
 @interface ProfileVC : UIViewController<UITextFieldDelegate,CountryPickerDelegate,NIDropDownDelegate,ASIHTTPRequestDelegate>
 
@@ -25,9 +26,17 @@
     BOOL isGender;
     BOOL isMale;
     BOOL isFemale;
+    AppDelegate *appdelegate;
+    //new Profile Outlets
     
+     IBOutlet UITextField *workingEditF;
+     IBOutlet UITextField *FollowersEditField;
+     IBOutlet UITextField *locationEditField;
+     IBOutlet UITextField *StudiedField;
+    
+    IBOutlet UILabel *lblWorkingat;
     NSString *finalDate;
-    
+    NSString *workedAt;
     IBOutlet UIView *editProfileView;
     IBOutlet UILabel *location;
     IBOutlet UILabel *gender;
@@ -57,6 +66,7 @@
     NSMutableArray *countries;
     IBOutlet CountryPicker *countryPicker;
     
+     IBOutlet UIScrollView *EditProfileScrollView;
     IBOutlet UIView *dobView;
     IBOutlet UIDatePicker *dobPicker;
     

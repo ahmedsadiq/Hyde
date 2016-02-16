@@ -18,6 +18,7 @@
 #define METHOD_UPLOAD_STATUS @"uploadStatus"
 #define METHOD_LOGOUT @"userLogout"
 #define METHOD_GET_PROFILE @"getProfile"
+#define METHOD_GET_USERPROFILE @"getProfileById"
 #define METHOD_UPDATE_PROFILE @"updateProfile"
 #define METHOD_ACCEPT_REQUEST @"acceptRequest"
 #define METHOD_SEND_REQUEST @"sendRequest"

@@ -44,8 +44,12 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="aeM-nn-SQq">
+                        <rect key="frame" x="80" y="10" width="212" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="SLY-nP-acS">
-                        <rect key="frame" x="81" y="10" width="212" height="25"/>
+                        <rect key="frame" x="80" y="10" width="212" height="25"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="17"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -149,6 +153,7 @@
                 <outlet property="CH_userName" destination="SLY-nP-acS" id="yDX-16-Gcr"/>
                 <outlet property="Ch_videoLength" destination="819-jm-u0E" id="y7x-1d-Dl8"/>
                 <outlet property="imgContainer" destination="pHF-kG-95r" id="YyX-ys-7A7"/>
+                <outlet property="userProfileView" destination="aeM-nn-SQq" id="r9S-K8-Yri"/>
             </connections>
             <point key="canvasLocation" x="306" y="241"/>
         </tableViewCell>

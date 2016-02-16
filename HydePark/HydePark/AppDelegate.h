@@ -27,7 +27,8 @@ extern NSString * const FBSessionStateChangedNotification;
 @property ( strong , nonatomic ) ViewController *viewController;
 
 @property ( strong , nonatomic ) HomeVC *HomeVC;
-
+@property BOOL loaduserProfiel;
+@property int userToView;
 @property BOOL isLoggedIn;
 
 @property int user_id;

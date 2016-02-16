@@ -91,12 +91,12 @@
     commentAllowed = @"-1";
     privacySelected = @"PUBLIC";
     TopicSelected = @"1";
-   
+    
     [_progressview setProgress:0.0 animated:YES];
     CGAffineTransform transform = CGAffineTransformMakeScale(1.0f, 3.0f);
     _progressview.transform = transform;
     totalBytesUploaded = 0.0;
-   
+    
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     
     loadFollowings = false;
@@ -110,12 +110,12 @@
     _forumTable.dataSource = self;
     [self setUserCoverImage];
     [self setUserProfileImage];
-    [self initDataArrays];
+    [self initWithData];
     _statusText.delegate = self;
     
     count = 10;
     [self setContentResolutions];
-        TabBarFrame = _BottomBar.frame;
+    TabBarFrame = _BottomBar.frame;
     channelContainerHeight = channelContainerView.frame.size.height;
     channelContainerOriginalFrame = channelContainerView.frame;
     channelTableFrame = _TablemyChannel.frame;
@@ -158,7 +158,7 @@
     tapper.cancelsTouchesInView = NO;
     [self.view addGestureRecognizer:tapper];
 }
--(void)initDataArrays{
+-(void)initWithData{
     pageNum = 1;
     forumPageNumber = 1;
     myCornerPageNum= 1;
@@ -221,7 +221,7 @@
         [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
     }
-
+    
 }
 - (void)handleSingleTap:(UITapGestureRecognizer *) sender
 {
@@ -270,51 +270,51 @@
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             if(success == 1) {
-                  NSArray *tempArray = [result objectForKey:@"posts"];
+                NSArray *tempArray = [result objectForKey:@"posts"];
                 if(tempArray.count > 0)
                 {
-                trendArray = [result objectForKey:@"posts"];
+                    trendArray = [result objectForKey:@"posts"];
                     if(forumPageNumber == 1){
                         getTrendingVideos.trendingArray = [[NSMutableArray alloc] init];
                         getTrendingVideos.mainArray = [[NSMutableArray alloc]init];
                         getTrendingVideos.ImagesArray = [[NSMutableArray alloc]init];
                         getTrendingVideos.ThumbnailsArray = [[NSMutableArray alloc]init];
                     }
-                for(NSDictionary *tempDict in trendArray){
-                    
-                    GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];  
-                    _Videos.title = [tempDict objectForKey:@"caption"];
-                    _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
-                    _Videos.userName = [tempDict objectForKey:@"full_name"];
-                    _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
-                    _Videos.user_id = [tempDict objectForKey:@"user_id"];
-                    _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
-                    _Videos.like_count = [tempDict objectForKey:@"like_count"];
-                    _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
-                    _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
-                    _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] intValue];
-                    _Videos.video_link = [tempDict objectForKey:@"video_link"];
-                    _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
-                    _Videos.VideoID = [tempDict objectForKey:@"id"];
-                    _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
-                    _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                    
-                    [getTrendingVideos.ImagesArray addObject:_Videos.profile_image];
-                    [getTrendingVideos.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
-                    [getTrendingVideos.mainArray addObject:_Videos.video_link];
-                    [getTrendingVideos.trendingArray addObject:_Videos];
-                    
-                    trendArray = getTrendingVideos.trendingArray;
-                    videosArray = getTrendingVideos.mainArray;
-                    arrImage = getTrendingVideos.ImagesArray;
-                    arrThumbnail = getTrendingVideos.ThumbnailsArray;
-                    
-                    [forumsVideo addObject:_Videos];
-                    
+                    for(NSDictionary *tempDict in trendArray){
+                        
+                        GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
+                        _Videos.title = [tempDict objectForKey:@"caption"];
+                        _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
+                        _Videos.userName = [tempDict objectForKey:@"full_name"];
+                        _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
+                        _Videos.user_id = [tempDict objectForKey:@"user_id"];
+                        _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
+                        _Videos.like_count = [tempDict objectForKey:@"like_count"];
+                        _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
+                        _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
+                        _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] intValue];
+                        _Videos.video_link = [tempDict objectForKey:@"video_link"];
+                        _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
+                        _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
+                        _Videos.video_length = [tempDict objectForKey:@"video_length"];
+                        
+                        [getTrendingVideos.ImagesArray addObject:_Videos.profile_image];
+                        [getTrendingVideos.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
+                        [getTrendingVideos.mainArray addObject:_Videos.video_link];
+                        [getTrendingVideos.trendingArray addObject:_Videos];
+                        
+                        trendArray = getTrendingVideos.trendingArray;
+                        videosArray = getTrendingVideos.mainArray;
+                        arrImage = getTrendingVideos.ImagesArray;
+                        arrThumbnail = getTrendingVideos.ThumbnailsArray;
+                        
+                        [forumsVideo addObject:_Videos];
+                        
+                    }
+                    self.isLoading = NO;
+                    [_forumTable reloadData];
                 }
-                self.isLoading = NO;
-                [_forumTable reloadData];
-            }
             }else
                 cannotScrollForum = true;
         }
@@ -406,7 +406,7 @@
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-       NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
+    NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_HOME_CONTENTS,@"method",
                               token,@"session_token",pageStr,@"page_no",nil];
@@ -555,50 +555,50 @@
                         myChannelObj.ImagesArray = [[NSMutableArray alloc]init];
                         myChannelObj.ThumbnailsArray = [[NSMutableArray alloc]init];
                     }
-                channelVideos = [[NSMutableArray alloc] init];
-                
-                for(NSDictionary *tempDict in chPostArray){
+                    channelVideos = [[NSMutableArray alloc] init];
                     
-                    myChannelModel *_Videos = [[myChannelModel alloc] init];
-                    
-                    _Videos.title = [tempDict objectForKey:@"caption"];
-                    _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
-                    _Videos.userName = [tempDict objectForKey:@"full_name"];
-                    _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
-                    _Videos.user_id = [tempDict objectForKey:@"user_id"];
-                    _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
-                    _Videos.like_count = [tempDict objectForKey:@"like_count"];
-                    _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
-                    _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] intValue];
-                    _Videos.video_link = [tempDict objectForKey:@"video_link"];
-                    _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
-                    _Videos.VideoID = [tempDict objectForKey:@"id"];
-                    _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
-                    _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                    _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
-                    _Videos.image_link = [tempDict objectForKey:@"image_link"];
-                    [myChannelObj.ImagesArray addObject:_Videos.profile_image];
-                    [myChannelObj.ThumbnailsArray  addObject:_Videos.video_thumbnail_link];
-                    [myChannelObj.mainArray addObject:_Videos.video_link];
-                    [myChannelObj.trendingArray addObject:_Videos];
-                    
-                    chPostArray  = myChannelObj.trendingArray;
-                    chVideosArray = myChannelObj.mainArray;
-                    chArrImage = myChannelObj.ImagesArray;
-                    chArrThumbnail = myChannelObj.ThumbnailsArray;
-                    [channelVideos addObject:_Videos];
-                }
+                    for(NSDictionary *tempDict in chPostArray){
+                        
+                        myChannelModel *_Videos = [[myChannelModel alloc] init];
+                        
+                        _Videos.title = [tempDict objectForKey:@"caption"];
+                        _Videos.comments_count = [tempDict objectForKey:@"comment_count"];
+                        _Videos.userName = [tempDict objectForKey:@"full_name"];
+                        _Videos.topic_id = [tempDict objectForKey:@"topic_id"];
+                        _Videos.user_id = [tempDict objectForKey:@"user_id"];
+                        _Videos.profile_image = [tempDict objectForKey:@"profile_link"];
+                        _Videos.like_count = [tempDict objectForKey:@"like_count"];
+                        _Videos.seen_count = [tempDict objectForKey:@"seen_count"];
+                        _Videos.video_angle = [[tempDict objectForKey:@"video_angle"] intValue];
+                        _Videos.video_link = [tempDict objectForKey:@"video_link"];
+                        _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
+                        _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
+                        _Videos.video_length = [tempDict objectForKey:@"video_length"];
+                        _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
+                        _Videos.image_link = [tempDict objectForKey:@"image_link"];
+                        [myChannelObj.ImagesArray addObject:_Videos.profile_image];
+                        [myChannelObj.ThumbnailsArray  addObject:_Videos.video_thumbnail_link];
+                        [myChannelObj.mainArray addObject:_Videos.video_link];
+                        [myChannelObj.trendingArray addObject:_Videos];
+                        
+                        chPostArray  = myChannelObj.trendingArray;
+                        chVideosArray = myChannelObj.mainArray;
+                        chArrImage = myChannelObj.ImagesArray;
+                        chArrThumbnail = myChannelObj.ThumbnailsArray;
+                        [channelVideos addObject:_Videos];
+                    }
                     [_TablemyChannel reloadData];
                 }
                 else
                     cannotScrollMyCorner = true;
-        }
-        else{
-            [_refreshControlChannel endRefreshing];
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-            [alert show];
-        }
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            }
+            else{
+                [_refreshControlChannel endRefreshing];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                [alert show];
+            }
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         }
     }];
 }
@@ -1008,7 +1008,8 @@
         
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
         appDelegate.videotoPlay = [getTrendingVideos.mainhomeArray objectAtIndex:indexPath.row];
-        
+        [cell.userProfileView addTarget:self action:@selector(MovetoUserProfile:) forControlEvents:UIControlEventTouchUpInside];
+        cell.userProfileView.tag = indexPath.row;
         [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
@@ -1705,20 +1706,20 @@
         }
         self.lastContentPoint = currentOffset;
         if(self.forumTable.contentOffset.y >= (self.forumTable.contentSize.height - self.forumTable.bounds.size.height)) {
-//            if(self.isLoading == NO)
-//            {
-//                self.isLoading  = YES;
-//                forumPageNumber++;
-//                [self getTrendingVideos];
-//            }
+            //            if(self.isLoading == NO)
+            //            {
+            //                self.isLoading  = YES;
+            //                forumPageNumber++;
+            //                [self getTrendingVideos];
+            //            }
         }
     }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-//    if(scrollView.tag == 2) {
-//        _lastContentOffset = scrollView.contentOffset.x;
-//    }
+    //    if(scrollView.tag == 2) {
+    //        _lastContentOffset = scrollView.contentOffset.x;
+    //    }
     
 }
 
@@ -1927,7 +1928,15 @@
     }
     
 }
-
+-(void)MovetoUserProfile:(UIButton*)sender{
+    appDelegate.loaduserProfiel = TRUE;
+    UIButton *Senderid = (UIButton *)sender;
+    currentSelectedIndex = Senderid.tag;
+    GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
+    tempVideos =  [newsfeedsVideos  objectAtIndex:currentSelectedIndex];
+    appDelegate.userToView = [tempVideos.user_id intValue];
+    [[NavigationHandler getInstance]MoveToProfile];
+}
 - (void)LikeHearts:(UIButton*)sender{
     liked = nil;
     UIButton *LikeBtn = (UIButton *)sender;
