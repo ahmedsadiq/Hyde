@@ -108,9 +108,8 @@ static NSString * const kClientId = Client_Id;
     signIn.delegate = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionStateChanged:) name:FBSessionStateChangedNotification object:nil];
-    //[socialScrollview setContentOffset:CGPointMake(320, 0) animated:YES];
+   
     if(IS_IPHONE_4){
-        
         _socialLogin.frame = CGRectMake(0, 0, 320, 480);
         socialLoginView.frame = CGRectMake(0, 0, 320, 480);
         _CustomLoginView.frame = CGRectMake(320, 0, 320, 480);
@@ -144,29 +143,14 @@ static NSString * const kClientId = Client_Id;
         _CustomLoginView.frame = CGRectMake(768, 0, 768, 1024);
         _ForgetPasswordView.frame = CGRectMake(0, 0, 768, 1024);
         socialScrollview.contentSize = CGSizeMake(768*2, socialScrollview.frame.size.height);
-        
-        
     }
     socialScrollview.pagingEnabled = YES;
     [socialScrollview setShowsHorizontalScrollIndicator:NO];
     [socialScrollview setShowsVerticalScrollIndicator:NO];
-   self.automaticallyAdjustsScrollViewInsets = NO;
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    //[socialScrollview setContentOffset:CGPointMake(0, 0) animated:YES];
     [socialScrollview addSubview:self.CustomLoginView];
-    
-    
-    //    id colorNew = [UIColor colorWithRed:0.12 green:0.38 blue:0.64 alpha:1];
-    //
-    //    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc]  initWithString:_btnSignUp.titleLabel.text];
-    //
-    //    [attributedString addAttribute:NSFontAttributeName
-    //                             value:[UIFont fontWithName:@"Helvetica-Bold" size:15.0]
-    //                             range:NSMakeRange(23,7)];
-    //
-    //    [attributedString addAttribute:NSBackgroundColorAttributeName value:[UIColor clearColor] range:NSMakeRange(0,23)];
-    //
-    //    [attributedString addAttribute:NSBackgroundColorAttributeName value:colorNew range:NSMakeRange(23,7)];
-    //    _btnSignUp.titleLabel.attributedText = attributedString;
-    
+
 }
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
     CGPoint scrollPos = scrollView.contentOffset;

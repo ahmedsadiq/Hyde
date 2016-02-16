@@ -55,6 +55,7 @@
 
 - (void)viewDidAppear:(BOOL)animated{
     //
+    [super viewDidAppear:animated];
     //    if (trendArray.count == 0) {
     //        [self getTrendingVideos];
     //}
@@ -148,6 +149,8 @@
     }
     else if(IS_IPHONE_6Plus)
     {
+        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
+          _BottomBar.frame = CGRectMake(0, 626, 414, 110);
         _optionsView.frame = CGRectMake(0, 0, 414, 736);
         searchView.frame = CGRectMake(0, 0, 414, 736);
         originalChannelFrame.size.width = 414;
@@ -168,7 +171,7 @@
         [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
     }
-    
+    TabBarFrame = _BottomBar.frame;
     channelContainerHeight = channelContainerView.frame.size.height;
     channelContainerOriginalFrame = channelContainerView.frame;
     channelTableFrame = _TablemyChannel.frame;
@@ -202,17 +205,10 @@
     
     [blurEffectView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [layerMiddle addSubview:blurEffectView];
-    
-    
     currentState = 0;
     [self getHomeContent];
-    
     [self getMyChannel];
-    
-    if (trendArray.count == 0) {
-        // currentState = 2;
-        [self getTrendingVideos];
-    }
+    [self getTrendingVideos];
     tapper = [[UITapGestureRecognizer alloc]
               initWithTarget:self action:@selector(handleSingleTap:)];
     tapper.cancelsTouchesInView = NO;
@@ -322,7 +318,7 @@
     }];
 }
 -(void) getFollowing{
-    [SVProgressHUD showWithStatus:@"Loading..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSString *userId = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"id"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
@@ -354,12 +350,13 @@
                     [FollowingsAM addObject:_responseData];
                 }
                 [searchTable reloadData];
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             }
         }
     }];
 }
 -(void) getFollowers{
-    [SVProgressHUD showWithStatus:@"Loading..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSString *userId = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"id"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
@@ -390,6 +387,7 @@
                     [FollowingsAM addObject:_responseData];
                 }
                 [searchTable reloadData];
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             }
         }
     }];
@@ -465,23 +463,21 @@
                 }
                 
                 [_TableHome reloadData];
-                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             }
         }
         else{
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            
             [_refreshControlHome endRefreshing];
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
-        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
 
 
 - (void) getMyChannel{
-    [SVProgressHUD show];
-    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     
     NSURL *url = [NSURL URLWithString:SERVER_URL];
@@ -576,7 +572,7 @@
                     [channelVideos addObject:_Videos];
                 }
                 [_TablemyChannel reloadData];
-                [self setUserProfileImage];
+                
             }
         }
         else{
@@ -584,7 +580,8 @@
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
-        [SVProgressHUD dismiss];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
     }];
 }
 
@@ -644,7 +641,6 @@
 - (void) LikePost{
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_LIKE_POST,@"method",
                               token,@"session_token",postID,@"post_id",nil];
@@ -671,8 +667,10 @@
                 }else if ([message isEqualToString:@"Post is Successfully unliked by this user."])
                     liked = NO;
             }
-            [self getTrendingVideos];
-            [self getHomeContent];
+            if(currentState == 2)
+                [self getTrendingVideos];
+            else if (currentState == 0)
+                [self getHomeContent];
         }
         else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
@@ -1126,7 +1124,7 @@
                 NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell" owner:self options:nil];
                 cell = [nib objectAtIndex:0];
             }
-            _TablemyChannel.contentSize = CGSizeMake(_TablemyChannel.frame.size.width,chPostArray.count * returnValue + _BottomBar.frame.size.height + 100);
+            _TablemyChannel.contentSize = CGSizeMake(_TablemyChannel.frame.size.width,chPostArray.count * returnValue + _BottomBar.frame.size.height + 120);
             myChannelModel *tempVideos = [[myChannelModel alloc]init];
             if(appDelegate.IS_celeb) {
                 tempVideos  = [chPostArray objectAtIndex:indexPath.row-1];
@@ -1523,33 +1521,19 @@
         if(page == 0){
             [self ShowBottomBar];
             [btnHome setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
-            _BottomBar.hidden = false;
             [btnChannel setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnTrending setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             currentState = 0;
-            //            if (newsfeedPostArray.count == 0) {
-            //                [self getHomeContent];
-            //            }
         }
         else if (page == 1) {
             [self ShowBottomBar];
-            _BottomBar.hidden = false;
             [btnChannel setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
             [btnHome setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnTrending setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             currentState = 3;
-            
-            //            if (chPostArray.count == 0) {
-            //                [self getMyChannel];
-            //            }
         }
         else {
             currentState = 2;
-            [self ShowBottomBar];
-            _BottomBar.hidden = false;
-            //            if (trendArray.count == 0) {
-            //                [self getTrendingVideos];
-            //            }
             [btnTrending setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
             [btnChannel setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnHome setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
@@ -1764,12 +1748,14 @@
 -(void)HideBottomBar{
     [UIView animateWithDuration:0.5 animations:^{
         _BottomBar.frame =  CGRectMake(0, 700, 375, 100);
+        _BottomBar.center = CGPointMake(0, 1060);
     }];
 }
 -(void)ShowBottomBar{
     
     [UIView animateWithDuration:0.5 animations:^{
-        _BottomBar.frame =  CGRectMake(0, 567, 375, 100);
+       // _BottomBar.frame =  CGRectMake(0, 567, 375, 100);
+        _BottomBar.frame = TabBarFrame;
     }];
 }
 #pragma mark - TableView Delegates
@@ -2627,39 +2613,29 @@
 
 
 - (IBAction)ChannelPressed:(id)sender {
-    [SVProgressHUD dismiss];
     currentState = 3;
     CGRect frame = _mainScroller.frame;
     frame.origin.x = frame.size.width * 1;
     frame.origin.y = 0;
     [_mainScroller scrollRectToVisible:frame animated:YES];
-    //    if (chPostArray.count == 0) {
-    //        [self getMyChannel];
-    //
-    //    }
+
 }
 
 - (IBAction)TrendingPressed:(id)sender {
-    [SVProgressHUD dismiss];
     currentState = 2;
     CGRect frame = _mainScroller.frame;
     frame.origin.x = frame.size.width * 2;
     frame.origin.y = 0;
     [_mainScroller scrollRectToVisible:frame animated:YES];
-    //    if (trendArray.count == 0) {
-    //        [self getTrendingVideos];
-    //    }
+
 }
 
 - (IBAction)HomePressed:(id)sender {
-    [SVProgressHUD dismiss];
     CGRect frame = _mainScroller.frame;
     frame.origin.x = frame.size.width * 0;
     frame.origin.y = 0;
     currentState = 0;
-    //    if (newsfeedPostArray.count == 0) {
-    //        [self getHomeContent];
-    //    }
+
     [_mainScroller scrollRectToVisible:frame animated:YES];
 }
 

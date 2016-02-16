@@ -238,7 +238,7 @@ typedef enum enumStates{
     NSMutableArray *newsfeedsVideos;
     int currentState;
     int forumPageNumber;
-    
+    CGRect TabBarFrame;
 }
 
 - (IBAction)fromCamera:(id)sender;

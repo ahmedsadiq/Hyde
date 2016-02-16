@@ -296,7 +296,7 @@
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </view>
                                 <tableView clipsSubviews="YES" tag="2" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="250" sectionHeaderHeight="22" sectionFooterHeight="22" id="QRc-9X-Ry4">
-                                    <rect key="frame" x="0.0" y="388" width="375" height="315"/>
+                                    <rect key="frame" x="0.0" y="388" width="375" height="300"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <connections>
@@ -446,7 +446,7 @@
                 </view>
                 <view contentMode="scaleToFill" id="8ym-Tg-wJM">
                     <rect key="frame" x="0.0" y="567" width="375" height="100"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Sls-dj-4z1">
                             <rect key="frame" x="0.0" y="14" width="117" height="86"/>
