@@ -114,7 +114,16 @@
                         [PopUsers.PopUsersArray addObject:_Popusers];
                         
                     }
-                    [PopularUserTbl reloadData];
+                    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+                    int startIndex = (pageNum-1) *10;
+                    for (int i = startIndex ; i < startIndex+10; i++) {
+                        if(i<PopUsers.PopUsersArray.count) {
+                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+                        }
+                    }
+                    [PopularUserTbl beginUpdates];
+                    [PopularUserTbl insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+                    [PopularUserTbl endUpdates];
                 }
                 else {
                     cannotScroll = true;

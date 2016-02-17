@@ -57,7 +57,6 @@
                 <outlet property="btnHome" destination="JKO-dD-XSe" id="gwh-nH-CZy"/>
                 <outlet property="btnRotate" destination="HId-Jd-SVd" id="REQ-Q4-LRF"/>
                 <outlet property="btnTrending" destination="OqD-Rv-upe" id="S7D-s3-fGl"/>
-                <outlet property="btnUploadPhoto" destination="nGj-WU-Inf" id="Hvq-am-AjA"/>
                 <outlet property="btnUploadVideo" destination="GKN-wz-6Ee" id="s6T-in-cVL"/>
                 <outlet property="camLabel" destination="EEf-x4-MRD" id="8oW-jf-DzZ"/>
                 <outlet property="channelContainerView" destination="cUL-cV-0Xu" id="tCX-Yk-N5h"/>
@@ -448,7 +447,7 @@
                     <rect key="frame" x="0.0" y="567" width="375" height="100"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Sls-dj-4z1">
+                        <button opaque="NO" tag="100" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Sls-dj-4z1">
                             <rect key="frame" x="0.0" y="14" width="117" height="86"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="21"/>
@@ -458,7 +457,7 @@
                             </state>
                             <state key="highlighted" backgroundImage="Anonymousbg.png"/>
                             <connections>
-                                <action selector="PhotoPressed:" destination="-1" eventType="touchUpInside" id="8A1-th-DEq"/>
+                                <action selector="beamPressed:" destination="-1" eventType="touchUpInside" id="MaV-rt-sm3"/>
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="nGj-WU-Inf">
@@ -471,10 +470,10 @@
                             </state>
                             <state key="highlighted" backgroundImage="audiobg.png"/>
                             <connections>
-                                <action selector="PhotoPressed:" destination="-1" eventType="touchUpInside" id="fhl-0I-S7J"/>
+                                <action selector="recorderTapped:" destination="-1" eventType="touchUpInside" id="ZKR-N0-wXY"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="GKN-wz-6Ee">
+                        <button opaque="NO" tag="101" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="GKN-wz-6Ee">
                             <rect key="frame" x="117" y="13" width="141" height="87"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="15"/>
@@ -541,7 +540,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="profilePicture.jpeg" id="r6k-3k-kcM">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" id="r6k-3k-kcM">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                 </imageView>
@@ -550,7 +549,7 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </view>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="profilePicture.jpeg" id="k7F-sg-2Ms">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" id="k7F-sg-2Ms">
                     <rect key="frame" x="90" y="38" width="140" height="140"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                 </imageView>
@@ -1629,6 +1628,22 @@
     <resources>
         <image name="Anonymousbg.png" width="364" height="255"/>
         <image name="Anonymousbgpressed.png" width="364" height="255"/>
+        <image name="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" width="300" height="168">
+            <mutableData key="keyedArchiveRepresentation">
+YnBsaXN0MDDUAQIDBAUGOzxYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK0HCBMU
+GR4fJSYsLzU4VSRudWxs1QkKCwwNDg8QERJWTlNTaXplViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNSZXBz
+V05TQ29sb3KAAoAMEiTAAACAA4AKWnszMDAsIDE2OH3SFQoWGFpOUy5vYmplY3RzoReABIAJ0hUKGhii
+GxyABYAGgAkQBdMgCiEiIyRXTlMuYmFzZVtOUy5yZWxhdGl2ZYAAgAiAB18QgGZpbGU6Ly8vQXBwbGlj
+YXRpb25zL1hjb2RlJTIwMi5hcHAvQ29udGVudHMvUGx1Z0lucy9JREVJbnRlcmZhY2VCdWlsZGVyS2l0
+LmlkZXBsdWdpbi9Db250ZW50cy9SZXNvdXJjZXMvSUJNaXNzaW5nSW1hZ2VHbHlwaC50aWZm0icoKSpa
+JGNsYXNzbmFtZVgkY2xhc3Nlc1VOU1VSTKIpK1hOU09iamVjdNInKC0uV05TQXJyYXmiLSvTMDEKMjM0
+V05TV2hpdGVcTlNDb2xvclNwYWNlRDAgMAAQA4AL0icoNjdXTlNDb2xvcqI2K9InKDk6V05TSW1hZ2Wi
+OStfEA9OU0tleWVkQXJjaGl2ZXLRPT5Ucm9vdIABAAgAEQAaACMALQAyADcARQBLAFYAXQBkAHEAeACA
+AIIAhACJAIsAjQCYAJ0AqACqAKwArgCzALYAuAC6ALwAvgDFAM0A2QDbAN0A3wFiAWcBcgF7AYEBhAGN
+AZIBmgGdAaQBrAG5Ab4BwAHCAccBzwHSAdcB3wHiAfQB9wH8AAAAAAAAAgEAAAAAAAAAPwAAAAAAAAAA
+AAAAAAAAAf4
+</mutableData>
+        </image>
         <image name="Buttonbg_ipad.png" width="252" height="72"/>
         <image name="Eye_256.png" width="256" height="256"/>
         <image name="audio.png" width="17" height="30"/>
@@ -1660,7 +1675,6 @@
         <image name="playicon.png" width="22" height="22"/>
         <image name="postshadow.png" width="640" height="31"/>
         <image name="privacy.png" width="256" height="255"/>
-        <image name="profilePicture.jpeg" width="300" height="168"/>
         <image name="redbar.png" width="789" height="6"/>
         <image name="redcross.png" width="124" height="124"/>
         <image name="rotateright.png" width="256" height="238"/>

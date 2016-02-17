@@ -328,7 +328,7 @@
 #pragma mark - TableView Delegates
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-
+    
 }
 
 
@@ -367,6 +367,7 @@
     StudiIn.text = @"Lives in";
     lblWorkingat.text = @"Working at";
     location.text = @"Studied at";
+    mobileLabel.text = @"";
     CALayer *bottomBorder = [CALayer layer];
     bottomBorder.frame = CGRectMake(0.0f, LivesInField.frame.size.height - 1, LivesInField.frame.size.width, 1.0f);
     bottomBorder.backgroundColor = [UIColor colorWithRed:54.0f/255.0f green:78.0f/255.0f blue:141.0f/255.0f alpha:1].CGColor;
@@ -570,23 +571,23 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
-//    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
-//    
-//    UITouch *touch = [[event allTouches] anyObject];
-//    if ([txtName isFirstResponder] && [touch view] != txtName) {
-//        [txtName resignFirstResponder];
-//        
-//    }
-//    else if ([txtCity isFirstResponder] && [touch view] != txtCity) {
-//        
-//        [txtCity resignFirstResponder];
-//        
-//    }  else if ([txtCountry isFirstResponder] && [touch view] != txtCountry) {
-//        
-//        [txtCountry resignFirstResponder];
-//        
-//    }  [super touchesBegan:touches withEvent:event];
-//    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    //    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    //
+    //    UITouch *touch = [[event allTouches] anyObject];
+    //    if ([txtName isFirstResponder] && [touch view] != txtName) {
+    //        [txtName resignFirstResponder];
+    //
+    //    }
+    //    else if ([txtCity isFirstResponder] && [touch view] != txtCity) {
+    //
+    //        [txtCity resignFirstResponder];
+    //
+    //    }  else if ([txtCountry isFirstResponder] && [touch view] != txtCountry) {
+    //
+    //        [txtCountry resignFirstResponder];
+    //
+    //    }  [super touchesBegan:touches withEvent:event];
+    //    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
 }
 
 
@@ -608,16 +609,16 @@
 
 - (void) animateTextField: (UITextField*) textField up: (BOOL) up
 {
-//    const int movementDistance = 145; // tweak as needed
-//    const float movementDuration = 0.3f; // tweak as needed
-//    
-//    int movement = (up ? -movementDistance : movementDistance);
-//    
-//    [UIView beginAnimations: @"anim" context: nil];
-//    [UIView setAnimationBeginsFromCurrentState: YES];
-//    [UIView setAnimationDuration: movementDuration];
-//    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
-//    [UIView commitAnimations];
+    //    const int movementDistance = 145; // tweak as needed
+    //    const float movementDuration = 0.3f; // tweak as needed
+    //
+    //    int movement = (up ? -movementDistance : movementDistance);
+    //
+    //    [UIView beginAnimations: @"anim" context: nil];
+    //    [UIView setAnimationBeginsFromCurrentState: YES];
+    //    [UIView setAnimationDuration: movementDuration];
+    //    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
+    //    [UIView commitAnimations];
 }
 
 - (IBAction)openDrawer:(id)sender {

@@ -21,7 +21,7 @@
 #import "ProfileModel.h"
 #import "SVProgressHUDCustom.h"
 #import "Followings.h"
-
+#import "AVFoundation/AVFoundation.h"
 
 @class RadioButton;
 
@@ -34,7 +34,7 @@ typedef enum enumStates{
     VideoOnCommentsGallery
     
 }CurrentImageCategory;
-@interface HomeVC : UIViewController<UITableViewDelegate,UITableViewDataSource,UIImagePickerControllerDelegate, UINavigationControllerDelegate,ASIHTTPRequestDelegate,UITextViewDelegate,AGEmojiKeyboardViewDelegate,AGEmojiKeyboardViewDataSource, UIAlertViewDelegate,MPMediaPickerControllerDelegate>
+@interface HomeVC : UIViewController<UITableViewDelegate,UITableViewDataSource,UIImagePickerControllerDelegate, UINavigationControllerDelegate,ASIHTTPRequestDelegate,UITextViewDelegate,AGEmojiKeyboardViewDelegate,AGEmojiKeyboardViewDataSource, UIAlertViewDelegate,MPMediaPickerControllerDelegate,AVAudioRecorderDelegate>
 
 {
     ProfileModel *ProfileObj;
@@ -45,7 +45,6 @@ typedef enum enumStates{
     IBOutlet UIView *searchView;
     IBOutlet UITableView *searchTable;
     UITableView *tableView;
-    
     IBOutlet UIView *tagFriendsView;
     
     IBOutlet UIButton *Cm_VideoPlay;
@@ -229,23 +228,28 @@ typedef enum enumStates{
     IBOutlet UILabel *onlyMelbl;
     IBOutlet UILabel *Friendslbl;
     
-     IBOutlet UILabel *Unlimited;
-     IBOutlet UILabel *noreplies;
-     IBOutlet UILabel *upto60;
-#pragma Corrections by Ahmed
-    NSMutableArray *forumsVideo;
-    NSMutableArray *channelVideos;
-    NSMutableArray *newsfeedsVideos;
-    int currentState;
+    IBOutlet UILabel *Unlimited;
+    IBOutlet UILabel *noreplies;
+    IBOutlet UILabel *upto60;
+    
     CGRect TabBarFrame;
     bool cannotScrollForum;
     bool cannotScrollMyCorner;
     int myCornerPageNum;
     int forumPageNumber;
+    BOOL uploadBeamTag;
+    BOOL uploadAnonymous;
+#pragma Corrections by Ahmed
+    NSMutableArray *forumsVideo;
+    NSMutableArray *channelVideos;
+    NSMutableArray *newsfeedsVideos;
+    int currentState;
     int pageNum;
     int searchPageNum;
     BOOL cannotScroll;
     BOOL goSearch;
+    
+    
 }
 
 - (IBAction)fromCamera:(id)sender;
@@ -284,6 +288,7 @@ typedef enum enumStates{
 - (IBAction)colouredPressed:(id)sender;
 - (IBAction)blacknWhitepressed:(id)sender;
 - (IBAction)CommentsCountpressed:(id)sender;
+- (IBAction)recorderTapped:(id)sender;
 
 
 @property (weak, nonatomic) IBOutlet UIButton *CPEveryone;
@@ -354,6 +359,7 @@ typedef enum enumStates{
 @property (strong, nonatomic) IBOutlet UIButton *radio1;
 @property (strong, nonatomic) IBOutlet UIButton *radio2;
 @property (strong, nonatomic) IBOutlet UIButton *radio3;
+@property (strong, nonatomic) AVAudioRecorder *audioRecorder;
 - (IBAction)showFollowings:(id)sender;
 - (IBAction)showFollowers:(id)sender;
 
