@@ -73,7 +73,7 @@
     
     IBOutlet UIView *beamsView;
     UIView *overlayView;
-    
+    UIGestureRecognizer *tapper;
     IBOutlet UIButton *saveProfile;
     IBOutlet UIButton *birhdaybtn;
 }

@@ -32,7 +32,10 @@
         [self getProfile];
     }
     countryPicker.delegate = self;
-    
+    tapper = [[UITapGestureRecognizer alloc]
+              initWithTarget:self action:@selector(handleSingleTap:)];
+    tapper.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:tapper];
     if (IS_IPHONE_6) {
         editProfileView.frame = CGRectMake(0, 0, 375, 667);
     }
@@ -49,7 +52,10 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+- (void)handleSingleTap:(UITapGestureRecognizer *) sender
+{
+    [self.view endEditing:YES];
+}
 #pragma mark GetProfile
 - (void) getUserProfile{
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
@@ -186,7 +192,7 @@
     [request setPostValue:txtCity.text forKey:@"city"];
     [request setPostValue:LivesInField.text forKey:@"country"];
     [request setPostValue:gender.text forKey:@"gender"];
-    [request setPostValue:lblBirthday.text forKey:@"date_of_birth"];
+    //[request setPostValue:lblBirthday.text forKey:@"date_of_birth"];
     [request setPostValue:StudiedInField.text forKey:@"study_at"];
     [request setPostValue:mobileEditField.text forKey:@"mobile_no"];
     [request setPostValue:workingAtField.text forKey:@"worked_at"];
@@ -564,23 +570,23 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
-    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
-    
-    UITouch *touch = [[event allTouches] anyObject];
-    if ([txtName isFirstResponder] && [touch view] != txtName) {
-        [txtName resignFirstResponder];
-        
-    }
-    else if ([txtCity isFirstResponder] && [touch view] != txtCity) {
-        
-        [txtCity resignFirstResponder];
-        
-    }  else if ([txtCountry isFirstResponder] && [touch view] != txtCountry) {
-        
-        [txtCountry resignFirstResponder];
-        
-    }  [super touchesBegan:touches withEvent:event];
-    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+//    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+//    
+//    UITouch *touch = [[event allTouches] anyObject];
+//    if ([txtName isFirstResponder] && [touch view] != txtName) {
+//        [txtName resignFirstResponder];
+//        
+//    }
+//    else if ([txtCity isFirstResponder] && [touch view] != txtCity) {
+//        
+//        [txtCity resignFirstResponder];
+//        
+//    }  else if ([txtCountry isFirstResponder] && [touch view] != txtCountry) {
+//        
+//        [txtCountry resignFirstResponder];
+//        
+//    }  [super touchesBegan:touches withEvent:event];
+//    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
 }
 
 
@@ -597,25 +603,21 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     
     [textField resignFirstResponder];
-    [txtName resignFirstResponder];
-    [txtCity resignFirstResponder];
-    [txtCountry resignFirstResponder];
-    
     return YES;
 }
 
 - (void) animateTextField: (UITextField*) textField up: (BOOL) up
 {
-    const int movementDistance = 145; // tweak as needed
-    const float movementDuration = 0.3f; // tweak as needed
-    
-    int movement = (up ? -movementDistance : movementDistance);
-    
-    [UIView beginAnimations: @"anim" context: nil];
-    [UIView setAnimationBeginsFromCurrentState: YES];
-    [UIView setAnimationDuration: movementDuration];
-    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
-    [UIView commitAnimations];
+//    const int movementDistance = 145; // tweak as needed
+//    const float movementDuration = 0.3f; // tweak as needed
+//    
+//    int movement = (up ? -movementDistance : movementDistance);
+//    
+//    [UIView beginAnimations: @"anim" context: nil];
+//    [UIView setAnimationBeginsFromCurrentState: YES];
+//    [UIView setAnimationDuration: movementDuration];
+//    self.view.frame = CGRectOffset(self.view.frame, 0, movement);
+//    [UIView commitAnimations];
 }
 
 - (IBAction)openDrawer:(id)sender {

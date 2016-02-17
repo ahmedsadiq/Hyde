@@ -1946,7 +1946,7 @@
     GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
     myChannelModel *_profile = [[myChannelModel alloc]init];
     if(currentState == 2){
-        tempVideos  = [getTrendingVideos.trendingArray objectAtIndex:currentSelectedIndex];
+        tempVideos  = [newsfeedsVideos objectAtIndex:currentSelectedIndex];
         postID = tempVideos.VideoID;
     }
     else if(currentState == 0)
