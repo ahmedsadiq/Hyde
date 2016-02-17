@@ -157,7 +157,8 @@
     
     UITableViewCell *c = [tableView cellForRowAtIndexPath:indexPath];
     [btnSender setTitle:c.textLabel.text forState:UIControlStateNormal];
-    selectedIndex = indexPath.row;
+    
+    selectedIndex = (int)indexPath.row;
     [self myDelegate];
 }
 

@@ -25,25 +25,24 @@
     [super viewDidLoad];
     appdelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     // Do any additional setup after loading the view from its nib.
+    _EditProfileBtn.hidden = TRUE;
     if(appdelegate.loaduserProfiel)
         [self getUserProfile];
-        else{
-            [self getProfile];
-        }
+    else{
+        [self getProfile];
+    }
     countryPicker.delegate = self;
     
     if (IS_IPHONE_6) {
         editProfileView.frame = CGRectMake(0, 0, 375, 667);
     }
     
-  // [self setUserProfileImage];
-    
     arr_gender = [[NSArray alloc] initWithObjects:@"MALE", @"FEMALE", nil];
-    [EditProfileScrollView setContentSize:CGSizeMake(EditProfileScrollView.frame.size.width,600)];
- /*     ProfilePic.clipsToBounds = YES;
+    [EditProfileScrollView setContentSize:CGSizeMake(EditProfileScrollView.frame.size.width,800)];
+    /*     ProfilePic.clipsToBounds = YES;
      ProfilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
-    ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
-    ProfilePic.layer.borderWidth = 2.0f; */
+     ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
+     ProfilePic.layer.borderWidth = 2.0f; */
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,6 +57,46 @@
     NSString *user_id = [NSString stringWithFormat:@"%d",appdelegate.userToView];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_USERPROFILE,@"method",token,@"session_token",user_id,@"user_id",nil];
+    
+    appdelegate.loaduserProfiel = false;
+    NSData *postData = [Utils encodeDictionary:postDict];
+    
+    NSMutableURLRequest *requests = [[NSMutableURLRequest alloc] init];
+    [requests setURL:url];
+    [requests setHTTPMethod:@"POST"];
+    [requests setHTTPBody:postData];
+    
+    [NSURLConnection sendAsynchronousRequest:requests queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
+        {
+            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            NSLog(@"%@",result);
+            int success = [[result objectForKey:@"success"] intValue];
+            NSDictionary *profile = [result objectForKey:@"profile"];
+            
+            if(success == 1) {
+                [self SetProfileObject:profile];
+                [self setprofileData];
+            }
+            
+        }
+        else{
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [alert show];
+        }
+    }];
+}
+- (void) getProfile{
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    _EditProfileBtn.hidden = FALSE;
+    
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_PROFILE,@"method",token,@"session_token",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -77,29 +116,7 @@
             NSDictionary *profile = [result objectForKey:@"profile"];
             
             if(success == 1) {
-                
-                ProfileObj = [[ProfileModel alloc]init];
-                
-                ///Saving Profile Data
-                ProfileObj.user_id = [profile objectForKey:@"id"];
-                ProfileObj.full_name = [profile objectForKey:@"full_name"];
-                ProfileObj.account_type = [profile objectForKey:@"account_type"];
-                ProfileObj.likes_count = [profile objectForKey:@"followers_count"];
-                ProfileObj.profile_image = [profile objectForKey:@"profile_link"];
-                ProfileObj.profile_type = [profile objectForKey:@"profile_type"];
-                ProfileObj.session_token = [profile objectForKey:@"session_token"];
-                ProfileObj.email = [profile objectForKey:@"email"];
-                ProfileObj.friends_count = [profile objectForKey:@"following_count"];
-                ProfileObj.cover_link = [profile objectForKey:@"cover_link"];
-                ProfileObj.cover_type = [profile objectForKey:@"cover_type"];
-                ProfileObj.city = [profile objectForKey:@"city"];
-                ProfileObj.country = [profile objectForKey:@"country"];
-                ProfileObj.date_of_birth = [profile objectForKey:@"date_of_birth"];
-                ProfileObj.is_celeb = [profile objectForKey:@"is_celeb"];
-                ProfileObj.beams_count = [profile objectForKey:@"beams_count"];
-                ProfileObj.gender = [profile objectForKey:@"gender"];
-                workedAt = [profile objectForKey:@"worked_at"];
-               
+                [self SetProfileObject:profile];
                 [self setprofileData];
             }
             
@@ -111,109 +128,68 @@
         }
     }];
 }
-- (void) getProfile{
+-(void) SetProfileObject:(NSDictionary *)obj{
+    ProfileObj = [[ProfileModel alloc]init];
+    ///Saving Profile Data
+    ProfileObj.user_id = [obj objectForKey:@"id"];
+    ProfileObj.full_name = [obj objectForKey:@"full_name"];
+    ProfileObj.account_type = [obj objectForKey:@"account_type"];
+    ProfileObj.likes_count = [obj objectForKey:@"followers_count"];
+    ProfileObj.profile_image = [obj objectForKey:@"profile_link"];
+    ProfileObj.profile_type = [obj objectForKey:@"profile_type"];
+    ProfileObj.session_token = [obj objectForKey:@"session_token"];
+    ProfileObj.email = [obj objectForKey:@"email"];
+    ProfileObj.friends_count = [obj objectForKey:@"following_count"];
+    ProfileObj.cover_link = [obj objectForKey:@"cover_link"];
+    ProfileObj.cover_type = [obj objectForKey:@"cover_type"];
+    ProfileObj.city = [obj objectForKey:@"city"];
+    ProfileObj.country = [obj objectForKey:@"country"];
+    ProfileObj.date_of_birth = [obj objectForKey:@"date_of_birth"];
+    ProfileObj.is_celeb = [obj objectForKey:@"is_celeb"];
+    ProfileObj.beams_count = [obj objectForKey:@"beams_count"];
+    ProfileObj.gender = [obj objectForKey:@"gender"];
+    ProfileObj.WorkingPlace = [obj objectForKey:@"worked_at"];
+    ProfileObj.mobileNo = [obj objectForKey:@"mobile_no"];
+    ProfileObj.StudiedIn = [obj objectForKey:@"study_at"];
     
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
-    NSURL *url = [NSURL URLWithString:SERVER_URL];
-    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_PROFILE,@"method",token,@"session_token",nil];
-    
-    NSData *postData = [Utils encodeDictionary:postDict];
-    
-    NSMutableURLRequest *requests = [[NSMutableURLRequest alloc] init];
-    [requests setURL:url];
-    [requests setHTTPMethod:@"POST"];
-    [requests setHTTPBody:postData];
-    
-    [NSURLConnection sendAsynchronousRequest:requests queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
-          [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
-        {
-            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSLog(@"%@",result);
-            int success = [[result objectForKey:@"success"] intValue];
-            NSDictionary *profile = [result objectForKey:@"profile"];
-            
-            if(success == 1) {
-                
-                ProfileObj = [[ProfileModel alloc]init];
-                
-                ///Saving Profile Data
-                ProfileObj.user_id = [profile objectForKey:@"id"];
-                ProfileObj.full_name = [profile objectForKey:@"full_name"];
-                ProfileObj.account_type = [profile objectForKey:@"account_type"];
-                ProfileObj.likes_count = [profile objectForKey:@"followers_count"];
-                ProfileObj.profile_image = [profile objectForKey:@"profile_link"];
-                ProfileObj.profile_type = [profile objectForKey:@"profile_type"];
-                ProfileObj.session_token = [profile objectForKey:@"session_token"];
-                ProfileObj.email = [profile objectForKey:@"email"];
-                ProfileObj.friends_count = [profile objectForKey:@"following_count"];
-                ProfileObj.cover_link = [profile objectForKey:@"cover_link"];
-                ProfileObj.cover_type = [profile objectForKey:@"cover_type"];
-                ProfileObj.city = [profile objectForKey:@"city"];
-                ProfileObj.country = [profile objectForKey:@"country"];
-                ProfileObj.date_of_birth = [profile objectForKey:@"date_of_birth"];
-                ProfileObj.is_celeb = [profile objectForKey:@"is_celeb"];
-                ProfileObj.beams_count = [profile objectForKey:@"beams_count"];
-                ProfileObj.gender = [profile objectForKey:@"gender"];
-                workedAt = [profile objectForKey:@"worked_at"];
-                lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",workedAt];
-                [self setprofileData];
-                }
-          
-        }
-        else{
-              [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-            [alert show];
-        }
-    }];
 }
 -(void) setprofileData{
     //// Setting Profile Data
     UserName.text = ProfileObj.full_name;
     userEmail.text = ProfileObj.email;
     lblBirthday.text = ProfileObj.date_of_birth;
-    txtBirthday.text = ProfileObj.date_of_birth;
     txtEmail.text = ProfileObj.email;
     lblBeams.text = ProfileObj.beams_count;
-    //lblBeams.text = [[NSString alloc]initWithFormat:@",ProfileObj.beams_count];
     lblFriends.text = [[NSString alloc]initWithFormat:@"%@ Following",ProfileObj.friends_count];
     lblLikes.text = [[NSString alloc]initWithFormat:@"Followed by %@",ProfileObj.likes_count];
     gender.text = ProfileObj.gender;
-    location.text = [[NSString alloc]initWithFormat:@"Lives in %@ %@",ProfileObj.city,ProfileObj.country];
+    location.text = [[NSString alloc]initWithFormat:@"Lives in %@ ",ProfileObj.country];
     txtName.text = ProfileObj.full_name;
-    [txtgender setTitle:ProfileObj.gender  forState:UIControlStateNormal];
-    txtCity.text = ProfileObj.city;
+    mobileLabel.text = [[NSString alloc]initWithFormat:@"%@ ",ProfileObj.mobileNo];
     txtCountry.text = ProfileObj.country;
-    lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",workedAt];
+    lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",ProfileObj.WorkingPlace];
+    StudiIn.text = [[NSString alloc] initWithFormat:@"Studied at %@",ProfileObj.StudiedIn];
 }
 #pragma mark UpdateProfile
 
 - (void) updateProfile{
-    [SVProgressHUD showWithStatus:@"Getting Profile..."];
+    _EditProfileBtn.hidden = FALSE;
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     
     NSURL *url = [NSURL URLWithString:SERVER_URL];
-    
-    
     request = [ASIFormDataRequest requestWithURL:url];
     [request addRequestHeader:@"Content-Type" value:@"application/json; encoding=utf-8"];
-    
     [request setPostValue:token forKey:@"session_token"];
-    //[request setPostValue:txtName.text forKey:@"session_token"];
     [request setPostValue:txtName.text forKey:@"full_name"];
     [request setPostValue:txtCity.text forKey:@"city"];
-    [request setPostValue:txtCountry.text forKey:@"country"];
-    [request setPostValue:strgender forKey:@"gender"];
-    [request setPostValue:txtBirthday.text forKey:@"date_of_birth"];
-    
-    
-    NSData *profileData = UIImagePNGRepresentation(editprofilepic.image);
-    [request setData:profileData withFileName:[NSString stringWithFormat:@"%@.png",@"thumbnail"] andContentType:@"image/png" forKey:@"profile_link"];
+    [request setPostValue:LivesInField.text forKey:@"country"];
+    [request setPostValue:gender.text forKey:@"gender"];
+    [request setPostValue:lblBirthday.text forKey:@"date_of_birth"];
+    [request setPostValue:StudiedInField.text forKey:@"study_at"];
+    [request setPostValue:mobileEditField.text forKey:@"mobile_no"];
+    [request setPostValue:workingAtField.text forKey:@"worked_at"];
     
     [request setPostValue:METHOD_UPDATE_PROFILE forKey:@"method"];
     
@@ -223,81 +199,22 @@
     [request startAsynchronous];
     
     
-    
 }
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-    [SVProgressHUD dismiss];
-    
-    NSString *response = [[NSString alloc] initWithData:[request responseData] encoding:NSUTF8StringEncoding];
-    NSLog(@"This is respone ::: %@",response);
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    // NSString *response = [[NSString alloc] initWithData:[request responseData] encoding:NSUTF8StringEncoding];
     
     NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[request responseData] options:0 error:nil];
-    NSLog(@"%@",result);
     int success = [[result objectForKey:@"success"] intValue];
     NSDictionary *profile = [result objectForKey:@"profile"];
     
     if(success == 1) {
-        
-        ProfileObj = [[ProfileModel alloc]init];
-        
-        ///Saving Profile Data
-        ProfileObj.user_id = [profile objectForKey:@"id"];
-        ProfileObj.full_name = [profile objectForKey:@"full_name"];
-        ProfileObj.account_type = [profile objectForKey:@"account_type"];
-        ProfileObj.likes_count = [profile objectForKey:@"followers_count"];
-        ProfileObj.profile_image = [profile objectForKey:@"profile_link"];
-        ProfileObj.profile_type = [profile objectForKey:@"profile_type"];
-        ProfileObj.session_token = [profile objectForKey:@"session_token"];
-        ProfileObj.email = [profile objectForKey:@"email"];
-        ProfileObj.friends_count = [profile objectForKey:@"following_count"];
-        ProfileObj.cover_link = [profile objectForKey:@"cover_link"];
-        ProfileObj.cover_type = [profile objectForKey:@"cover_type"];
-        ProfileObj.city = [profile objectForKey:@"city"];
-        ProfileObj.country = [profile objectForKey:@"country"];
-        ProfileObj.date_of_birth = [profile objectForKey:@"date_of_birth"];
-        ProfileObj.is_celeb = [profile objectForKey:@"is_celeb"];
-        ProfileObj.beams_count = [profile objectForKey:@"beams_count"];
-        ProfileObj.gender = [profile objectForKey:@"gender"];
-        
-        //// Setting Profile Data
-        UserName.text = ProfileObj.full_name;
-        txtEmail.text = ProfileObj.email;
-        lblBirthday.text = ProfileObj.date_of_birth;
-        txtBirthday.text = ProfileObj.date_of_birth;
-        
-        lblBeams.text = [[NSString alloc]initWithFormat:@"%@ Beams",ProfileObj.beams_count];
-        lblFriends.text = [[NSString alloc]initWithFormat:@"%@ Following",ProfileObj.friends_count];
-        lblLikes.text = [[NSString alloc]initWithFormat:@"%@ Followers",ProfileObj.likes_count];
-        gender.text = ProfileObj.gender;
-        location.text = [[NSString alloc]initWithFormat:@"%@ %@",ProfileObj.city,ProfileObj.country];
-        txtName.text = ProfileObj.full_name;
-        [txtgender setTitle:ProfileObj.gender  forState:UIControlStateNormal];
-        txtCity.text = ProfileObj.city;
-        txtCountry.text = ProfileObj.country;
-        txtEmail.text = ProfileObj.email;
-        
-        NSURL *url = [NSURL URLWithString:ProfileObj.profile_image];
-        NSData *data = [NSData dataWithContentsOfURL:url];
-        UIImage *img = [[UIImage alloc] initWithData:data];
-       // CGSize size = img.size;
-        
-        ProfilePic.image = img;
-        editprofilepic.image = img;
-        
-        [self setUserProfileImage];
-        
-        NSURL *url1 = [NSURL URLWithString:ProfileObj.cover_image];
-        NSData *data1 = [NSData dataWithContentsOfURL:url1];
-        UIImage *img1 = [[UIImage alloc] initWithData:data1];
-       // CGSize size1 = img1.size;
-        
-        coverImg.image = img1;
+        [self  SetProfileObject:profile];
+        [self setprofileData];
         
     }
-    
-    [SVProgressHUD dismiss];
     
 }
 
@@ -305,8 +222,6 @@
     
     NSString *response = [[NSString alloc] initWithData:[theRequest responseData] encoding:NSUTF8StringEncoding];
     NSLog(@"This is respone ::: %@",response);
-    
-    [SVProgressHUD dismiss];
 }
 
 -(void) setUserProfileImage {
@@ -335,26 +250,26 @@
     editprofilepic.layer.shadowOffset = CGSizeMake(0, 5);
     editprofilepic.layer.shadowRadius = 5.0f;
     editprofilepic.layer.masksToBounds = NO;
-   
+    
     
     NSURL *url1 = [NSURL URLWithString:ProfileObj.profile_image];
     NSData *data1 = [NSData dataWithContentsOfURL:url1];
     UIImage *img1 = [[UIImage alloc] initWithData:data1];
     CGSize size1 = img1.size;
-
     
-        ProfilePic.layer.cornerRadius = ProfilePic.frame.size.width / 2;
-        ProfilePic.layer.masksToBounds = NO;
-        ProfilePic.clipsToBounds = YES;
     
-        ProfilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
-        ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
-        ProfilePic.layer.borderWidth = 3.0f;
+    ProfilePic.layer.cornerRadius = ProfilePic.frame.size.width / 2;
+    ProfilePic.layer.masksToBounds = NO;
+    ProfilePic.clipsToBounds = YES;
     
-        editprofilepic.layer.cornerRadius = ProfilePic.frame.size.width / 2;
-        editprofilepic.layer.masksToBounds = NO;
-        editprofilepic.clipsToBounds = YES;
-
+    ProfilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
+    ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
+    ProfilePic.layer.borderWidth = 3.0f;
+    
+    editprofilepic.layer.cornerRadius = ProfilePic.frame.size.width / 2;
+    editprofilepic.layer.masksToBounds = NO;
+    editprofilepic.clipsToBounds = YES;
+    
 }
 
 #pragma mark ----------------------
@@ -399,7 +314,7 @@
         NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"HomeCell" owner:self options:nil];
         cell = [nib objectAtIndex:0];
     }
-  
+    
     
     return cell;
 }
@@ -407,19 +322,16 @@
 #pragma mark - TableView Delegates
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    
- 
-    
+
 }
 
 
 -(void)rel{
+    
     dropDown = nil;
 }
 
 - (IBAction)GenderSelect:(id)sender {
-    
-    
     NSArray * arr = [[NSArray alloc] init];
     arr = arr_gender;
     NSArray * arrImage = [[NSArray alloc] init];
@@ -428,6 +340,7 @@
         CGFloat f = arr.count*40;
         dropDown = [[NIDropDown alloc]showDropDown:sender :&f :arr :arrImage :@"down":true];
         dropDown.delegate = self;
+        
     }
     else {
         [dropDown hideDropDown:sender];
@@ -435,12 +348,43 @@
     }
 }
 
+- (IBAction)EditProfilePressed:(id)sender {
+    beamsView.hidden = YES;
+    saveProfile.hidden = NO;
+    LivesInField.hidden = NO;
+    workingAtField.hidden = NO;
+    StudiedInField.hidden = NO;
+    mobileEditField.hidden = NO;
+    txtgender.hidden = NO;
+    birhdaybtn.hidden = NO;
+    _EditProfileBtn.hidden = YES;
+    StudiIn.text = @"Lives in";
+    lblWorkingat.text = @"Working at";
+    location.text = @"Studied at";
+    CALayer *bottomBorder = [CALayer layer];
+    bottomBorder.frame = CGRectMake(0.0f, LivesInField.frame.size.height - 1, LivesInField.frame.size.width, 1.0f);
+    bottomBorder.backgroundColor = [UIColor colorWithRed:54.0f/255.0f green:78.0f/255.0f blue:141.0f/255.0f alpha:1].CGColor;
+    CALayer *bottomBorder1 = [CALayer layer];
+    bottomBorder1.frame = CGRectMake(0.0f, LivesInField.frame.size.height - 1, LivesInField.frame.size.width, 1.0f);
+    bottomBorder1.backgroundColor = [UIColor colorWithRed:54.0f/255.0f green:78.0f/255.0f blue:141.0f/255.0f alpha:1].CGColor;
+    CALayer *bottomBorder2 = [CALayer layer];
+    bottomBorder2.frame = CGRectMake(0.0f, StudiedInField.frame.size.height - 1, StudiedInField.frame.size.width, 1.0f);
+    bottomBorder2.backgroundColor = [UIColor colorWithRed:54.0f/255.0f green:78.0f/255.0f blue:141.0f/255.0f alpha:1].CGColor;
+    CALayer *bottomBorder3 = [CALayer layer];
+    bottomBorder3.frame = CGRectMake(0.0f, mobileEditField.frame.size.height - 1, mobileEditField.frame.size.width, 1.0f);
+    bottomBorder3.backgroundColor = [UIColor colorWithRed:54.0f/255.0f green:78.0f/255.0f blue:141.0f/255.0f alpha:1].CGColor;
+    [LivesInField.layer  addSublayer:bottomBorder1];
+    [StudiedInField.layer addSublayer:bottomBorder2];
+    [workingAtField.layer addSublayer:bottomBorder];
+    [mobileEditField.layer addSublayer:bottomBorder3];
+}
+
 
 - (void) niDropDownDelegateMethod: (NIDropDown *) sender {
-
+    
     
     if(sender.selectedIndex == 0) {
-        [txtgender setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [txtgender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         if(isMale) {
             isMale = false;
             isFemale = true;
@@ -451,11 +395,12 @@
             isFemale = false;
             
         }
+        gender.text = @"MALE";
         strgender = @"MALE";
         [txtgender setTitle:@"MALE" forState:UIControlStateNormal];
     }
     else if (sender.selectedIndex == 1) {
-        [txtgender setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [txtgender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         
         if(isFemale) {
             isMale = true;
@@ -467,17 +412,19 @@
             isFemale = true;
             
         }
+        gender.text = @"FEMALE";
         strgender = @"FEMALE";
         [txtgender setTitle:@"FEMALE" forState:UIControlStateNormal];
-
+        
     }
+    
     [self rel];
 }
 
 
 #pragma mark countries picker delegate
 - (IBAction)countryPressed:(id)sender {
- 
+    
     [self.view endEditing:YES];
     countriesView.hidden = false;
     countryPicker.hidden = false;
@@ -516,7 +463,7 @@
 }
 
 -(void)countrySelected:(id)sender{
-  
+    
     countriesView.hidden = true;
     countryPicker.hidden = true;
     countriesView.layer.borderColor = [[UIColor darkGrayColor]CGColor];
@@ -534,19 +481,19 @@
     [self.view endEditing:YES];
     dobPicker.hidden = NO;
     dobView.hidden = NO;
-    dobView.layer.borderColor = [[UIColor darkGrayColor]CGColor];
+    dobView.layer.borderColor = [[UIColor grayColor]CGColor];
     dobView.layer.borderWidth = 1.0f;
     
     overlayView.hidden = false;
     
     [dobPicker setMaximumDate:[self getCurrentDate]];
     UIButton *DateSelected = [UIButton buttonWithType:UIButtonTypeCustom];
-  [DateSelected setFrame:CGRectMake(dobView.frame.origin.x+70, dobView.frame.size.height-65, 80, 35)];
+    [DateSelected setFrame:CGRectMake(dobView.frame.origin.x+70, dobView.frame.size.height-65, 80, 35)];
     
     if(IS_IPAD) {
         [DateSelected setFrame:CGRectMake(dobView.frame.origin.x-130, dobView.frame.size.height-60, 120, 50)];
     }
-    [DateSelected setBackgroundImage:[UIImage imageNamed:@"redbar.png"] forState:UIControlStateNormal];
+    [DateSelected setBackgroundImage:[UIImage imageNamed:@"blueradio.png"] forState:UIControlStateNormal];
     [DateSelected setTitle:@"Done" forState:UIControlStateNormal];
     [DateSelected.titleLabel setFont:[UIFont systemFontOfSize:12]];
     [DateSelected setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -554,12 +501,12 @@
     [dobView addSubview:DateSelected];
     
     UIButton *CancelSelected = [UIButton buttonWithType:UIButtonTypeCustom];
-     [CancelSelected setFrame:CGRectMake(DateSelected.frame.origin.x+DateSelected.frame.size.width+70, DateSelected.frame.origin.y, 80, 35)];
-   
+    [CancelSelected setFrame:CGRectMake(DateSelected.frame.origin.x+DateSelected.frame.size.width+70, DateSelected.frame.origin.y, 80, 35)];
+    
     if(IS_IPAD) {
         [CancelSelected setFrame:CGRectMake(DateSelected.frame.origin.x+DateSelected.frame.size.width+140, DateSelected.frame.origin.y, 120, 50)];
     }
-    [CancelSelected setBackgroundImage:[UIImage imageNamed:@"redbar.png"] forState:UIControlStateNormal];
+    [CancelSelected setBackgroundImage:[UIImage imageNamed:@"blueradio.png"] forState:UIControlStateNormal];
     [CancelSelected setTitle:@"Cancel" forState:UIControlStateNormal];
     [CancelSelected.titleLabel setFont:[UIFont systemFontOfSize:12]];
     [CancelSelected setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -590,7 +537,7 @@
     [dateFormatter setDateFormat:_outputFormat];
     
     NSString *dateInNewFormat = [dateFormatter stringFromDate:dateOnly];
- 
+    
     NSDate *date = [dateFormatter dateFromString:dateInNewFormat] ;
     NSLog(@"date=%@",date) ;
     NSTimeInterval interval  = [date timeIntervalSince1970] ;
@@ -599,7 +546,7 @@
     [dateFormatter setDateFormat:@"yyyy-MM-dd "] ;
     NSLog(@"result: %@", [dateFormatter stringFromDate:methodStart]) ;
     finalDate = [dateFormatter stringFromDate:methodStart];
-
+    [lblBirthday setText:finalDate];
     [txtBirthday setText:finalDate];
     NSLog(@"%@",txtBirthday.text);
     dobPicker.hidden = true;
@@ -674,31 +621,31 @@
 - (IBAction)openDrawer:(id)sender {
     
     
-//    CGSize size = self.view.frame.size;
-//    
-//    if(self.isMenuVisible) {
-//        self.isMenuVisible = false;
-//        [overlayView removeFromSuperview];
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.frame = CGRectMake(0, 0, size.width, size.height);
-//        }];
-//    }
-//    else {
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.frame = CGRectMake(236, 0, size.width, size.height);
-//        }];
-//        self.isMenuVisible = true;
-//        CGRect screenRect = [[UIScreen mainScreen] bounds];
-//        overlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 43, screenRect.size.width, screenRect.size.height)];
-//        overlayView.backgroundColor = [UIColor clearColor];
-//        
-//        [self.view addSubview:overlayView];
-//        
-//        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(leftSwipe:)];
-//        [sgr setDirection:UISwipeGestureRecognizerDirectionLeft];
-//        [overlayView addGestureRecognizer:sgr];
-//    }
-
+    //    CGSize size = self.view.frame.size;
+    //
+    //    if(self.isMenuVisible) {
+    //        self.isMenuVisible = false;
+    //        [overlayView removeFromSuperview];
+    //        [UIView animateWithDuration:0.5 animations:^{
+    //            self.view.frame = CGRectMake(0, 0, size.width, size.height);
+    //        }];
+    //    }
+    //    else {
+    //        [UIView animateWithDuration:0.5 animations:^{
+    //            self.view.frame = CGRectMake(236, 0, size.width, size.height);
+    //        }];
+    //        self.isMenuVisible = true;
+    //        CGRect screenRect = [[UIScreen mainScreen] bounds];
+    //        overlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 43, screenRect.size.width, screenRect.size.height)];
+    //        overlayView.backgroundColor = [UIColor clearColor];
+    //
+    //        [self.view addSubview:overlayView];
+    //
+    //        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(leftSwipe:)];
+    //        [sgr setDirection:UISwipeGestureRecognizerDirectionLeft];
+    //        [overlayView addGestureRecognizer:sgr];
+    //    }
+    
     
     [[DrawerVC getInstance] AddInView:self.view];
     [[DrawerVC getInstance] ShowInView];
@@ -714,7 +661,7 @@
 - (IBAction)editProfile:(id)sender {
     
     [self setUserProfileImage];
-   
+    
     [self.view addSubview:editProfileView];
 }
 
@@ -727,7 +674,7 @@
     
     [self presentViewController:picker animated:YES completion:NULL];
     
-     [self setUserProfileImage];
+    [self setUserProfileImage];
 }
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
@@ -735,15 +682,22 @@
     ProfilePic.image = chosenImage;
     editprofilepic.image = chosenImage;
     //   isFile = true;
-   // popUpView.hidden = true;
+    // popUpView.hidden = true;
     overlayView.hidden = true;
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
 - (IBAction)saveProfile:(id)sender {
-    
+    beamsView.hidden = NO;
+    saveProfile.hidden = YES;
+    LivesInField.hidden = YES;
+    workingAtField.hidden = YES;
+    StudiedInField.hidden = YES;
+    mobileEditField.hidden = YES;
+    _EditProfileBtn.hidden = YES;
+    txtgender.hidden = YES;
+    birhdaybtn.hidden = YES;
     [self updateProfile];
-    [editProfileView removeFromSuperview];
 }
 
 @end

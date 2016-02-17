@@ -684,27 +684,28 @@
                     liked = YES;
                 }else if ([message isEqualToString:@"Post is Successfully unliked by this user."])
                     liked = NO;
-            }
+            }if(liked){
             if(currentState == 2){
                 [self getTrendingVideos];
             }
             else if (currentState == 0)
             {
-                //                GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
-                //                _Videos = [getTrendingVideos.homieArray objectAtIndex:indexToLike];
-                //                _Videos.like_count = [[getTrendingVideos.homieArray  objectAtIndex:indexToLike]valueForKey:@"like_count"];
-                //                NSInteger likeCount = [_Videos.like_count intValue];
-                //                likeCount++;
-                //                _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
-                //                _Videos.like_by_me = @"1";
-                //                [getTrendingVideos.homieArray replaceObjectAtIndex:indexToLike withObject:_Videos];
-                //                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
-                //                NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
-                //                [_TableHome reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-                [self getHomeContent];
+                GetTrendingVideos *_Videos = [[GetTrendingVideos alloc] init];
+                _Videos = [newsfeedsVideos objectAtIndex:indexToLike];
+                _Videos.like_count = [[newsfeedsVideos  objectAtIndex:indexToLike]valueForKey:@"like_count"];
+                NSInteger likeCount = [_Videos.like_count intValue];
+                likeCount++;
+                _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
+                _Videos.like_by_me = @"1";
+                [newsfeedsVideos replaceObjectAtIndex:indexToLike withObject:_Videos];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                [_TableHome reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                //[self getHomeContent];
             }
             else if (currentState == 3)
                 [self getMyChannel];
+            }
         }
         else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
@@ -1010,6 +1011,7 @@
         appDelegate.videotoPlay = [getTrendingVideos.mainhomeArray objectAtIndex:indexPath.row];
         [cell.userProfileView addTarget:self action:@selector(MovetoUserProfile:) forControlEvents:UIControlEventTouchUpInside];
         cell.userProfileView.tag = indexPath.row;
+        cell.CH_heart.tag = indexPath.row;
         [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];

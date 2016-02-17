@@ -29,5 +29,7 @@
 @property (nonatomic, retain) NSString *country;
 @property (nonatomic, retain) NSString *is_celeb;
 @property (nonatomic, retain) NSString *beams_count;
-
+@property (nonatomic, retain) NSString *mobileNo;
+@property (nonatomic, retain) NSString *WorkingPlace;
+@property (nonatomic, retain) NSString *StudiedIn;
 @end

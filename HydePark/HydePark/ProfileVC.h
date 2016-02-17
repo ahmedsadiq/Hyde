@@ -29,11 +29,6 @@
     AppDelegate *appdelegate;
     //new Profile Outlets
     
-     IBOutlet UITextField *workingEditF;
-     IBOutlet UITextField *FollowersEditField;
-     IBOutlet UITextField *locationEditField;
-     IBOutlet UITextField *StudiedField;
-    
     IBOutlet UILabel *lblWorkingat;
     NSString *finalDate;
     NSString *workedAt;
@@ -41,19 +36,20 @@
     IBOutlet UILabel *location;
     IBOutlet UILabel *gender;
     IBOutlet UILabel *UserName;
+    IBOutlet UILabel *StudiIn;
     
     IBOutlet UILabel *lblBirthday;
     IBOutlet UILabel *userEmail;
     IBOutlet UIImageView *ProfilePic;
     IBOutlet UITableView *tableProfile;
     IBOutlet UIImageView *coverImg;
-    
+    IBOutlet UILabel *mobileLabel;
     IBOutlet UIImageView *editprofilepic;
     IBOutlet UILabel *lblLikes;
     IBOutlet UILabel *lblBeams;
     IBOutlet UILabel *lblFriends;
     
-
+    NSArray *chPostArray;
     IBOutlet UILabel *txtEmail;
     IBOutlet UIButton *txtgender;
     IBOutlet UITextField *txtName;
@@ -66,21 +62,32 @@
     NSMutableArray *countries;
     IBOutlet CountryPicker *countryPicker;
     
-     IBOutlet UIScrollView *EditProfileScrollView;
+    IBOutlet UIScrollView *EditProfileScrollView;
     IBOutlet UIView *dobView;
     IBOutlet UIDatePicker *dobPicker;
+    IBOutlet UITextField *workingAtField;
     
+    IBOutlet UITextField *mobileEditField;
+    IBOutlet UITextField *LivesInField;
+    IBOutlet UITextField *StudiedInField;
+    
+    IBOutlet UIView *beamsView;
     UIView *overlayView;
     
+    IBOutlet UIButton *saveProfile;
+    IBOutlet UIButton *birhdaybtn;
 }
 
 @property (nonatomic, assign) BOOL isMenuVisible;
 - (IBAction)GenderSelect:(id)sender;
+- (IBAction)EditProfilePressed:(id)sender;
 - (IBAction)openDrawer:(id)sender;
 - (IBAction)editProfile:(id)sender;
 - (IBAction)EditPic:(id)sender;
 - (IBAction)SelectDateOfBirth:(id)sender;
 - (IBAction)saveProfile:(id)sender;
 - (IBAction)countryPressed:(id)sender;
+@property (weak, nonatomic) IBOutlet UIButton *EditProfileBtn
+;
 
 @end
