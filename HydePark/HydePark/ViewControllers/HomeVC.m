@@ -84,6 +84,7 @@
     normalAttrdict = [NSDictionary dictionaryWithObject:BlueThemeColor(145,151,163) forKey:NSForegroundColorAttributeName];
     highlightAttrdict = [NSDictionary dictionaryWithObject:BlueThemeColor(54,78,141) forKey:NSForegroundColorAttributeName ];
     tagsString = @"";
+    secondsLeft = 60;
     self.automaticallyAdjustsScrollViewInsets = NO;
     tabBarIsShown = true;
     IS_mute = @"NO";
@@ -174,50 +175,6 @@
     CommentsModelObj = [[CommentsModel alloc]init];
     getFollowings = [[Followings alloc] init];
     FollowingsAM = [[NSMutableArray alloc]init];
-}
--(void)setAudioRecordSettings
-{
-    NSArray *dirPaths;
-    NSString *docsDir;
-    
-    dirPaths = NSSearchPathForDirectoriesInDomains(
-                                                   NSDocumentDirectory, NSUserDomainMask, YES);
-    docsDir = dirPaths[0];
-    
-    NSString *soundFilePath = [docsDir
-                               stringByAppendingPathComponent:@"sound.caf"];
-    
-    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
-    
-    NSDictionary *recordSettings = [NSDictionary
-                                    dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithInt:AVAudioQualityMin],
-                                    AVEncoderAudioQualityKey,
-                                    [NSNumber numberWithInt:16],
-                                    AVEncoderBitRateKey,
-                                    [NSNumber numberWithInt: 2],
-                                    AVNumberOfChannelsKey,
-                                    [NSNumber numberWithFloat:44100.0],
-                                    AVSampleRateKey,
-                                    nil];
-    
-    NSError *error = nil;
-    
-    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
-                        error:nil];
-    
-    _audioRecorder = [[AVAudioRecorder alloc]
-                      initWithURL:soundFileURL
-                      settings:recordSettings
-                      error:&error];
-    
-    if (error)
-    {
-        NSLog(@"error: %@", [error localizedDescription]);
-    } else {
-        [_audioRecorder prepareToRecord];
-    }
 }
 -(void)setContentResolutions{
     if (IS_IPHONE_4) {
@@ -538,10 +495,10 @@
                             [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
                         }
                     }
-                    [_TableHome beginUpdates];
-                    [_TableHome insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
-                    [_TableHome endUpdates];
-                    //[_TableHome reloadData];
+//                    [_TableHome beginUpdates];
+//                    [_TableHome insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+//                    [_TableHome endUpdates];
+                    [_TableHome reloadData];
                 }
             }
             else
@@ -3054,6 +3011,11 @@
     
 }
 
+- (IBAction)RecorderPressed:(id)sender {
+    [self.view addSubview:_uploadAudioView];
+    
+}
+
 #pragma mark - Beam Pressed
 
 - (IBAction)beamPressed:(id)sender {
@@ -3348,6 +3310,8 @@
 }
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
+     NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[request responseData] options:0 error:nil];
+      NSLog(@"This is respone ::: %@",result);
     [_progressview setProgress:1.0];
     if(currentState == 0)
         [self getHomeContent];
@@ -3390,7 +3354,7 @@
 }
 
 - (IBAction)uploadBeamBackPressed:(id)sender {
-    
+    [_uploadAudioView removeFromSuperview];
     [_uploadBeamView removeFromSuperview];
 }
 
@@ -3543,14 +3507,17 @@
     
     //    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Beam Upload" message:@"Uploading Started, you will be notified when the process completes." delegate:self cancelButtonTitle:@"Okay" otherButtonTitles:nil, nil];
     //    [alert show];
+    [_uploadAudioView removeFromSuperview];
     [self.uploadBeamView removeFromSuperview];
     if([[NSUserDefaults standardUserDefaults] integerForKey:@"currentImageCategory"] == VideoOnCommentsGallery)
     {
         [self uploadBeamComments:movieData];
     }
-    else{
+    else if ( [[NSUserDefaults standardUserDefaults] integerForKey:@"currentImageCategory"] == uploadBeamFromGallery){
         [self uploadBeam:movieData];
-        
+    }
+    else {
+        [self uploadAduio:audioData];
     }
     [selctBeamSourceView removeFromSuperview];
 }
@@ -3668,10 +3635,7 @@
     
 }
 
-- (IBAction)recorderTapped:(id)sender {
-     [_audioRecorder record];
-    [self.view addSubview:_uploadBeamView];
-}
+
 
 - (IBAction)tagFriendsPressed:(id)sender {
     
@@ -3680,16 +3644,134 @@
     
 }
 
--(void)audioRecorderDidFinishRecording:
-(AVAudioRecorder *)recorder successfully:(BOOL)flag
+
+#pragma mark AUDIO RECORDING AND UPLOADING
+
+-(void)setAudioRecordSettings
 {
-    NSLog(@"DONE");
-    movieData = [NSData dataWithContentsOfURL:_audioRecorder.url];
-    [self uploadBeam:movieData];
+    NSArray *dirPaths;
+    NSString *docsDir;
+    
+    dirPaths = NSSearchPathForDirectoriesInDomains(
+                                                   NSDocumentDirectory, NSUserDomainMask, YES);
+    docsDir = [dirPaths objectAtIndex:0];
+    NSString *soundFilePath = [docsDir
+                               stringByAppendingPathComponent:@"sound.caf"];
+    
+    NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+    
+    NSDictionary *recordSettings = [NSDictionary
+                                    dictionaryWithObjectsAndKeys:
+                                    [NSNumber numberWithInt:AVAudioQualityMin],
+                                    AVEncoderAudioQualityKey,
+                                    [NSNumber numberWithInt:16],
+                                    AVEncoderBitRateKey,
+                                    [NSNumber numberWithInt: 2],
+                                    AVNumberOfChannelsKey,
+                                    [NSNumber numberWithFloat:44100.0],
+                                    AVSampleRateKey,
+                                    nil];
+    
+    NSError *error = nil;
+    
+    _audioRecorder = [[AVAudioRecorder alloc]
+                     initWithURL:soundFileURL
+                     settings:recordSettings
+                     error:&error];
+    _audioRecorder.delegate = self;
+    if (error)
+    {
+        NSLog(@"error: %@", [error localizedDescription]);
+        
+    } else {
+        [_audioRecorder prepareToRecord];
+    }
 }
 
+- (IBAction)recorderTapped:(id)sender {
+    if(!_audioRecorder.recording){
+        [self animateImages];
+        timerToupdateLbl = [NSTimer scheduledTimerWithTimeInterval: 1.0 target:self selector:@selector(updateCountdown) userInfo:nil repeats: YES];
+        audioTimeOut = [NSTimer scheduledTimerWithTimeInterval: 60.0 target: self
+                                                      selector: @selector(callAfterSixtySecond:) userInfo: nil repeats: NO];
+        [_audioRecorder record];
+    }
+    else{
+        
+        [_audioRecorder stop];
+        [audioBtnImage stopAnimating];
+        
+    }
+}
+-(void) callAfterSixtySecond:(NSTimer*) t
+{
+    [_audioRecorder stop];
+    [timerToupdateLbl invalidate];
+    [audioTimeOut invalidate];
+    
+}
+-(void) updateCountdown {
+    int minutes, seconds;
+    secondsLeft--;
+    minutes = (secondsLeft % 3600) / 60;
+    seconds = (secondsLeft %3600) % 60;
+    countDownlabel.text = [NSString stringWithFormat:@"%02d:%02d", minutes, seconds];
+    secondsConsumed = [NSString stringWithFormat:@"%02d:%02d", 00, 60 - secondsLeft];
+}
+-(void)animateImages{
+    NSArray *loaderImages = @[@"state1.png", @"state2.png", @"state3.png"];
+    NSMutableArray *loaderImagesArr = [[NSMutableArray alloc] init];
+    for (int i = 0; i < loaderImages.count; i++) {
+        [loaderImagesArr addObject:[UIImage imageNamed:[loaderImages objectAtIndex:i]]];
+    }
+    audioBtnImage.animationImages = loaderImagesArr;
+    audioBtnImage.animationDuration = 0.5f;
+    [audioBtnImage startAnimating];
+}
+-(void)audioRecorderDidFinishRecording:(AVAudioRecorder *)recorder successfully:(BOOL)flag
+{
+    countDownlabel.text = @"00:00";
+    secondsLeft = 60;
+    audioData = [NSData dataWithContentsOfURL:_audioRecorder.url];
+     [self.view addSubview:_uploadBeamView];
+}
+-(void)audioRecorderEncodeErrorDidOccur:
+(AVAudioRecorder *)recorder
+                                  error:(NSError *)error
+{
+    NSLog(@"Encode Error occurred");
+}
 
+-(void)uploadAduio:(NSData*)file{
+   
+    NSString *userSession = [[NSUserDefaults standardUserDefaults] objectForKey:@"session_token"];
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
+    [request addRequestHeader:@"Content-Type" value:@"application/json; encoding=utf-8"];
+    
+    [request setData:file withFileName:[NSString stringWithFormat:@"%@.caf",@"sound"] andContentType:@"audio/caf" forKey:@"audio_link"];
 
+    [request setPostValue:userSession forKey:@"session_token"];
+    [request setPostValue:privacySelected forKey:@"privacy"];
+    //[request setPostValue:TopicSelected forKey:@"topic_id"];
+    [request setPostValue:commentAllowed forKey:@"reply_count"];
+    [request setPostValue:_statusText.text forKey:@"caption"];
+    //[request setPostValue:videotype forKey:@"filter"];
+    [request setPostValue:@"0" forKey:@"is_anonymous"];
+    [request setPostValue:@"0" forKey:@"mute"];
+    [request setPostValue:tagsString forKey:@"topic_name"];
+    [request setPostValue:secondsConsumed forKey:@"video_length"];
+    [request setPostValue:postID forKey:@"post_id"];
+    [request setPostValue:ParentCommentID forKey:@"parent_comment_id"];
+    [request setPostValue:METHOD_UPLOAD_STATUS forKey:@"method"];
+    //[request setShowAccurateProgress:YES];
+    [request setUploadProgressDelegate:self];
+    [request setRequestMethod:@"POST"];
+    [request setTimeOutSeconds:300];
+    [request setDelegate:self];
+    [request startAsynchronous];
+}
+#pragma mark -----------
 - (IBAction)commentRadio:(RadioButton*)sender{
     
 }

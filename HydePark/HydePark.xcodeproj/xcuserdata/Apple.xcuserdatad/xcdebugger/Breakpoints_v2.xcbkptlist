@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "477431030.100018"
+            timestampString = "477474299.301414"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3547"
-            endingLineNumber = "3547"
-            landmarkName = "-uploadBeamPressed:"
+            startingLineNumber = "3014"
+            endingLineNumber = "3014"
+            landmarkName = "-RecorderPressed:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -26,11 +26,59 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "477431030.100018"
+            timestampString = "477475657.378424"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3351"
-            endingLineNumber = "3351"
+            startingLineNumber = "3734"
+            endingLineNumber = "3734"
+            landmarkName = "-audioRecorderDidFinishRecording:successfully:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HydePark/ViewControllers/HomeVC.m"
+            timestampString = "477475657.378424"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "3753"
+            endingLineNumber = "3753"
+            landmarkName = "-uploadAduio:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HydePark/ViewControllers/HomeVC.m"
+            timestampString = "477475657.378424"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "3701"
+            endingLineNumber = "3701"
+            landmarkName = "-recorderTapped:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HydePark/ViewControllers/HomeVC.m"
+            timestampString = "477474299.301414"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "3315"
+            endingLineNumber = "3315"
             landmarkName = "-requestFinished:"
             landmarkType = "5">
          </BreakpointContent>
@@ -38,32 +86,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "477431030.100018"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1055"
-            endingLineNumber = "1055"
-            landmarkName = "-tableView:cellForRowAtIndexPath:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "477431911.547029"
+            timestampString = "477474299.301414"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "3672"
-            endingLineNumber = "3672"
-            landmarkName = "-recorderTapped:"
+            startingLineNumber = "3508"
+            endingLineNumber = "3508"
+            landmarkName = "-uploadBeamPressed:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -53,6 +53,7 @@ typedef enum enumStates{
     NSArray *usersArray;
     NSArray *arrImages;
     
+    IBOutlet UIImageView *audioBtnImage;
     NSArray *CommentsArray;
     PopularUsersModel *UsersModel;
     NSString *userStatus;
@@ -68,7 +69,11 @@ typedef enum enumStates{
     UserChannelModel *userChannelObj;
     CommentsModel *CommentsModelObj;
     Followings *getFollowings;
-    
+    NSTimer *timerToupdateLbl;
+    int secondsLeft;
+    IBOutlet UILabel *countDownlabel;
+    NSTimer* audioTimeOut;
+    NSString *secondsConsumed;
     NSArray *FollowingsArray;
     NSMutableArray *FollowingsAM;
     float totalBytestoUpload;
@@ -83,7 +88,7 @@ typedef enum enumStates{
     NSString *TopicSelected;
     NSString *videotype;
     NSData *profileData; // for Thumbnail selected
-    
+    NSData *audioData;
     IBOutlet UITextField *searchField;
     IBOutlet UITextField *searchField2;
     
@@ -255,8 +260,10 @@ typedef enum enumStates{
 - (IBAction)fromCamera:(id)sender;
 - (IBAction)fromGallery:(id)sender;
 - (IBAction)imagepickerCross:(id)sender;
+- (IBAction)RecorderPressed:(id)sender;
 
-
+@property (strong, nonatomic) IBOutlet UIView *uploadAudioView;
+@property (weak, nonatomic) IBOutlet UIButton *audioRecordBtn;
 #pragma mark Upload Beam View
 @property (strong, nonatomic) IBOutlet UIView *uploadBeamView;
 @property (weak, nonatomic) IBOutlet UITextView *statusText;

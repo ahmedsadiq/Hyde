@@ -49,6 +49,8 @@
                 <outlet property="TablemyChannel" destination="QRc-9X-Ry4" id="65g-7Q-vk4"/>
                 <outlet property="Unlimited" destination="4SG-c5-sjt" id="l3d-lA-3rf"/>
                 <outlet property="User_pic" destination="ZZ5-6V-Xba" id="W9H-3o-ayP"/>
+                <outlet property="audioBtnImage" destination="Q9A-fc-aUM" id="pcu-hP-zKj"/>
+                <outlet property="audioRecordBtn" destination="528-RH-rBR" id="V87-2I-vKU"/>
                 <outlet property="backgroundPicture" destination="r6k-3k-kcM" id="Xep-Rb-JfC"/>
                 <outlet property="beamLabel" destination="8mv-bU-3hR" id="xi1-qp-26w"/>
                 <outlet property="btnBnW" destination="uZH-7L-OYm" id="Hiu-u9-8Zs"/>
@@ -66,6 +68,7 @@
                 <outlet property="commentsCountCommnetview" destination="2ge-Ce-oJX" id="twS-hl-2WW"/>
                 <outlet property="commentsTable" destination="OBk-Vd-OWg" id="epU-tO-K1p"/>
                 <outlet property="commentsView" destination="fln-6z-lHQ" id="ENq-4x-vff"/>
+                <outlet property="countDownlabel" destination="ENw-of-ez3" id="B3P-zT-UDI"/>
                 <outlet property="coverimgComments" destination="8R7-pT-HH4" id="IHW-Sg-XPg"/>
                 <outlet property="emojiLabel" destination="q9S-Jy-V6y" id="UNc-Kk-PXK"/>
                 <outlet property="emoticonsView" destination="5iF-qP-YCx" id="1GB-1r-Swc"/>
@@ -111,6 +114,7 @@
                 <outlet property="topHeader" destination="F8A-z8-1E0" id="nuf-MQ-gH8"/>
                 <outlet property="topTabbar" destination="A8f-O9-sAE" id="f6k-1u-pbL"/>
                 <outlet property="unlimitedRepliesbtn" destination="aEd-NL-WnO" id="A7f-Wn-9lT"/>
+                <outlet property="uploadAudioView" destination="a3v-pW-REo" id="knB-uU-ukD"/>
                 <outlet property="uploadBeamView" destination="u08-5h-m2t" id="oOR-fd-vH1"/>
                 <outlet property="uploadbeamScroller" destination="3BC-6b-ITJ" id="kPb-Tr-mwh"/>
                 <outlet property="uploadimageView" destination="TJe-EQ-h16" id="5R6-qF-Onw"/>
@@ -470,7 +474,7 @@
                             </state>
                             <state key="highlighted" backgroundImage="audiobg.png"/>
                             <connections>
-                                <action selector="recorderTapped:" destination="-1" eventType="touchUpInside" id="ZKR-N0-wXY"/>
+                                <action selector="RecorderPressed:" destination="-1" eventType="touchUpInside" id="DiW-HF-5XB"/>
                             </connections>
                         </button>
                         <button opaque="NO" tag="101" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="GKN-wz-6Ee">
@@ -540,7 +544,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" id="r6k-3k-kcM">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="A0397DFC-D2CE-4C36-BAD3-45C20BA0F124" id="r6k-3k-kcM">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                 </imageView>
@@ -549,7 +553,7 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </view>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" id="k7F-sg-2Ms">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="A0397DFC-D2CE-4C36-BAD3-45C20BA0F124" id="k7F-sg-2Ms">
                     <rect key="frame" x="90" y="38" width="140" height="140"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                 </imageView>
@@ -1022,7 +1026,7 @@
             <nil key="simulatedStatusBarMetrics"/>
             <nil key="simulatedTopBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-            <point key="canvasLocation" x="323.5" y="-488.5"/>
+            <point key="canvasLocation" x="1017.5" y="-488.5"/>
         </view>
         <view contentMode="scaleToFill" id="Rqg-BI-rtR">
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
@@ -1142,7 +1146,7 @@
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="739" y="-538"/>
+            <point key="canvasLocation" x="1094" y="-538"/>
         </view>
         <view contentMode="scaleToFill" id="fln-6z-lHQ">
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -1408,7 +1412,7 @@
                 </view>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" id="3BC-6b-ITJ">
                     <rect key="frame" x="0.0" y="50" width="375" height="564"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loading.jpg" id="fBI-Lc-UPa">
                             <rect key="frame" x="0.0" y="0.0" width="375" height="280"/>
@@ -1624,11 +1628,41 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-2395.5" y="-542.5"/>
         </view>
+        <view contentMode="scaleToFill" id="a3v-pW-REo">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <view contentMode="scaleToFill" id="d42-MQ-JYU">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                </view>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="01:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ENw-of-ez3">
+                    <rect key="frame" x="124" y="238" width="126" height="33"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" name="MarkerFelt-Wide" family="Marker Felt" pointSize="17"/>
+                    <color key="textColor" red="0.56862745100000001" green="0.59215686270000001" blue="0.63921568630000003" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="528-RH-rBR">
+                    <rect key="frame" x="142" y="289" width="90" height="90"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <connections>
+                        <action selector="recorderTapped:" destination="-1" eventType="touchUpInside" id="jt9-5o-8lc"/>
+                    </connections>
+                </button>
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="normalstate.png" id="Q9A-fc-aUM">
+                    <rect key="frame" x="142" y="289" width="90" height="90"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
+            <point key="canvasLocation" x="321.5" y="-488.5"/>
+        </view>
     </objects>
     <resources>
-        <image name="Anonymousbg.png" width="364" height="255"/>
-        <image name="Anonymousbgpressed.png" width="364" height="255"/>
-        <image name="B01DC43E-2579-4AA5-9185-7F64B55E1EB1" width="300" height="168">
+        <image name="A0397DFC-D2CE-4C36-BAD3-45C20BA0F124" width="300" height="168">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGOzxYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK0HCBMU
 GR4fJSYsLzU4VSRudWxs1QkKCwwNDg8QERJWTlNTaXplViRjbGFzc1xOU0ltYWdlRmxhZ3NWTlNSZXBz
@@ -1644,6 +1678,8 @@ AZIBmgGdAaQBrAG5Ab4BwAHCAccBzwHSAdcB3wHiAfQB9wH8AAAAAAAAAgEAAAAAAAAAPwAAAAAAAAAA
 AAAAAAAAAf4
 </mutableData>
         </image>
+        <image name="Anonymousbg.png" width="364" height="255"/>
+        <image name="Anonymousbgpressed.png" width="364" height="255"/>
         <image name="Buttonbg_ipad.png" width="252" height="72"/>
         <image name="Eye_256.png" width="256" height="256"/>
         <image name="audio.png" width="17" height="30"/>
@@ -1670,6 +1706,7 @@ AAAAAAAAAf4
         <image name="lens.png" width="51" height="51"/>
         <image name="loading.jpg" width="720" height="602"/>
         <image name="newestmenu.png" width="125" height="84"/>
+        <image name="normalstate.png" width="566" height="566"/>
         <image name="photo_iPad.png" width="128" height="103"/>
         <image name="playblue.png" width="22" height="22"/>
         <image name="playicon.png" width="22" height="22"/>
