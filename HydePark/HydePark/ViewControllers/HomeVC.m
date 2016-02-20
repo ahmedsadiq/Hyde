@@ -61,6 +61,7 @@
     //}
 }
 -(void)viewWillAppear:(BOOL)animated{
+    
     [super viewWillAppear:animated];
 }
 - (void)viewDidLoad {
@@ -111,7 +112,7 @@
     _forumTable.dataSource = self;
     [self setUserCoverImage];
     [self setUserProfileImage];
-    [self initWithData];
+    [self initWithDataArr];
     _statusText.delegate = self;
     
     count = 10;
@@ -160,12 +161,14 @@
     [self.view addGestureRecognizer:tapper];
     [self setAudioRecordSettings];
 }
--(void)initWithData{
+-(void)initWithDataArr{
+    fromPullToRefresh = false;
     uploadBeamTag = true;
     uploadAnonymous = false;
     pageNum = 1;
     forumPageNumber = 1;
     myCornerPageNum= 1;
+    //PostArray = [[NSMutableArray alloc]init];
     forumsVideo = [[NSMutableArray alloc] init];
     newsfeedsVideos = [[NSMutableArray alloc] init];
     getTrendingVideos  = [[GetTrendingVideos alloc]init];
@@ -175,6 +178,7 @@
     CommentsModelObj = [[CommentsModel alloc]init];
     getFollowings = [[Followings alloc] init];
     FollowingsAM = [[NSMutableArray alloc]init];
+    videomodel = [[VideoModel alloc]init];
 }
 -(void)setContentResolutions{
     if (IS_IPHONE_4) {
@@ -418,12 +422,12 @@
 - (void) getHomeContent{
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    secondsConsumed  = 0;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_HOME_CONTENTS,@"method",
                               token,@"session_token",pageStr,@"page_no",nil];
-    
     NSData *postData = [Utils encodeDictionary:postDict];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -495,10 +499,10 @@
                             [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
                         }
                     }
-//                    [_TableHome beginUpdates];
-//                    [_TableHome insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
-//                    [_TableHome endUpdates];
-                    [_TableHome reloadData];
+                    [_TableHome beginUpdates];
+                    [_TableHome insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+                    [_TableHome endUpdates];
+                    //[_TableHome reloadData];
                 }
             }
             else
@@ -611,6 +615,16 @@
                         chArrThumbnail = myChannelObj.ThumbnailsArray;
                         [channelVideos addObject:_Videos];
                     }
+                    //                    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+                    //                    int startIndex = (myCornerPageNum-1) *10;
+                    //                    for (int i = startIndex ; i < startIndex+10; i++) {
+                    //                        if(i<channelVideos.count) {
+                    //                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+                    //                        }
+                    //                    }
+                    //                    [_TablemyChannel beginUpdates];
+                    //                    [_TablemyChannel insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+                    //                    [_TablemyChannel endUpdates];
                     [_TablemyChannel reloadData];
                 }
                 else
@@ -657,6 +671,8 @@
 
 - (void)refreshHome:(id)sender
 {
+    fromPullToRefresh = true;
+    [newsfeedsVideos removeAllObjects];
     [self getHomeContent];
     
 }
@@ -1013,7 +1029,7 @@
             cell.CH_profileImage.imageURL = [NSURL URLWithString:[newsfeedArrImage objectAtIndex:indexPath.row]];
             NSURL *url = [NSURL URLWithString:[newsfeedArrImage objectAtIndex:indexPath.row]];
             [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-          
+            
             //        if([tempVideos.video_thumbnail_link isEqualToString:@""] )
             //        {
             //            cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.image_link];
@@ -1758,59 +1774,61 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    if (scrollView.tag == 10){
-        NSArray *visibleRows = [_TableHome visibleCells];
-        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
-        NSIndexPath *path = [_TableHome indexPathForCell:lastVisibleCell];
-        if(path.section == 0 && path.row == newsfeedPostArray.count-1)
-        {
-            if(!cannotScroll) {
-                if(goSearch) {
-                    searchPageNum++;
+    if(!fromPullToRefresh){
+        if (scrollView.tag == 10){
+            NSArray *visibleRows = [_TableHome visibleCells];
+            UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+            NSIndexPath *path = [_TableHome indexPathForCell:lastVisibleCell];
+            if(path.section == 0 && path.row == newsfeedPostArray.count-1)
+            {
+                if(!cannotScroll) {
+                    if(goSearch) {
+                        searchPageNum++;
+                    }
+                    else {
+                        pageNum++;
+                        [self getHomeContent];
+                    }
                 }
-                else {
-                    pageNum++;
-                    [self getHomeContent];
-                }
+                
             }
-            
         }
-    }
-    else if(scrollView.tag == 3)
-    {
-        NSArray *visibleRows = [_forumTable visibleCells];
-        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
-        NSIndexPath *path = [_forumTable indexPathForCell:lastVisibleCell];
-        if(path.section == 0 && path.row == trendArray.count-1)
+        else if(scrollView.tag == 3)
         {
-            if(!cannotScrollForum) {
-                if(goSearch) {
-                    searchPageNum++;
+            NSArray *visibleRows = [_forumTable visibleCells];
+            UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+            NSIndexPath *path = [_forumTable indexPathForCell:lastVisibleCell];
+            if(path.section == 0 && path.row == trendArray.count-1)
+            {
+                if(!cannotScrollForum) {
+                    if(goSearch) {
+                        searchPageNum++;
+                    }
+                    else {
+                        forumPageNumber++;
+                        [self getTrendingVideos];
+                    }
                 }
-                else {
-                    forumPageNumber++;
-                    [self getTrendingVideos];
-                }
+                
             }
-            
         }
-    }
-    else if(scrollView.tag == 2){
-        NSArray *visibleRows = [_TablemyChannel visibleCells];
-        UITableViewCell *lastVisibleCell = [visibleRows lastObject];
-        NSIndexPath *path = [_TablemyChannel indexPathForCell:lastVisibleCell];
-        if(path.section == 0 && path.row == chPostArray.count)
-        {
-            if(!cannotScrollMyCorner) {
-                if(goSearch) {
-                    searchPageNum++;
+        else if(scrollView.tag == 2){
+            NSArray *visibleRows = [_TablemyChannel visibleCells];
+            UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+            NSIndexPath *path = [_TablemyChannel indexPathForCell:lastVisibleCell];
+            if(path.section == 0 && path.row == chPostArray.count)
+            {
+                if(!cannotScrollMyCorner) {
+                    if(goSearch) {
+                        searchPageNum++;
+                    }
+                    else {
+                        myCornerPageNum++;
+                        [self getMyChannel];
+                    }
                 }
-                else {
-                    myCornerPageNum++;
-                    [self getMyChannel];
-                }
+                
             }
-            
         }
     }
 }
@@ -2018,17 +2036,31 @@
     if(currentState == 2){
         tempVideos = [[GetTrendingVideos alloc]init];
         tempVideos  = [getTrendingVideos.trendingArray objectAtIndex:currentSelectedIndex];
+        
     }else if(currentState == 0){
         //tempVideos = [[GetTrendingVideos alloc]init];
         tempVideos  = [getTrendingVideos.homieArray objectAtIndex:currentSelectedIndex];
+ 
     }
     else if(currentState == 3){
         chantempVideos = [[myChannelModel alloc]init];
         chantempVideos  = [myChannelObj.trendingArray objectAtIndex:currentSelectedIndex];
+        
     }
     NSString *Comments;
     if(currentState == 2 || currentState == 0)
     {
+        videomodel.videoID = tempVideos.VideoID;
+        videomodel.video_thumbnail_link = tempVideos.video_thumbnail_link;
+        videomodel.video_link = tempVideos.video_link;
+        videomodel.profile_image =  tempVideos.profile_image;
+        videomodel.userName = tempVideos.userName;
+        videomodel.is_anonymous = tempVideos.is_anonymous;
+        videomodel.title = tempVideos.title;
+        videomodel.like_count = tempVideos.like_count;
+        videomodel.like_by_me = tempVideos.like_by_me;
+        videomodel.seen_count = tempVideos.seen_count;
+        videomodel.title = tempVideos.title;
         Comments = tempVideos.comments_count;
         commentsCountCommnetview.text = Comments;
         usernameCommnet.text = tempVideos.userName;
@@ -2053,6 +2085,17 @@
     }
     else if(currentState == 3)
     {
+        videomodel.videoID = chantempVideos.VideoID;
+        videomodel.video_thumbnail_link = chantempVideos.video_thumbnail_link;
+        videomodel.video_link = chantempVideos.video_link;
+        videomodel.profile_image =  chantempVideos.profile_image;
+        videomodel.userName = chantempVideos.userName;
+        videomodel.is_anonymous = chantempVideos.is_anonymous;
+        videomodel.title = chantempVideos.title;
+        videomodel.like_count = chantempVideos.like_count;
+        videomodel.like_by_me = chantempVideos.like_by_me;
+        videomodel.seen_count = chantempVideos.seen_count;
+         videomodel.title = chantempVideos.title;
         Comments = chantempVideos.comments_count;
         commentsCountCommnetview.text = Comments;
         usernameCommnet.text = chantempVideos.userName;
@@ -2078,8 +2121,8 @@
     
     
     ParentCommentID = @"-1";
-    [self.view addSubview:commentsView];
     [self GetCommnetsOnPost];
+    //[self.view addSubview:commentsView];
 }
 
 -(void) ReplyCommentpressed:(UIButton *)sender{
@@ -2114,14 +2157,13 @@
     [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
     
     ParentCommentID = tempVideos.VideoID;
-    
-    [self.view addSubview:commentsView];
     [self GetCommnetsOnPost];
+    [self.view addSubview:commentsView];
 }
 
 
 -(void) GetCommnetsOnPost{
-    [SVProgressHUD showWithStatus:@"Loading..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
@@ -2143,7 +2185,7 @@
             
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *users = [result objectForKey:@"comments"];
-            
+              [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             if(success == 1) {
                 
                 //////Comments Videos Response //////
@@ -2182,8 +2224,14 @@
                     chVideosArray = CommentsModelObj.mainArray;
                     chArrImage = CommentsModelObj.ImagesArray;
                     chArrThumbnail = CommentsModelObj.ThumbnailsArray;
+                   
                 }
-                [commentsTable reloadData];
+                CommentsVC *commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+                commentController.commentsObj = CommentsModelObj;
+                commentController.postArray = videomodel;
+                [[self navigationController] pushViewController:commentController animated:YES];
+                //[[NavigationHandler getInstance]MoveToComments];
+                //[commentsTable reloadData];
                 //[self.view addSubview:commentsView];
                 if (IS_IPHONE_6) {
                     commentsView.frame = CGRectMake(0, 0, 375, 667);
@@ -2193,13 +2241,13 @@
                 {
                     commentsView.frame = CGRectMake(0, 0, 414, 736);
                 }
-                [SVProgressHUD dismiss];
             }
         }
         else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
         }
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
 
@@ -3310,8 +3358,8 @@
 }
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-     NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[request responseData] options:0 error:nil];
-      NSLog(@"This is respone ::: %@",result);
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[request responseData] options:0 error:nil];
+    NSLog(@"This is respone ::: %@",result);
     [_progressview setProgress:1.0];
     if(currentState == 0)
         [self getHomeContent];
@@ -3675,9 +3723,9 @@
     NSError *error = nil;
     
     _audioRecorder = [[AVAudioRecorder alloc]
-                     initWithURL:soundFileURL
-                     settings:recordSettings
-                     error:&error];
+                      initWithURL:soundFileURL
+                      settings:recordSettings
+                      error:&error];
     _audioRecorder.delegate = self;
     if (error)
     {
@@ -3733,24 +3781,28 @@
     countDownlabel.text = @"00:00";
     secondsLeft = 60;
     audioData = [NSData dataWithContentsOfURL:_audioRecorder.url];
-     [self.view addSubview:_uploadBeamView];
+    [self.view addSubview:_uploadBeamView];
 }
 -(void)audioRecorderEncodeErrorDidOccur:
 (AVAudioRecorder *)recorder
                                   error:(NSError *)error
 {
+    
+    countDownlabel.text = @"00:00";
+    secondsLeft = 60;
+    secondsConsumed = 0;
     NSLog(@"Encode Error occurred");
 }
 
 -(void)uploadAduio:(NSData*)file{
-   
+    
     NSString *userSession = [[NSUserDefaults standardUserDefaults] objectForKey:@"session_token"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
     [request addRequestHeader:@"Content-Type" value:@"application/json; encoding=utf-8"];
     
     [request setData:file withFileName:[NSString stringWithFormat:@"%@.caf",@"sound"] andContentType:@"audio/caf" forKey:@"audio_link"];
-
+    
     [request setPostValue:userSession forKey:@"session_token"];
     [request setPostValue:privacySelected forKey:@"privacy"];
     //[request setPostValue:TopicSelected forKey:@"topic_id"];

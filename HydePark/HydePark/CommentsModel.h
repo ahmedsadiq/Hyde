@@ -26,13 +26,14 @@
 @property (nonatomic, retain) NSString *timestamp;
 @property (nonatomic, retain) NSString *user_id;
 @property (nonatomic, retain) NSString *profile_link;
-
+@property (nonatomic, retain) NSString *is_anonymous;
 
 @property (nonatomic, retain) NSMutableArray *CommentsArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *ImagesArray;
 @property (nonatomic, retain) NSMutableArray *ThumbnailsArray;
 @property (nonatomic, retain) NSMutableArray *ChildCommentsArray;
+
 
 @property int video_angle;
 @property (nonatomic, retain) id VideoID;

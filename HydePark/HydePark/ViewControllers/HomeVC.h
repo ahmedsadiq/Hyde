@@ -22,7 +22,8 @@
 #import "SVProgressHUDCustom.h"
 #import "Followings.h"
 #import "AVFoundation/AVFoundation.h"
-
+#import "CommentsVC.h"
+#import "VideoModel.h"
 @class RadioButton;
 
 typedef enum enumStates{
@@ -52,7 +53,7 @@ typedef enum enumStates{
     
     NSArray *usersArray;
     NSArray *arrImages;
-    
+    VideoModel *videomodel;
     IBOutlet UIImageView *audioBtnImage;
     NSArray *CommentsArray;
     PopularUsersModel *UsersModel;
@@ -76,9 +77,10 @@ typedef enum enumStates{
     NSString *secondsConsumed;
     NSArray *FollowingsArray;
     NSMutableArray *FollowingsAM;
+
     float totalBytestoUpload;
     float totalBytesUploaded;
-    
+    BOOL fromPullToRefresh;
     BOOL loadFollowings;
     UIGestureRecognizer *tapper;
     

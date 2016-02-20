@@ -21,7 +21,7 @@
 #import "Utils.h"
 #import "SVProgressHUD.h"
 #import "PopularUsersVC.h"
-
+#import "CommentsVC.h"
 @implementation NavigationHandler
 
 - (id)initWithMainWindow:(UIWindow *)_tempWindow{
@@ -216,6 +216,19 @@ static NavigationHandler *instance= NULL;
         [navController pushViewController:myBeam animated:YES];
     }
 }
+-(void)MoveToComments{
+    
+    [navController popToRootViewControllerAnimated:NO];
+//    if (IS_IPAD) {
+//        
+//        ProfileVC *myBeam = [[ProfileVC alloc] initWithNibName:@"ProfileVC_iPad" bundle:nil];
+//        [navController pushViewController:myBeam animated:YES];
+//    }
+//    else{
+//        
+        CommentsVC *myBeam = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+        [navController pushViewController:myBeam animated:YES];
+    }
 
 -(void)MoveToNotifications{
     

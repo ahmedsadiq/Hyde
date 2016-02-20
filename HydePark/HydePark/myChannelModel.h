@@ -37,7 +37,7 @@
 @property (nonatomic, retain) NSString *video_length;
 @property (nonatomic, retain) NSString *Tags;
 @property (nonatomic, retain) NSString *image_link;
-
+@property (nonatomic, retain) NSString *is_anonymous;
 @property (nonatomic, retain) NSMutableArray *trendingArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *ImagesArray;

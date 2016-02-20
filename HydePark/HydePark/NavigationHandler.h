@@ -23,7 +23,7 @@
 +(NavigationHandler *)getInstance;
 -(void)NavigateToHomeScreen;
 -(void)NavigateToLoginScreen;
-
+-(void)MoveToComments;
 -(void)MoveToMyBeam;
 -(void)NavigateToSignUpScreen;
 -(void)NavigateToRoot;
