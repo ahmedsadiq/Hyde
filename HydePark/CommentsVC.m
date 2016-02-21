@@ -46,18 +46,6 @@
     titleComments.text = postArray.title;
     [UserImg roundImageCorner];
 }
--(void)initCommentsView:(CommentsModel *)tempModel{
-    UserImg.imageURL = [NSURL URLWithString:tempModel.profile_link];
-    coverimgComments.imageURL = [NSURL URLWithString:tempModel.video_thumbnail_link];
-    NSURL *url = [NSURL URLWithString:tempModel.profile_link];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-    NSURL *url1 = [NSURL URLWithString:tempModel.video_thumbnail_link];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
-    Postusername.text = tempModel.userName;
-    videoLengthComments.text = tempModel.video_length;
-    titleComments.text = tempModel.title;
-    [UserImg roundImageCorner];
-}
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     CommentsCell *cell;
     

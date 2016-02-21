@@ -27,12 +27,6 @@
     IBOutlet UILabel *Postusername;
     IBOutlet UILabel *videoLengthComments;
     IBOutlet UILabel *titleComments;
-    IBOutlet AsyncImageView *coverimgReplies;
-    IBOutlet AsyncImageView *UserImgReplies;
-    IBOutlet UILabel *PostusernameReplies;
-    IBOutlet UILabel *videoLengthReplies;
-    IBOutlet UIView *commentsView;
-    IBOutlet UILabel *titleReplies;
     
 }
 @property (strong, nonatomic) CommentsModel *commentsObj;
