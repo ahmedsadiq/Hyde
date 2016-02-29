@@ -178,7 +178,7 @@
             NSDictionary *data = [result objectForKey:@"data"];
             NSDictionary *profile = [data objectForKey:@"profile"];
             NSString *sessionToken = [profile objectForKey:@"session_token"];
-            
+            messageView = [result objectForKey:@"message"];
             if(success == 1) {
                 //Navigate to Home Screen
                 AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
@@ -197,24 +197,24 @@
                 [[NavigationHandler getInstance]NavigateToHomeScreen];
             }
             else {
-                AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
-                appDelegate.isLoggedIn = true;
+               // AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
+//appDelegate.isLoggedIn = true;
                 
-                NSDictionary *profile = [result objectForKey:@"profile"];
-                NSString *sessionToken = [profile objectForKey:@"session_token"];
-                
-                [[NSUserDefaults standardUserDefaults] setObject:sessionToken forKey:@"session_token"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"logged_in"];
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"newSignup"];
-                
+//                NSDictionary *profile = [result objectForKey:@"profile"];
+//                NSString *sessionToken = [profile objectForKey:@"session_token"];
+//                
+//                [[NSUserDefaults standardUserDefaults] setObject:sessionToken forKey:@"session_token"];
+//                [[NSUserDefaults standardUserDefaults] synchronize];
+//                
+//                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"logged_in"];
+//                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"newSignup"];
+//                
 //                HomeVC *controller = [[HomeVC alloc] initWithNibName:@"HomeVC" bundle:nil];
 //                [self.navigationController pushViewController:controller animated:YES];
 //
 //                [[NavigationHandler getInstance]NavigateToHomeScreen];
                 
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"OK", nil];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:messageView  delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
                 [alert show];
             }
         }

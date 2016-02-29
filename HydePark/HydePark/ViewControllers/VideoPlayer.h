@@ -10,7 +10,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "HomeVC.h"
 #import "AppDelegate.h"
-
+#import "VideoModel.h"
 @interface VideoPlayer : UIViewController
 
 {
@@ -27,13 +27,12 @@
     IBOutlet UIImageView *user_image;
     IBOutlet UILabel *video_title;
     IBOutlet UILabel *hashTags;
-
 }
 
 //@property (strong, nonatomic) MPMoviePlayerController *moviePlayer;
 - (IBAction)playMovie:(id)sender;
 - (IBAction)back:(id)sender;
-
+@property (strong, nonatomic) NSMutableArray *videoObjs;
 
 
 @end

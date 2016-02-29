@@ -24,6 +24,7 @@
 
 
 ///// User channel Posts////
+@property (nonatomic, retain) NSString *state;
 @property (nonatomic, retain) NSString *title;
 @property (nonatomic, retain) NSString *comments_count;
 @property (nonatomic, retain) NSString *userName;
@@ -35,6 +36,7 @@
 @property (nonatomic, retain) NSString *video_link;
 @property (nonatomic, retain) NSString *video_length;
 @property (nonatomic, retain) NSString *Tags;
+@property (nonatomic, retain) NSString *is_anonymous;
 @property (nonatomic, retain) NSMutableArray *trendingArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *ImagesArray;

@@ -20,7 +20,7 @@
     
     NSArray *accountTypes;
     NIDropDown *dropDown;
-   
+    NSString *messageView;
     NSString *is_celeb;
     NSString *btnTitle;
     IBOutlet UIImageView *bg;

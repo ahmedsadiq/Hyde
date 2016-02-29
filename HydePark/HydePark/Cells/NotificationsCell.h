@@ -10,11 +10,12 @@
 
 @interface NotificationsCell : UITableViewCell
 {
-
+    
     IBOutlet UIImageView *notifImage;
     IBOutlet UILabel *Name;
     IBOutlet UILabel *Time;
     IBOutlet UILabel *message;
+    IBOutlet UIButton *notifyBtn;
 }
 
 
@@ -23,5 +24,5 @@
 @property (nonatomic, strong)  UIImageView *notifImage;
 //@property (nonatomic, strong)  UILabel *Name;
 @property (nonatomic, strong)  UILabel *message;
-
+@property (nonatomic,strong)  UIButton *notifyBtn;
 @end

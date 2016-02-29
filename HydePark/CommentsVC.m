@@ -28,7 +28,10 @@
     videoModel = [[VideoModel alloc]init];
     [self initMainView];
 }
-
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [commentsTable reloadData];
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -146,7 +149,7 @@
     
     [cell.heart setTag:indexPath.row];
     cell.heartCountlbl.tag = indexPath.row;
-    
+    cell.commentsBtn.enabled = YES;
     [cell.commentsBtn addTarget:self action:@selector(ReplyCommentpressed:) forControlEvents:UIControlEventTouchUpInside];
     [cell.commentsBtn setTag:indexPath.row];
     
@@ -180,14 +183,14 @@
     appDelegate.profile_pic_url = tempVideos.profile_link;
     //appDelegate.currentScreen = screen;
     postID = tempVideos.VideoID;
-    //[self SeenPost];
+    [self SeenPost];
     [[NavigationHandler getInstance]MoveToPlayer];
 }
 -(void) ReplyCommentpressed:(UIButton *)sender{
     
     UIButton *CommentsBtn = (UIButton *)sender;
+    CommentsBtn.enabled = false;
     currentSelectedIndex = CommentsBtn.tag;
-    
     CommentsModel *tempVideos = [[CommentsModel alloc]init];
     tempVideos  = [commentsObj.CommentsArray objectAtIndex:currentSelectedIndex];
     ParentCommentID = tempVideos.VideoID;
@@ -278,5 +281,43 @@
 - (IBAction)back:(id)sender {
     [self.navigationController popViewControllerAnimated:YES];
 }
+- (IBAction)MainPlayBtn:(id)sender {
+    UIButton *playBtn = (UIButton *)sender;
+    currentSelectedIndex = playBtn.tag;
+    appDelegate.videotoPlay = postArray.video_link;
+    appDelegate.videoUploader = postArray.userName;
+    appDelegate.videotitle = postArray.title;
+    appDelegate.videotags = postArray.title;
+    appDelegate.profile_pic_url = postArray.profile_image;
+    postID = postArray.videoID;
+    [self SeenPost];
+    [[NavigationHandler getInstance]MoveToPlayer];
+}
+- (void) SeenPost{
+    
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_POST_SEEN,@"method",
+                              token,@"session_token",postID,@"post_id",nil];
+    
+    NSData *postData = [Utils encodeDictionary:postDict];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setHTTPBody:postData];
+    
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
+        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
+        {
+           NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 
+        }
+        else{
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [alert show];
+        }
+    }];
+}
 @end

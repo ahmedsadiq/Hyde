@@ -20,7 +20,7 @@
 @end
 
 @implementation VideoPlayer
-
+@synthesize videoObjs;
 - (id)init {
     self = [super init];
     if (self) {
@@ -39,8 +39,7 @@
     self.navigationItem.leftBarButtonItem.enabled = NO;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Remote File" style:UIBarButtonItemStyleBordered target:self action:@selector(remoteFile)];
     self.navigationItem.rightBarButtonItem.enabled = NO;
-    
-    
+   NSMutableArray *videos = videoObjs;
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     videoLink = appDelegate.videotoPlay;
     user_name.text = appDelegate.videoUploader;
@@ -220,5 +219,8 @@
 - (IBAction)back:(id)sender {
     //[[NavigationHandler getInstance]NavigateToHomeScreen];
     [self.navigationController popViewControllerAnimated:false];
+}
+- (IBAction)playMovie:(id)sender {
+    
 }
 @end

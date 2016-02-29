@@ -381,8 +381,16 @@
 
 - (IBAction)back:(id)sender {
     
-    [[NSUserDefaults standardUserDefaults]setBool:NO forKey:@"newSignup"];
-    [self.navigationController popViewControllerAnimated:false];
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"newSignup"])
+    {
+        [[NSUserDefaults standardUserDefaults]setBool:NO forKey:@"newSignup"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        [[NavigationHandler getInstance]NavigateToHomeScreen];
+    }
+    else{
+        [self.navigationController popViewControllerAnimated:true];
+    }
 }
 
 - (IBAction)Searchbtn:(id)sender {

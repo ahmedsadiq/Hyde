@@ -22,8 +22,8 @@
 #import "SVProgressHUDCustom.h"
 #import "Followings.h"
 #import "AVFoundation/AVFoundation.h"
-#import "CommentsVC.h"
 #import "VideoModel.h"
+
 @class RadioButton;
 
 typedef enum enumStates{
@@ -77,7 +77,7 @@ typedef enum enumStates{
     NSString *secondsConsumed;
     NSArray *FollowingsArray;
     NSMutableArray *FollowingsAM;
-
+    
     float totalBytestoUpload;
     float totalBytesUploaded;
     BOOL fromPullToRefresh;
@@ -238,7 +238,7 @@ typedef enum enumStates{
     IBOutlet UILabel *Unlimited;
     IBOutlet UILabel *noreplies;
     IBOutlet UILabel *upto60;
-    
+    IBOutlet UIButton *closeBtnAudio;
     CGRect TabBarFrame;
     bool cannotScrollForum;
     bool cannotScrollMyCorner;
@@ -255,8 +255,9 @@ typedef enum enumStates{
     int searchPageNum;
     BOOL cannotScroll;
     BOOL goSearch;
-    
-    
+    BOOL isDownwards;
+    BOOL isRecording;
+    NSMutableArray *videoObj;
 }
 
 - (IBAction)fromCamera:(id)sender;

@@ -9,7 +9,7 @@
 #import "NotificationsCell.h"
 
 @implementation NotificationsCell
-@synthesize message,notifImage,Time;
+@synthesize message,notifImage,Time,notifyBtn;
 
 - (void)awakeFromNib {
     // Initialization code

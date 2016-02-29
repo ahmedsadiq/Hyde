@@ -42,37 +42,37 @@ static NavigationHandler *instance= NULL;
         instance = [[super alloc] init];
     }
     
-	return instance;
+    return instance;
 }
 
 -(void)loadFirstVC{
     
-     appDelegate = (AppDelegate *) [[UIApplication sharedApplication]delegate];
+    appDelegate = (AppDelegate *) [[UIApplication sharedApplication]delegate];
     
-        HomeVC *homeVC1 = [[HomeVC alloc] init];
-        navController = [[UINavigationController alloc] initWithRootViewController:homeVC1];
-         
-        _window.rootViewController = navController;
-          [navController setNavigationBarHidden:YES];
+    HomeVC *homeVC1 = [[HomeVC alloc] init];
+    navController = [[UINavigationController alloc] initWithRootViewController:homeVC1];
+    
+    _window.rootViewController = navController;
+    [navController setNavigationBarHidden:YES];
     
     appDelegate = (AppDelegate *) [[UIApplication sharedApplication]delegate];
     if([[NSUserDefaults standardUserDefaults] boolForKey:@"logged_in"])
     {
-               HomeVC *homeVC1 = [[HomeVC alloc] init];
+        HomeVC *homeVC1 = [[HomeVC alloc] init];
         navController = [[UINavigationController alloc] initWithRootViewController:homeVC1];
         
         _window.rootViewController = navController;
         [navController setNavigationBarHidden:YES];
         
     }
-//    else{
-//        TutorialViewController *_mainVC = [[TutorialViewController alloc] init];
-//        navController = [[UINavigationController alloc] initWithRootViewController:_mainVC];
-//        _window.rootViewController = navController;
-//        [navController setNavigationBarHidden:YES];
-//    }
+    //    else{
+    //        TutorialViewController *_mainVC = [[TutorialViewController alloc] init];
+    //        navController = [[UINavigationController alloc] initWithRootViewController:_mainVC];
+    //        _window.rootViewController = navController;
+    //        [navController setNavigationBarHidden:YES];
+    //    }
     else{
-    
+        
         ViewController *_mainVC = [[ViewController alloc] init];
         navController = [[UINavigationController alloc] initWithRootViewController:_mainVC];
         _window.rootViewController = navController;
@@ -86,7 +86,6 @@ static NavigationHandler *instance= NULL;
         
         PopularUsersVC *users = [[PopularUsersVC alloc] init];
         navController = [[UINavigationController alloc] initWithRootViewController:users];
-        
         _window.rootViewController = navController;
         [navController setNavigationBarHidden:YES];
         
@@ -104,33 +103,32 @@ static NavigationHandler *instance= NULL;
             HomeVC *homeVC2 = [[HomeVC alloc] initWithNibName:@"HomeVC" bundle:nil];
             navController = [[UINavigationController alloc] initWithRootViewController:homeVC2];
         }
-        
         _window.rootViewController = navController;
         [navController setNavigationBarHidden:YES];
     }
-
+    
 }
 
 -(void)NavigateToLoginScreen{
-   
-     navController = nil;
-     if (IS_IPAD) {
-          
-          ViewController *LoginVC1 = [[ViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
-          navController = [[UINavigationController alloc] initWithRootViewController:LoginVC1];
-     }
-     
-     else{
-          
-          ViewController *LoginVC2 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
-          navController = [[UINavigationController alloc] initWithRootViewController:LoginVC2];
-         
-         [navController popToViewController:LoginVC2 animated:YES];
-     }
     
-     _window.rootViewController = navController;
+    navController = nil;
+    if (IS_IPAD) {
+        
+        ViewController *LoginVC1 = [[ViewController alloc] initWithNibName:@"ViewController_iPad" bundle:nil];
+        navController = [[UINavigationController alloc] initWithRootViewController:LoginVC1];
+    }
+    
+    else{
+        
+        ViewController *LoginVC2 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
+        navController = [[UINavigationController alloc] initWithRootViewController:LoginVC2];
+        
+        [navController popToViewController:LoginVC2 animated:YES];
+    }
+    
+    _window.rootViewController = navController;
     [navController setNavigationBarHidden:YES];
-     
+    
 }
 
 -(void)NavigateToSignUpScreen{
@@ -151,7 +149,7 @@ static NavigationHandler *instance= NULL;
 -(void)MoveToTopics{
     
     [navController popToRootViewControllerAnimated:NO];
-   
+    
     if (IS_IPAD)
     {
         
@@ -164,9 +162,9 @@ static NavigationHandler *instance= NULL;
         
         Topics *topic1 = [[Topics alloc] initWithNibName:@"Topics" bundle:nil];
         [navController pushViewController:topic1 animated:YES];
-
+        
     }
-
+    
 }
 
 -(void)MoveToMyBeam{
@@ -190,7 +188,7 @@ static NavigationHandler *instance= NULL;
 
 -(void)MoveToPlayer{
     
-    [navController popToRootViewControllerAnimated:NO];
+    //[navController popToRootViewControllerAnimated:YES];
     if (IS_IPAD) {
         
         VideoPlayer *myBeam = [[VideoPlayer alloc] initWithNibName:@"VideoPlayer" bundle:nil];
@@ -219,16 +217,16 @@ static NavigationHandler *instance= NULL;
 -(void)MoveToComments{
     
     [navController popToRootViewControllerAnimated:NO];
-//    if (IS_IPAD) {
-//        
-//        ProfileVC *myBeam = [[ProfileVC alloc] initWithNibName:@"ProfileVC_iPad" bundle:nil];
-//        [navController pushViewController:myBeam animated:YES];
-//    }
-//    else{
-//        
-        CommentsVC *myBeam = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
-        [navController pushViewController:myBeam animated:YES];
-    }
+    //    if (IS_IPAD) {
+    //
+    //        ProfileVC *myBeam = [[ProfileVC alloc] initWithNibName:@"ProfileVC_iPad" bundle:nil];
+    //        [navController pushViewController:myBeam animated:YES];
+    //    }
+    //    else{
+    //
+    CommentsVC *myBeam = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+    [navController pushViewController:myBeam animated:YES];
+}
 
 -(void)MoveToNotifications{
     
@@ -272,7 +270,7 @@ static NavigationHandler *instance= NULL;
         PopularUsersVC *users = [[PopularUsersVC alloc] initWithNibName:@"PopularUsersVC_iPhone6" bundle:nil];
         [navController pushViewController:users animated:YES];
     }
-
+    
     else{
         
         PopularUsersVC *users = [[PopularUsersVC alloc] initWithNibName:@"PopularUsersVC" bundle:nil];
@@ -280,7 +278,7 @@ static NavigationHandler *instance= NULL;
     }
 }
 -(void)LogoutUser{
-    [SVProgressHUD showWithStatus:@"Loging Out..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     
@@ -302,17 +300,18 @@ static NavigationHandler *instance= NULL;
         NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             NSLog(@"%@",result);
             [SVProgressHUD dismiss];
             int success = [[result objectForKey:@"success"] intValue];
-          
+            
             NSString *message = [result objectForKey:@"message"];
             if(success == 1) {
                 //Navigate to Login Screen
                 appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
                 appDelegate.isLoggedIn = false;
-       
+                
                 
                 [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"logged_in"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
@@ -321,12 +320,13 @@ static NavigationHandler *instance= NULL;
             [self NavigateToLoginScreen];
         }
         else{
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
         }
     }];
-
-
+    
+    
 }
 
 

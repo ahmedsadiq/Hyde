@@ -11,6 +11,7 @@
 #import "AppDelegate.h"
 #import "AsyncImageView.h"
 #import "CommentsModel.h"
+#import "VideoModel.h"
 
 @interface MyBeam : UIViewController<UITableViewDelegate,UITableViewDataSource>
 {
@@ -18,7 +19,7 @@
     myBeamsModel *mybeamsObj;
     AppDelegate *appDelegate;
     CommentsModel *CommentsModelObj;
-    
+    VideoModel *videomodel;
     NSUInteger currentSelectedIndex;
     
     

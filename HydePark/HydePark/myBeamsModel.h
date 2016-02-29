@@ -26,7 +26,7 @@
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *imagesArray;
 @property (nonatomic, retain) NSMutableArray *ThumbnailsArray;
-
+@property(nonatomic,retain) NSString *is_anonymous;
 @property int video_angle;
 @property (nonatomic, retain) id VideoID;
 

@@ -9,14 +9,31 @@
 #import <UIKit/UIKit.h>
 #import "NotificationsModel.h"
 #import "ASIFormDataRequest.h"
-
+#import "UserChannelModel.h"
+#import "VideoModel.h"
+#import "CommentsModel.h"
 @interface NotificationsVC : UIViewController<UITableViewDataSource,UITableViewDelegate,ASIHTTPRequestDelegate>
 {
-
+    
     IBOutlet UITableView *notificationsTbl;
-  
+    NSUInteger currentSelectedIndex;
     NotificationsModel *notifModel;
     NSArray *notificationsArray;
+    NSString *friendID;
+#pragma mark -UserChannelrrays
+    NSArray *chPostArray;
+    NSArray *chVideosArray;
+    NSArray *chArrImage;
+    NSArray *chArrThumbnail;
+    UserChannelModel *userChannelObj;
+    CommentsModel *CommentsModelObj;
+    VideoModel *videomodel;
+    NSArray *arrImages;
+    NSArray *arrThumbnail;
+    NSArray *CommentsArray;
+    NSArray *commentsVideosArray;
+    NSString *postID;
+    NSString *ParentCommentID;
 }
 - (IBAction)back:(id)sender;
 @end

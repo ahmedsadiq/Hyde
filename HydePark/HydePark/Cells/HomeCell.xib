@@ -54,12 +54,14 @@
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="WJU-wZ-Qsm">
-                        <rect key="frame" x="135" y="249" width="27" height="31"/>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="WJU-wZ-Qsm">
+                        <rect key="frame" x="16" y="250" width="27" height="27"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                        <state key="normal" backgroundImage="comments_iPad.png">
+                        <state key="normal" backgroundImage="commentnew.png">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
+                        <state key="disabled" backgroundImage="commentnew.png"/>
+                        <state key="highlighted" backgroundImage="commentsblue.png"/>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ivx-K4-PGz">
                         <rect key="frame" x="232" y="247" width="26" height="34"/>
@@ -97,9 +99,10 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Eja-te-htF">
-                        <rect key="frame" x="16" y="250" width="23" height="28"/>
+                        <rect key="frame" x="135" y="250" width="23" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                        <state key="normal" backgroundImage="heart_iPad.png">
+                        <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
+                        <state key="normal" backgroundImage="heart.png">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                     </button>
@@ -126,8 +129,9 @@
     </objects>
     <resources>
         <image name="Eye_256.png" width="256" height="256"/>
-        <image name="comments_iPad.png" width="128" height="125"/>
-        <image name="heart_iPad.png" width="128" height="120"/>
+        <image name="commentnew.png" width="128" height="128"/>
+        <image name="commentsblue.png" width="128" height="128"/>
+        <image name="heart.png" width="19" height="18"/>
         <image name="loading.jpg" width="720" height="602"/>
         <image name="playicon.png" width="22" height="22"/>
     </resources>

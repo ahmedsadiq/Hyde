@@ -17,9 +17,9 @@
 @property (nonatomic, retain) NSMutableArray *notificationArray;
 @property (nonatomic, retain) NSDictionary *notificationsData;
 @property (nonatomic, retain) NSDictionary *postData;
-@property (nonatomic, retain) id friend_ID;
+@property (nonatomic, retain) NSString *friend_ID;
 @property (nonatomic, retain) id notif_ID ;
-@property (nonatomic, retain) id post_ID;
+@property (nonatomic, retain) NSString *post_ID;
 @property (nonatomic, retain) id seen;
 @property (nonatomic, retain) NSString *profile_link;
 

@@ -14,7 +14,7 @@
 #import "SVProgressHUD.h"
 #import "NavigationHandler.h"
 #import "CommentsCell.h"
-
+#import "CommentsVC.h"
 @interface MyBeam ()
 
 @end
@@ -39,6 +39,7 @@
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     CommentsModelObj = [[CommentsModel alloc] init];
     pageNum = 1;
+    videomodel = [[VideoModel alloc]init];
     [self getmyBeams];
     
 }
@@ -157,7 +158,7 @@
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-  
+    
     return 1;
 }
 
@@ -176,7 +177,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     if (tableView.tag == 0) {
-    
+        
         HomeCell *cell;
         
         if (IS_IPAD) {
@@ -189,73 +190,72 @@
             NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"HomeCell" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
-    myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
-    tempVideos  = [beamsArray objectAtIndex:indexPath.row];
-    cell.userName.text = tempVideos.userName;
-    
-    cell.VideoTitle.text = tempVideos.title;
-    NSLog(@"%@",tempVideos.userName);
-    cell.CommentscountLbl.text = tempVideos.comments_count;
-    cell.heartCountlbl.text = tempVideos.like_count;
-    
-    tempVideos.video_link = [videosArray objectAtIndex:indexPath.row];
-    cell.videoLength.text = tempVideos.video_length;
-    
-    cell.profileImage.imageURL = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
-    NSURL *url = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+        myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
+        tempVideos  = [beamsArray objectAtIndex:indexPath.row];
+        cell.userName.text = tempVideos.userName;
         
-    cell.videoThumbnail.imageURL = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
-    NSURL *url1 = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
-    
-    cell.profileImage.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
-    for (UIView* subview in cell.profileImage.subviews)
-        subview.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
-    
-    cell.profileImage.layer.shadowColor = [UIColor blackColor].CGColor;
-    cell.profileImage.layer.shadowOpacity = 0.7f;
-    cell.profileImage.layer.shadowOffset = CGSizeMake(0, 5);
-    cell.profileImage.layer.shadowRadius = 5.0f;
-    cell.profileImage.layer.masksToBounds = NO;
-    
-    cell.profileImage.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
-    cell.profileImage.layer.masksToBounds = NO;
-    cell.profileImage.clipsToBounds = YES;
-    
-    cell.profileImage.layer.backgroundColor = [UIColor clearColor].CGColor;
-    cell.profileImage.layer.borderColor = [UIColor whiteColor].CGColor;
-    cell.profileImage.layer.borderWidth = 3.0f;
-    
-    [cell.playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
-    [cell.playVideo setTag:indexPath.row];
-    
-    appDelegate.videotoPlay = [tempVideos.mainArray objectAtIndex:indexPath.row];
-    
-    [cell.heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
-    [cell.heart setTag:indexPath.row];
-    cell.heartCountlbl.tag = indexPath.row;
-    
-    if ([tempVideos.like_by_me isEqualToString:@"1"]) {
-        [cell.heart setBackgroundImage:[UIImage imageNamed:@"heartfill.png"] forState:UIControlStateNormal];
-    }else{
-        [cell.heart setBackgroundImage:[UIImage imageNamed:@"heart.png"] forState:UIControlStateNormal];
-    }
-    
-    
-    [cell.commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
-    [cell.commentsBtn setTag:indexPath.row];
-    
-    //        [cell.flag addTarget:self action:@selector(Flag:) forControlEvents:UIControlEventTouchUpInside];
-    //          [cell.flag setTag:indexPath.row];
-    cell.seenLbl.tag = indexPath.row;
-    
-    UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
-    [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
-    [cell addGestureRecognizer:sgr];
-
+        cell.VideoTitle.text = tempVideos.title;
+        NSLog(@"%@",tempVideos.userName);
+        cell.CommentscountLbl.text = tempVideos.comments_count;
+        cell.heartCountlbl.text = tempVideos.like_count;
+        
+        tempVideos.video_link = [videosArray objectAtIndex:indexPath.row];
+        cell.videoLength.text = tempVideos.video_length;
+        
+        cell.profileImage.imageURL = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
+        NSURL *url = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
+        [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+        
+        cell.videoThumbnail.imageURL = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
+        NSURL *url1 = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
+        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+        
+        cell.profileImage.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
+        for (UIView* subview in cell.profileImage.subviews)
+            subview.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
+        
+        cell.profileImage.layer.shadowColor = [UIColor blackColor].CGColor;
+        cell.profileImage.layer.shadowOpacity = 0.7f;
+        cell.profileImage.layer.shadowOffset = CGSizeMake(0, 5);
+        cell.profileImage.layer.shadowRadius = 5.0f;
+        cell.profileImage.layer.masksToBounds = NO;
+        
+        cell.profileImage.layer.cornerRadius = cell.profileImage.frame.size.width / 2;
+        cell.profileImage.layer.masksToBounds = NO;
+        cell.profileImage.clipsToBounds = YES;
+        
+        cell.profileImage.layer.backgroundColor = [UIColor clearColor].CGColor;
+        cell.profileImage.layer.borderColor = [UIColor whiteColor].CGColor;
+        cell.profileImage.layer.borderWidth = 3.0f;
+        
+        [cell.playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.playVideo setTag:indexPath.row];
+        
+        appDelegate.videotoPlay = [tempVideos.mainArray objectAtIndex:indexPath.row];
+        
+        [cell.heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.heart setTag:indexPath.row];
+        cell.heartCountlbl.tag = indexPath.row;
+        
+        if ([tempVideos.like_by_me isEqualToString:@"1"]) {
+            [cell.heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+        }else{
+            [cell.heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
+        }
+        
+        [cell.commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.commentsBtn setTag:indexPath.row];
+        
+        //        [cell.flag addTarget:self action:@selector(Flag:) forControlEvents:UIControlEventTouchUpInside];
+        //          [cell.flag setTag:indexPath.row];
+        cell.seenLbl.tag = indexPath.row;
+        
+        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
+        [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
+        [cell addGestureRecognizer:sgr];
+        
         return cell;
-}
+    }
     
     if(tableView.tag == 30){
         CommentsCell *cell;
@@ -343,9 +343,9 @@
         [cell.heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
         
         if ([tempVideos.liked_by_me isEqualToString:@"1"]) {
-            [cell.heart setBackgroundImage:[UIImage imageNamed:@"heartfill.png"] forState:UIControlStateNormal];
+            [cell.heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
         }else{
-            [cell.heart setBackgroundImage:[UIImage imageNamed:@"heart.png"] forState:UIControlStateNormal];
+            [cell.heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
         }
         
         [cell.heart setTag:indexPath.row];
@@ -398,7 +398,7 @@
 #pragma mark - TableView Delegates
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-  
+    
 }
 
 -(void)playVideo:(UIButton*)sender{
@@ -406,13 +406,10 @@
     UIButton *playBtn = (UIButton *)sender;
     currentSelectedIndex = playBtn.tag;
     appDelegate.videotoPlay = [mybeamsObj.mainArray objectAtIndex:currentSelectedIndex];
-    
     myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
     appDelegate.videoUploader = tempVideos.userName;
     appDelegate.videotitle = tempVideos.title;
-    
     appDelegate.profile_pic_url = tempVideos.profile_image;
-    
     tempVideos  = [mybeamsObj.trendingArray objectAtIndex:currentSelectedIndex];
     postID = tempVideos.VideoID;
     [self SeenPost];
@@ -433,11 +430,11 @@
     
     if (liked == YES) {
         
-        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"heart.png"] forState:UIControlStateNormal];
+        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
         
     }else if (liked == NO){
         
-        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"heartfill.png"] forState:UIControlStateNormal];
+        [LikeBtn setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
     }
     
 }
@@ -534,61 +531,31 @@
     
     myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
     tempVideos  = [beamsArray objectAtIndex:currentSelectedIndex];
-    NSString *Comments = tempVideos.comments_count;
-    
-    commentsCountCommnetview.text = Comments;
-    usernameCommnet.text = tempVideos.userName;
-    videoTitleComments.text = tempVideos.title;
-    videoLengthComments.text = tempVideos.video_length;
-    likeCountsComment.text = tempVideos.like_count;
-    seencountcomment.text = tempVideos.seen_count;
+  
+    videomodel.videoID = tempVideos.VideoID;
+    videomodel.video_thumbnail_link = tempVideos.video_thumbnail_link;
+    videomodel.video_link = tempVideos.video_link;
+    videomodel.profile_image =  tempVideos.profile_image;
+    videomodel.userName = tempVideos.userName;
+    videomodel.is_anonymous = tempVideos.is_anonymous;
+    videomodel.title = tempVideos.title;
+    videomodel.like_count = tempVideos.like_count;
+    videomodel.like_by_me = tempVideos.like_by_me;
+    videomodel.seen_count = tempVideos.seen_count;
+    videomodel.title = tempVideos.title;
     
     postID = tempVideos.VideoID;
-    
-    userImage.imageURL = [NSURL URLWithString:tempVideos.profile_image];
-    NSURL *url = [NSURL URLWithString:tempVideos.profile_image];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-    
-    userImage.layer.cornerRadius = userImage.frame.size.width / 2;
-    for (UIView* subview in userImage.subviews)
-        subview.layer.cornerRadius = userImage.frame.size.width / 2;
-    
-    userImage.layer.shadowColor = [UIColor blackColor].CGColor;
-    userImage.layer.shadowOpacity = 0.7f;
-    userImage.layer.shadowOffset = CGSizeMake(0, 5);
-    userImage.layer.shadowRadius = 5.0f;
-    userImage.layer.masksToBounds = NO;
-    
-    userImage.layer.cornerRadius = userImage.frame.size.width / 2;
-    userImage.layer.masksToBounds = NO;
-    userImage.clipsToBounds = YES;
-    
-    userImage.layer.backgroundColor = [UIColor clearColor].CGColor;
-    userImage.layer.borderColor = [UIColor whiteColor].CGColor;
-    userImage.layer.borderWidth = 3.0f;
 
-    
-    coverimgComments.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
-    NSURL *url1 = [NSURL URLWithString:tempVideos.video_thumbnail_link];
-    [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
-    
     ParentCommentID = @"-1";
-    if ([Comments intValue] > 0) {
-        NSLog(@"Show Comments");
-        [self GetCommnetsOnPost];
-    }else{
-        [self.view addSubview:commentsView];
-    }
+    [self GetCommnetsOnPost];
+
 }
 -(void) GetCommnetsOnPost{
-    [SVProgressHUD showWithStatus:@"Loading..."];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSURL *url = [NSURL URLWithString:SERVER_URL];
-    
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_COMMENTS_BY_PARENT_ID,@"method",
                               token,@"Session_token",@"1",@"page_no",@"-1",@"parent_id",postID,@"post_id", nil];
-    
     NSData *postData = [Utils encodeDictionary:postDict];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -597,12 +564,10 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSLog(@"%@",result);
-            
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *users = [result objectForKey:@"comments"];
             
@@ -641,18 +606,23 @@
                     
                     CommentsArray = CommentsModelObj.CommentsArray;
                     commentsVideosArray = CommentsModelObj.mainArray;
-                   
+                    
                 }
-                [commentsTable reloadData];
-                [self.view addSubview:commentsView];
+                CommentsVC *commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+                commentController.commentsObj = CommentsModelObj;
+                commentController.postArray = videomodel;
+                [[self navigationController] pushViewController:commentController animated:YES];
+
+//                [commentsTable reloadData];
+//                [self.view addSubview:commentsView];
                 if (IS_IPHONE_6) {
                     commentsView.frame = CGRectMake(0, 0, 375, 667);
                     commentsTable.frame = CGRectMake(0,297,375,370);
                 }
-                [SVProgressHUD dismiss];
             }
         }
         else{
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
         }
@@ -675,30 +645,30 @@
 - (IBAction)showDrawer:(id)sender {
     
     [SVProgressHUD dismiss];
-//    CGSize size = self.view.frame.size;
-//    
-//    if(self.isMenuVisible) {
-//        self.isMenuVisible = false;
-//        [overlayView removeFromSuperview];
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.frame = CGRectMake(0, 0, size.width, size.height);
-//        }];
-//    }
-//    else {
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.frame = CGRectMake(236, 0, size.width, size.height);
-//        }];
-//        self.isMenuVisible = true;
-//        CGRect screenRect = [[UIScreen mainScreen] bounds];
-//        overlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 43, screenRect.size.width, screenRect.size.height)];
-//        overlayView.backgroundColor = [UIColor clearColor];
-//        
-//        [self.view addSubview:overlayView];
-//
-//        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(leftSwipe:)];
-//        [sgr setDirection:UISwipeGestureRecognizerDirectionLeft];
-//        [overlayView addGestureRecognizer:sgr];
-//   }
+    //    CGSize size = self.view.frame.size;
+    //
+    //    if(self.isMenuVisible) {
+    //        self.isMenuVisible = false;
+    //        [overlayView removeFromSuperview];
+    //        [UIView animateWithDuration:0.5 animations:^{
+    //            self.view.frame = CGRectMake(0, 0, size.width, size.height);
+    //        }];
+    //    }
+    //    else {
+    //        [UIView animateWithDuration:0.5 animations:^{
+    //            self.view.frame = CGRectMake(236, 0, size.width, size.height);
+    //        }];
+    //        self.isMenuVisible = true;
+    //        CGRect screenRect = [[UIScreen mainScreen] bounds];
+    //        overlayView = [[UIView alloc] initWithFrame:CGRectMake(0, 43, screenRect.size.width, screenRect.size.height)];
+    //        overlayView.backgroundColor = [UIColor clearColor];
+    //
+    //        [self.view addSubview:overlayView];
+    //
+    //        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(leftSwipe:)];
+    //        [sgr setDirection:UISwipeGestureRecognizerDirectionLeft];
+    //        [overlayView addGestureRecognizer:sgr];
+    //   }
     
     [[DrawerVC getInstance] AddInView:self.view];
     [[DrawerVC getInstance] ShowInView];
@@ -727,6 +697,6 @@
 }
 
 - (IBAction)DeleteBtn:(id)sender {
-      [_TableBeams deleteRowsAtIndexPaths:[NSArray arrayWithObject:index] withRowAnimation:UITableViewRowAnimationRight];
+    [_TableBeams deleteRowsAtIndexPaths:[NSArray arrayWithObject:index] withRowAnimation:UITableViewRowAnimationRight];
 }
 @end

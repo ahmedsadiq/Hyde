@@ -83,6 +83,7 @@
                         <state key="normal" backgroundImage="commentnew.png">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
+                        <state key="disabled" backgroundImage="commentnew.png"/>
                         <state key="highlighted" backgroundImage="commentsblue.png"/>
                     </button>
                     <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="gkL-bm-GOe">

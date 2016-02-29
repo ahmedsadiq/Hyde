@@ -33,5 +33,5 @@
 @property (strong, nonatomic) VideoModel *postArray;
 
 - (IBAction)back:(id)sender;
-
+- (IBAction)MainPlayBtn:(id)sender;
 @end

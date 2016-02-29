@@ -14,7 +14,7 @@
 #import "SVProgressHUD.h"
 #import "Utils.h"
 #import "NIDropDown.h"
-
+#import "RadioButton.h"
 @interface ProfileVC ()
 
 @end
@@ -342,16 +342,17 @@
     arr = arr_gender;
     NSArray * arrImage = [[NSArray alloc] init];
     arrImage = [NSArray arrayWithObjects:[UIImage imageNamed:@""], [UIImage imageNamed:@""], nil];
-    if(dropDown == nil) {
-        CGFloat f = arr.count*40;
-        dropDown = [[NIDropDown alloc]showDropDown:sender :&f :arr :arrImage :@"down":true];
-        dropDown.delegate = self;
-        
-    }
-    else {
-        [dropDown hideDropDown:sender];
-        [self rel];
-    }
+    GenderView.hidden = false;
+//    if(dropDown == nil) {
+//        CGFloat f = arr.count*40;
+//        dropDown = [[NIDropDown alloc]showDropDown:sender :&f :arr :arrImage :@"down":true];
+//        dropDown.delegate = self;
+//        
+//    }
+//    else {
+//        [dropDown hideDropDown:sender];
+//        [self rel];
+//    }
 }
 
 - (IBAction)EditProfilePressed:(id)sender {
@@ -364,9 +365,9 @@
     txtgender.hidden = NO;
     birhdaybtn.hidden = NO;
     _EditProfileBtn.hidden = YES;
-    StudiIn.text = @"Lives in";
+    StudiIn.text = @"Studied at";
     lblWorkingat.text = @"Working at";
-    location.text = @"Studied at";
+    location.text = @"Lives in";
     mobileLabel.text = @"";
     CALayer *bottomBorder = [CALayer layer];
     bottomBorder.frame = CGRectMake(0.0f, LivesInField.frame.size.height - 1, LivesInField.frame.size.width, 1.0f);
@@ -421,14 +422,21 @@
         }
         gender.text = @"FEMALE";
         strgender = @"FEMALE";
-        [txtgender setTitle:@"FEMALE" forState:UIControlStateNormal];
         
     }
     
     [self rel];
 }
+-(IBAction)closegenderView:(id)sender
+{
+    GenderView.hidden = true;
+}
 
-
+-(IBAction)onRadioBtn:(RadioButton*)sender
+{
+    genderBtn.titleLabel.text = sender.titleLabel.text;
+    gender.text = sender.titleLabel.text;
+}
 #pragma mark countries picker delegate
 - (IBAction)countryPressed:(id)sender {
     
@@ -691,6 +699,7 @@
 }
 
 - (IBAction)saveProfile:(id)sender {
+    GenderView.hidden = YES;
     beamsView.hidden = NO;
     saveProfile.hidden = YES;
     LivesInField.hidden = YES;

@@ -12,6 +12,7 @@
 #import "NIDropDown.h"
 #import "ASIFormDataRequest.h"
 #import "AppDelegate.h"
+@class RadioButton;
 
 @interface ProfileVC : UIViewController<UITextFieldDelegate,CountryPickerDelegate,NIDropDownDelegate,ASIHTTPRequestDelegate>
 
@@ -76,8 +77,9 @@
     UIGestureRecognizer *tapper;
     IBOutlet UIButton *saveProfile;
     IBOutlet UIButton *birhdaybtn;
+    IBOutlet UIView *GenderView;
 }
-
+@property (nonatomic, strong) IBOutlet RadioButton* maleButton;
 @property (nonatomic, assign) BOOL isMenuVisible;
 - (IBAction)GenderSelect:(id)sender;
 - (IBAction)EditProfilePressed:(id)sender;
@@ -87,6 +89,9 @@
 - (IBAction)SelectDateOfBirth:(id)sender;
 - (IBAction)saveProfile:(id)sender;
 - (IBAction)countryPressed:(id)sender;
+-(IBAction)onRadioBtn:(id)sender;
+-(IBAction)closegenderView:(id)sender;
+
 @property (weak, nonatomic) IBOutlet UIButton *EditProfileBtn
 ;
 

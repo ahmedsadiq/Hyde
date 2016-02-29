@@ -43,7 +43,7 @@
                     <color key="backgroundColor" red="0.21176470589999999" green="0.30588235289999999" blue="0.55294117649999996" alpha="1" colorSpace="calibratedRGB"/>
                 </view>
                 <tableView clipsSubviews="YES" tag="30" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="gms-rA-dFB">
-                    <rect key="frame" x="0.0" y="297" width="374" height="370"/>
+                    <rect key="frame" x="0.0" y="297" width="374" height="309"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <connections>
                         <outlet property="dataSource" destination="-1" id="U9n-sB-XBh"/>
@@ -64,6 +64,9 @@
                     <state key="normal" backgroundImage="playicon.png">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <connections>
+                        <action selector="MainPlayBtn:" destination="-1" eventType="touchUpInside" id="ZNx-ke-cBY"/>
+                    </connections>
                 </button>
                 <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="amd-QZ-5Zk">
                     <rect key="frame" x="205" y="259" width="42" height="21"/>
@@ -191,7 +194,7 @@
             <nil key="simulatedStatusBarMetrics"/>
             <nil key="simulatedTopBarMetrics"/>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-            <point key="canvasLocation" x="-164.5" y="-357.5"/>
+            <point key="canvasLocation" x="-495.5" y="-527.5"/>
         </view>
     </objects>
     <resources>
