@@ -8,7 +8,7 @@
 
 #import "VideoCells.h"
 @implementation VideoCells
-@synthesize username,backBtn,profileImage,VideoTitle,movieplayer;
+@synthesize username,backBtn,profileImage,VideoTitle,movieplayer,containerView,CH_heart,CH_commentsBtn,commentsCount,likesCount,activityind;
 - (void)awakeFromNib {
     // Initialization code
 }

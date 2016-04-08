@@ -39,22 +39,22 @@
     self.navigationItem.leftBarButtonItem.enabled = NO;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Remote File" style:UIBarButtonItemStyleBordered target:self action:@selector(remoteFile)];
     self.navigationItem.rightBarButtonItem.enabled = NO;
-   NSMutableArray *videos = videoObjs;
+    NSMutableArray *videos = videoObjs;
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     videoLink = appDelegate.videotoPlay;
     user_name.text = appDelegate.videoUploader;
     video_title.text = appDelegate.videotitle;
     //    hashTags.text = appDelegate.videotags;
     
-//    NSURL *url = [NSURL URLWithString:appDelegate.profile_pic_url];
-//    NSData *data = [NSData dataWithContentsOfURL:url];
-//    UIImage *img = [[UIImage alloc] initWithData:data];
-//    CGSize size = img.size;
-//    user_image.image = img;
-//    
-//    if (img == nil) {
-//        user_image.image = [UIImage imageNamed:@"loading.jpg"];
-//    }
+    //    NSURL *url = [NSURL URLWithString:appDelegate.profile_pic_url];
+    //    NSData *data = [NSData dataWithContentsOfURL:url];
+    //    UIImage *img = [[UIImage alloc] initWithData:data];
+    //    CGSize size = img.size;
+    //    user_image.image = img;
+    //
+    //    if (img == nil) {
+    //        user_image.image = [UIImage imageNamed:@"loading.jpg"];
+    //    }
     
     user_image.imageURL = [NSURL URLWithString:appDelegate.profile_pic_url];
     NSURL *url = [NSURL URLWithString:appDelegate.profile_pic_url];

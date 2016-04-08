@@ -7,7 +7,7 @@
 //
 
 #import "UIImageView+RoundImage.h"
-
+#import "Constants.h"
 @implementation UIImageView (RoundImage)
 
 -(void)roundImageCorner{
@@ -16,6 +16,17 @@
     self.layer.cornerRadius = self.frame.size.width / 2;
     self.clipsToBounds = YES;
     
+    //return self;
+}
+-(void)roundCorners{
+    [self setBackgroundColor:[UIColor clearColor]];
+    self.layer.cornerRadius = self.frame.size.width / 6.2f;
+    
+    if(IS_IPAD)
+    {
+        self.layer.cornerRadius = self.frame.size.width / 7.4f;
+    }
+    self.clipsToBounds = YES;
     //return self;
 }
 

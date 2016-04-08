@@ -10,6 +10,6 @@
 
 @implementation CommentsModel
 
-@synthesize title,comments_count,userName,topic_id,like_count,seen_count,video_angle,video_thumbnail_link,video_link,VideoID,CommentsArray,mainArray,ImagesArray,ThumbnailsArray,video_length,comment_like_count,liked_by_me,mute,timestamp,user_id,profile_link,image_link,is_anonymous;
+@synthesize title,comments_count,userName,topic_id,like_count,seen_count,video_angle,video_thumbnail_link,video_link,VideoID,CommentsArray,mainArray,ImagesArray,ThumbnailsArray,video_length,comment_like_count,liked_by_me,mute,timestamp,user_id,profile_link,image_link,is_anonymous,reply_count;
 
 @end

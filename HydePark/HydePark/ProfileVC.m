@@ -31,17 +31,23 @@
     else{
         [self getProfile];
     }
+    beamsThumbnails = [[NSMutableArray alloc]init];
     countryPicker.delegate = self;
     tapper = [[UITapGestureRecognizer alloc]
               initWithTarget:self action:@selector(handleSingleTap:)];
     tapper.cancelsTouchesInView = NO;
     [self.view addGestureRecognizer:tapper];
+     [EditProfileScrollView setContentSize:CGSizeMake(EditProfileScrollView.frame.size.width,800)];
     if (IS_IPHONE_6) {
         editProfileView.frame = CGRectMake(0, 0, 375, 667);
     }
+    else if(IS_IPHONE_5)
+         [EditProfileScrollView setContentSize:CGSizeMake(320,600)];
+    else if(IS_IPAD)
+        [EditProfileScrollView setContentSize:CGSizeMake(768,1100)];
     
     arr_gender = [[NSArray alloc] initWithObjects:@"MALE", @"FEMALE", nil];
-    [EditProfileScrollView setContentSize:CGSizeMake(EditProfileScrollView.frame.size.width,800)];
+   
     /*     ProfilePic.clipsToBounds = YES;
      ProfilePic.layer.backgroundColor = [UIColor clearColor].CGColor;
      ProfilePic.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -81,10 +87,18 @@
             NSLog(@"%@",result);
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *profile = [result objectForKey:@"profile"];
+            NSArray *tempArray = [result objectForKey:@"beams_data"];
             
             if(success == 1) {
+                int i = 0;
+                for(NSDictionary *tempDict in tempArray){
+                    NSString *thumbnail = [tempDict objectForKey:@"video_thumbnail_link"];
+                    [beamsThumbnails insertObject:thumbnail atIndex:i];
+                    i++;
+                }
                 [self SetProfileObject:profile];
                 [self setprofileData];
+             
             }
             
         }
@@ -120,10 +134,18 @@
             NSLog(@"%@",result);
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *profile = [result objectForKey:@"profile"];
-            
+            NSArray *tempArray = [result objectForKey:@"beams_data"];
+            int i = 0;
+          
             if(success == 1) {
+                for(NSDictionary *tempDict in tempArray){
+                    NSString *thumbnail = [tempDict objectForKey:@"video_thumbnail_link"];
+                    [beamsThumbnails insertObject:thumbnail atIndex:i];
+                    i++;
+                }
                 [self SetProfileObject:profile];
                 [self setprofileData];
+                
             }
             
         }
@@ -175,6 +197,23 @@
     txtCountry.text = ProfileObj.country;
     lblWorkingat.text = [[NSString alloc] initWithFormat:@"Working at %@",ProfileObj.WorkingPlace];
     StudiIn.text = [[NSString alloc] initWithFormat:@"Studied at %@",ProfileObj.StudiedIn];
+    
+    if(beamsThumbnails.count > 0){
+    one.imageURL = [NSURL URLWithString:[beamsThumbnails objectAtIndex:0]];
+    NSURL *url1 = [NSURL URLWithString:[beamsThumbnails objectAtIndex:0]];
+    [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+    }
+     if(beamsThumbnails.count > 1){
+    two.imageURL = [NSURL URLWithString:[beamsThumbnails objectAtIndex:1]];
+    NSURL *url2 = [NSURL URLWithString:[beamsThumbnails objectAtIndex:1]];
+    [[AsyncImageLoader sharedLoader] loadImageWithURL:url2];
+    }
+     if(beamsThumbnails.count > 2){
+    three.imageURL = [NSURL URLWithString:[beamsThumbnails objectAtIndex:2]];
+    NSURL *url3 = [NSURL URLWithString:[beamsThumbnails objectAtIndex:2]];
+    [[AsyncImageLoader sharedLoader] loadImageWithURL:url3];
+    }
+    
 }
 #pragma mark UpdateProfile
 
@@ -192,7 +231,7 @@
     [request setPostValue:txtCity.text forKey:@"city"];
     [request setPostValue:LivesInField.text forKey:@"country"];
     [request setPostValue:gender.text forKey:@"gender"];
-    //[request setPostValue:lblBirthday.text forKey:@"date_of_birth"];
+    [request setPostValue:lblBirthday.text forKey:@"date_of_birth"];
     [request setPostValue:StudiedInField.text forKey:@"study_at"];
     [request setPostValue:mobileEditField.text forKey:@"mobile_no"];
     [request setPostValue:workingAtField.text forKey:@"worked_at"];
@@ -436,6 +475,7 @@
 {
     genderBtn.titleLabel.text = sender.titleLabel.text;
     gender.text = sender.titleLabel.text;
+    [genderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
 }
 #pragma mark countries picker delegate
 - (IBAction)countryPressed:(id)sender {

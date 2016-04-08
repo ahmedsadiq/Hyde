@@ -18,7 +18,7 @@
 @end
 
 @implementation AppDelegate
-@synthesize viewController,navigationController,loggedInSession = _loggedInSession,strEmail,strFirstN,strLastN,strUserId,user_id,isLoggedIn,videotoPlay,videotitle,videotags,videoUploader,IS_celeb,currentScreen;
+@synthesize viewController,navigationController,loggedInSession = _loggedInSession,strEmail,strFirstN,strLastN,strUserId,user_id,isLoggedIn,videotoPlay,videotitle,videotags,videoUploader,IS_celeb,currentScreen,commentObj,hasBeenUpdated,hasBlockedSomeOne,hasbeenEdited,emailGPLus;
 
 NSString *const FBSessionStateChangedNotification = @"FBSessionStateChangedNotification";
 
@@ -84,11 +84,20 @@ NSString *const FBSessionStateChangedNotification = @"FBSessionStateChangedNotif
                          self.loggedInSession = FBSession.activeSession;
                      }
                  }];
-            }
+            
             break;
+            }
         case FBSessionStateClosed:
+        {
+                break;
+        }
         case FBSessionStateClosedLoginFailed:
+        {
             [FBSession.activeSession closeAndClearTokenInformation];
+            [[NSNotificationCenter defaultCenter]
+             postNotificationName:@"BackToHydePark"
+             object:nil];
+        }
             break;
         default:
             break;
@@ -159,7 +168,7 @@ NSString *const FBSessionStateChangedNotification = @"FBSessionStateChangedNotif
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    // Called as part of the transition from the background to the inactive state; here you can undo many of the 
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

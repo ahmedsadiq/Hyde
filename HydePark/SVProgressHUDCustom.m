@@ -14,8 +14,8 @@
 -(void)customProgressHUD{
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleCustom];
     //grey color
-    //[SVProgressHUD setBackgroundColor:BlueThemeColor(241,245,248)];
-    [SVProgressHUD setBackgroundColor:[UIColor clearColor]];
+    [SVProgressHUD setBackgroundColor:BlueThemeColor(241,245,248)];
+    //[SVProgressHUD setBackgroundColor:[UIColor clearColor]];
     [SVProgressHUD setRingThickness:4];
     [SVProgressHUD setRingRadius:16];
     //Blue Color

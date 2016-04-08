@@ -32,8 +32,8 @@ typedef enum enumStates{
     uploadBeamFromGallery,
     CurrentImageCategoryBeam,
     CurrentImageCategoryCommentPhoto,
-    VideoOnCommentsGallery
-    
+    VideoOnCommentsGallery,
+    ProfilePIC
 }CurrentImageCategory;
 @interface HomeVC : UIViewController<UITableViewDelegate,UITableViewDataSource,UIImagePickerControllerDelegate, UINavigationControllerDelegate,ASIHTTPRequestDelegate,UITextViewDelegate,AGEmojiKeyboardViewDelegate,AGEmojiKeyboardViewDataSource, UIAlertViewDelegate,MPMediaPickerControllerDelegate,AVAudioRecorderDelegate>
 
@@ -44,13 +44,13 @@ typedef enum enumStates{
     UIButton *_selectedButtonCover;
     UIButton *_selectedButtonImage;
     IBOutlet UIView *searchView;
-    IBOutlet UITableView *searchTable;
-    UITableView *tableView;
+//    IBOutlet UITableView *searchTable;
+   // UITableView *tableView;
     IBOutlet UIView *tagFriendsView;
     
     IBOutlet UIButton *Cm_VideoPlay;
     IBOutlet UIView *noBeamsView;
-    
+    UIImage *thumbnail;
     NSArray *usersArray;
     NSArray *arrImages;
     VideoModel *videomodel;
@@ -97,6 +97,7 @@ typedef enum enumStates{
     NSArray *ArrayForSearch;
     NSUInteger currentSelectedIndex;
     
+    NSMutableArray *trendingArray;
     NSArray *trendArray;
     NSArray *videosArray;
     NSArray *arrImage;
@@ -147,7 +148,7 @@ typedef enum enumStates{
     UIImage *thumbnail_Color_2;
     UIImage *thumbnail_Color_3;
     UIImage *filteredImage;
-    
+    UIImage *coverimagetocache;
     IBOutlet UIButton *btnTrending;
     IBOutlet UIButton *btnChannel;
     IBOutlet UIButton *btnHome;
@@ -246,7 +247,7 @@ typedef enum enumStates{
     int forumPageNumber;
     BOOL uploadBeamTag;
     BOOL uploadAnonymous;
-#pragma Corrections by Ahmed
+#pragma Corrections by Osama
     NSMutableArray *forumsVideo;
     NSMutableArray *channelVideos;
     NSMutableArray *newsfeedsVideos;
@@ -258,13 +259,31 @@ typedef enum enumStates{
     BOOL isDownwards;
     BOOL isRecording;
     NSMutableArray *videoObj;
+    NSUInteger currentIndex;
+    NSUInteger currentIndexHome;
+    NSUInteger currentChanelIndex;
+    BOOL fetchingContent;
+    BOOL fetchingFroum;
+    CGRect adsFrame;
+    BOOL adsViewb;
+    BOOL searchcorners;
+    BOOL fromImagePicker;
+    IBOutlet UILabel *nousersFound;
+    
+    IBOutlet UIButton *btnEmirates;
+    IBOutlet UIButton *btnBBC;
+    IBOutlet UIButton *btnRedBull;
+    IBOutlet UIButton *drawerBtn;
 }
 
 - (IBAction)fromCamera:(id)sender;
 - (IBAction)fromGallery:(id)sender;
 - (IBAction)imagepickerCross:(id)sender;
 - (IBAction)RecorderPressed:(id)sender;
+@property (strong, nonatomic) IBOutlet UIImageView *adsBar;
+@property (strong, nonatomic) IBOutlet UIView *adsView;
 
+- (IBAction)uploadProfilePic:(id)sender;
 @property (strong, nonatomic) IBOutlet UIView *uploadAudioView;
 @property (weak, nonatomic) IBOutlet UIButton *audioRecordBtn;
 #pragma mark Upload Beam View
@@ -284,7 +303,13 @@ typedef enum enumStates{
 @property (strong, nonatomic) UIRefreshControl *refreshControlHome;
 @property (strong, nonatomic) UIRefreshControl *refreshControlChannel;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressview;
+@property (strong, nonatomic) IBOutlet UIButton *homeRefreshBtn;
+@property (strong, nonatomic) IBOutlet UIButton *ForumRefreshBtn;
+@property (strong, nonatomic) IBOutlet UIButton *ChannelRefreshBtn;
 
+- (IBAction)homeRefreshBtnPressed:(id)sender;
+- (IBAction)ForumRefreshBtnPressed:(id)sender;
+- (IBAction)ChannelRefreshBtnPressed:(id)sender;
 - (IBAction)thumbnail2Pressed:(id)sender;
 - (IBAction)thumbnail3Pressed:(id)sender;
 - (IBAction)uploadBeamBackPressed:(id)sender;
@@ -331,6 +356,7 @@ typedef enum enumStates{
 @property (strong, nonatomic) IBOutlet UIView *BottomBar;
 @property (weak, nonatomic) IBOutlet UIScrollView *mainScroller;
 @property (weak, nonatomic) IBOutlet UITableView *forumTable;
+@property (strong, nonatomic) IBOutlet UITableView *searchTable;
 @property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
 @property (strong, nonatomic) IBOutlet UITableView *TableHome;
 @property (strong, nonatomic) IBOutlet UITableView *TablemyChannel;
@@ -386,7 +412,5 @@ typedef enum enumStates{
 - (IBAction)upto60Pressed:(id)sender;
 - (IBAction)noRepliesPressed:(id)sender;
 - (IBAction)UnlimitedPressed:(id)sender;
-
-
 
 @end

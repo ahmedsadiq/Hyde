@@ -22,6 +22,7 @@
 @property (nonatomic, retain) NSString *video_thumbnail_link;
 @property (nonatomic, retain) NSString *video_link;
 @property (nonatomic, retain) NSString *video_length;
+@property (nonatomic, retain) NSString *reply_count;
 @property (nonatomic, retain) NSMutableArray *trendingArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *imagesArray;

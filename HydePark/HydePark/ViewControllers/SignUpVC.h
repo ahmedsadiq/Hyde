@@ -27,6 +27,7 @@
     IBOutlet UIView *accounttypeView;
     IBOutlet UIButton *accountType;
     SVProgressHUDCustom *SVCustom;
+    UIButton *senderForNiD;
 }
 - (IBAction)SignUp:(id)sender;
 - (IBAction)BacktoLogin:(id)sender;

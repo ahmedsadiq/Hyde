@@ -26,6 +26,6 @@
 @property (nonatomic, retain) NSString *image_link;
 @property (nonatomic, retain) NSString *is_anonymous;
 @property (nonatomic, retain) NSString *videoID;
-
+@property (nonatomic, retain) NSString  *reply_count;
 @property (nonatomic, retain) NSMutableArray *videoArray;
 @end

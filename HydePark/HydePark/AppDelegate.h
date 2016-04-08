@@ -11,7 +11,7 @@
 #import <Accounts/Accounts.h>
 #import <Social/Social.h>
 #import <Twitter/Twitter.h>
-
+#import "CommentsModel.h"
 @class ViewController;
 @class HomeVC;
 
@@ -48,10 +48,13 @@ extern NSString * const FBSessionStateChangedNotification;
 @property (nonatomic, retain) NSString *videoUploader;
 @property (nonatomic, retain) NSString *currentScreen;
 
-
+@property BOOL hasBlockedSomeOne;
 @property (strong, nonatomic) FBSession *loggedInSession;
-
-
+@property (strong, nonatomic) NSString *emailGPLus;
+@property (strong, nonatomic) CommentsModel *commentObj;
+@property BOOL hasBeenUpdated;
+@property BOOL hasbeenEdited;
+@property BOOL timeToupdateHome;
 - (BOOL)openSessionWithAllowLoginUI:(BOOL)allowLoginUI;
 
 - (void)sessionStateChanged:(FBSession *)session state:(FBSessionState) state error:(NSError *)error;

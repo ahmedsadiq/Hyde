@@ -22,7 +22,7 @@
 @property (nonatomic, retain) NSString *gender;
 @property (nonatomic, retain) NSString *email;
 @property (nonatomic, retain) NSString *is_celeb;
-
+@property (nonatomic, retain) NSString *reply_count;
 
 ///// my channel Post////
 @property (nonatomic, retain) NSString *title;
@@ -38,6 +38,8 @@
 @property (nonatomic, retain) NSString *Tags;
 @property (nonatomic, retain) NSString *image_link;
 @property (nonatomic, retain) NSString *is_anonymous;
+@property (nonatomic, retain) NSString *Post_ID;
+
 @property (nonatomic, retain) NSMutableArray *trendingArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *ImagesArray;

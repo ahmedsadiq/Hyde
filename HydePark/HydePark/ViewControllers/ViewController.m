@@ -89,7 +89,10 @@ static NSString * const kClientId = Client_Id;
         [self.view addSubview:walkthrough];
         [self.view bringSubviewToFront:walkthrough];
     }
-    
+    tapper = [[UITapGestureRecognizer alloc]
+              initWithTarget:self action:@selector(handleSingleTap:)];
+    tapper.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:tapper];
     dot.image = [dot.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     [dot setTintColor:[UIColor colorWithRed:54.0f/255.0f
                                       green:78.0f/255.0f
@@ -108,7 +111,8 @@ static NSString * const kClientId = Client_Id;
     signIn.delegate = self;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionStateChanged:) name:FBSessionStateChangedNotification object:nil];
-   
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enableButtons:) name:@"BackToHydePark" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkUsername:) name:@"CheckForUserName" object:nil];
     if(IS_IPHONE_4){
         _socialLogin.frame = CGRectMake(0, 0, 320, 480);
         socialLoginView.frame = CGRectMake(0, 0, 320, 480);
@@ -151,6 +155,12 @@ static NSString * const kClientId = Client_Id;
     //[socialScrollview setContentOffset:CGPointMake(0, 0) animated:YES];
     [socialScrollview addSubview:self.CustomLoginView];
 
+}
+- (void)handleSingleTap:(UITapGestureRecognizer *) sender
+{
+    [accounttypeView setHidden:YES];
+    _gplusbtn.enabled = YES;
+    _fbbtn.enabled = YES;
 }
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
     CGPoint scrollPos = scrollView.contentOffset;
@@ -236,7 +246,9 @@ static NSString * const kClientId = Client_Id;
     [GPPSignIn sharedInstance].delegate=self;
     [[GPPSignIn sharedInstance] authenticate];
 }
-
+-(void)checkUsername:(NSNotification *)notification{
+    appDelegate.emailGPLus = gpUsername;
+}
 - (void)finishedWithAuth:(GTMOAuth2Authentication *)auth
                    error:(NSError *)error
 {
@@ -246,6 +258,7 @@ static NSString * const kClientId = Client_Id;
         appDelegate.isLoggedIn = YES;
         
         NSLog(@"%@", signIn.authentication.userEmail);
+       gpUsername  = signIn.authentication.userEmail;
         GTLServicePlus* plusService = [[GTLServicePlus alloc] init];
         plusService.retryEnabled = YES;
         [plusService setAuthorizer:signIn.authentication];
@@ -279,7 +292,7 @@ static NSString * const kClientId = Client_Id;
                                                                withString: @"150"];
                         }
                        
-                        [self sendsocialSignUpCall:@"GOOGLE_PLUS"];
+                        [self beforSocialLogin:@"GOOGLE_PLUS"];
                     }
                 }];
         
@@ -312,7 +325,10 @@ static NSString * const kClientId = Client_Id;
         [appfbLogin openSessionWithAllowLoginUI:YES];
     }
 }
-
+-(void)enableButtons:(NSNotification *)notification{
+    _gplusbtn.enabled = YES;
+    _fbbtn.enabled = YES;
+}
 - (void)sessionStateChanged:(NSNotification *)notification {
     if (FBSession.activeSession.isOpen) {
         
@@ -352,13 +368,20 @@ static NSString * const kClientId = Client_Id;
                          
                          NSLog(@"Getting Picture : %@ %@",user,_profile_pic_url);
                          if (userName) {
-                             [self sendsocialSignUpCall:@"FACEBOOK"];
+                             [self beforSocialLogin:@"FACEBOOK"];
+                             //[self sendsocialSignUpCall:@"FACEBOOK"];
                          }
                          //  [SVProgressHUD dismiss];
                      }
                  }];
             }
+            else{
+                _gplusbtn.enabled = YES;
+                _fbbtn.enabled = YES;
+                
+            }
         }];
+        
     }
 }
 
@@ -652,7 +675,12 @@ static NSString * const kClientId = Client_Id;
                 //Navigate to Home Screen
                 AppDelegate *appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
                 appDelegate.isLoggedIn = true;
-                
+                NSString *is_celeb = [profile objectForKey:@"is_celeb"];
+                appDelegate.IS_celeb = [is_celeb boolValue];
+                BOOL is_celebrity = [is_celeb boolValue];
+                NSString *user_id = [profile objectForKey:@"id"];
+                [[NSUserDefaults standardUserDefaults] setObject:user_id forKey:@"User_Id"];
+                [[NSUserDefaults standardUserDefaults] setBool:is_celebrity forKey:@"is_celeb"];
                 [[NSUserDefaults standardUserDefaults] setObject:sessionToken forKey:@"session_token"];
                 [[NSUserDefaults standardUserDefaults] setObject:id forKey:@"id"];
                 [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"logged_in"];
@@ -705,7 +733,19 @@ static NSString * const kClientId = Client_Id;
 }
 
 - (IBAction)ResetPressed:(id)sender {
-    [self ResetPasswordRequest];
+    [_txtForgetEmailField resignFirstResponder];
+    if (_txtForgetEmailField.text.length > 0 ) {
+        
+        if(![self validateEmail:_txtForgetEmailField.text])
+        {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please enter a valid email address." delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+            
+            [alertView show];
+            return;
+        }else{
+            [self ResetPasswordRequest];
+        }
+    }
 }
 
 -(void) ResetPasswordRequest {
@@ -724,10 +764,13 @@ static NSString * const kClientId = Client_Id;
         NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            
+            [SVProgressHUD dismiss];
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             NSLog(@"%@",result);
             
             int success = [[result objectForKey:@"success"] intValue];
+            NSString *message = [result  objectForKey:@"message"];
             NSDictionary *data = [result objectForKey:@"data"];
             
             if(success == 1) {
@@ -736,8 +779,15 @@ static NSString * const kClientId = Client_Id;
                 [alert show];
                 
             }
+            else if(success == 0)
+            {
+                [SVProgressHUD dismiss];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Reset Password" message:message delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+                [alert show];
+            }
         }
         else{
+            [SVProgressHUD dismiss];
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Email is incorrect!" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
         }
@@ -781,9 +831,16 @@ static NSString * const kClientId = Client_Id;
     //socialBgimg.image = [UIImage imageNamed:@"Signin_bg.png"];
     
 }
-
-
-
+-(IBAction)normalBtnPressed:(id)sender{
+    is_celeb = @"0";
+    accounttypeView.hidden = TRUE;
+    [self sendsocialSignUpCall:aType];
+}
+-(IBAction)CelebBtnPressed:(id)sender{
+    is_celeb = @"1";
+    accounttypeView.hidden = TRUE;
+    [self sendsocialSignUpCall:aType];
+}
 #pragma mark Navigation
 
 - (IBAction)switchtoSocialLogin:(id)sender {
@@ -807,14 +864,20 @@ static NSString * const kClientId = Client_Id;
     }
     
 }
+
+-(void)beforSocialLogin:(NSString*) type{
+    accounttypeView.hidden = FALSE;
+    aType = type;
+}
 #pragma mark SignUp Methods
 
 -(void) sendsocialSignUpCall : (NSString*) type {
     //[SVProgressHUD showWithStatus:@"Signing Up..."];
     
+    
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_SIGN_UP,@"method",
-                              _strUserId,@"username", _strFirstN,@"full_name",_strEmail,@"email",type,@"account_type",@"0",@"is_celeb",_profile_pic_url,@"profile_image_url",  nil];
+                              _strUserId,@"username", _strFirstN,@"full_name",_strEmail,@"email",type,@"account_type",is_celeb,@"is_celeb",_profile_pic_url,@"profile_image_url",  nil];
     
     
     NSData *postData = [Utils encodeDictionary:postDict];
@@ -829,13 +892,16 @@ static NSString * const kClientId = Client_Id;
         // [SVProgressHUD dismiss];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *data = [result objectForKey:@"data"];
             NSDictionary *profile = [data objectForKey:@"profile"];
             NSString *sessionToken = [profile objectForKey:@"session_token"];
             NSString *id = [profile objectForKey:@"id"];
-            
+            NSString *is_celebs = [profile objectForKey:@"is_celeb"];
+            BOOL is_celebrity = [is_celebs boolValue];
+            [[NSUserDefaults standardUserDefaults] setBool:is_celebrity forKey:@"is_celeb"];
             if(success == 1) {
                 //Navigate to Home Screen
                 AppDelegate *appDelegatea = (AppDelegate*)[UIApplication sharedApplication].delegate;
@@ -845,7 +911,9 @@ static NSString * const kClientId = Client_Id;
                 [[NSUserDefaults standardUserDefaults] setObject:id forKey:@"id"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"logged_in"];
-                
+                NSString *is_celebs = [profile objectForKey:@"is_celeb"];
+                BOOL is_celebrity = [is_celebs boolValue];
+                [[NSUserDefaults standardUserDefaults] setBool:is_celebrity forKey:@"is_celeb"];
                 //  HomeVC *controller = [[HomeVC alloc] initWithNibName:@"HomeVC" bundle:nil];
                 // [self.navigationController pushViewController:controller animated:YES];
                 [[NavigationHandler getInstance]NavigateToHomeScreen];

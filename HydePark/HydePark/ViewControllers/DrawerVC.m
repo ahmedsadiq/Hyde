@@ -59,12 +59,15 @@ float _yLocation;
     // Do any additional setup after loading the view from its nib.
     appDelegate = [[UIApplication sharedApplication] delegate];
     
-    if (IS_IPHONE_6) {
+    if (IS_IPHONE_6 ) {
         self.view.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, 667);
     }else if (IS_IPHONE_5){
     
     }
-    
+    else if (IS_IPHONE_6Plus){
+        
+        [self.view setFrame:CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width, 736)];
+    }
     DrawerVC_Instance = self;
     removeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [removeBtn setFrame:CGRectMake(0, 0, parentView.frame.size.width, parentView.frame.size.height)];

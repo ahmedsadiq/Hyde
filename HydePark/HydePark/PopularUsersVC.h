@@ -21,7 +21,7 @@
     
     IBOutlet UITextField *searchField;
     IBOutlet UITableView *PopularUserTbl;
-    
+    BOOL serverCall;
     BOOL goSearch;
     BOOL cannotScroll;
     int pageNum;

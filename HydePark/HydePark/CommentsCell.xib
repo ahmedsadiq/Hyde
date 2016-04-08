@@ -46,15 +46,15 @@
                         </state>
                         <state key="disabled" backgroundImage="commentnew.png"/>
                     </button>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Yh1-DR-HpK">
-                        <rect key="frame" x="26" y="133" width="42" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="D1s-GY-iHd">
+                        <rect key="frame" x="262" y="132" width="25" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                        <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="1"/>
+                        <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="12"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="D1s-GY-iHd">
-                        <rect key="frame" x="262" y="132" width="25" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Ro4-w8-Imq">
+                        <rect key="frame" x="35" y="132" width="25" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="12"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -97,7 +97,7 @@
                 <outlet property="VideoTitle" destination="NLO-of-YMc" id="GJM-FJ-28z"/>
                 <outlet property="commentsBtn" destination="vGP-rd-Q80" id="wfA-yd-Pmh"/>
                 <outlet property="heart" destination="ix5-s6-609" id="7Z0-AE-cBL"/>
-                <outlet property="heartCountlbl" destination="Yh1-DR-HpK" id="OMS-Ly-UYp"/>
+                <outlet property="heartCountlbl" destination="Ro4-w8-Imq" id="kHu-g3-ZNJ"/>
                 <outlet property="playVideo" destination="XwB-rg-fgM" id="KX9-Sd-7Q0"/>
                 <outlet property="profileImage" destination="FVg-N0-KlB" id="6Sb-WT-ERn"/>
                 <outlet property="userName" destination="NLO-of-YMc" id="o4A-6x-omO"/>

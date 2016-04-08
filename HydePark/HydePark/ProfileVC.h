@@ -12,6 +12,7 @@
 #import "NIDropDown.h"
 #import "ASIFormDataRequest.h"
 #import "AppDelegate.h"
+#import "AsyncImageView.h"
 @class RadioButton;
 
 @interface ProfileVC : UIViewController<UITextFieldDelegate,CountryPickerDelegate,NIDropDownDelegate,ASIHTTPRequestDelegate>
@@ -78,6 +79,12 @@
     IBOutlet UIButton *saveProfile;
     IBOutlet UIButton *birhdaybtn;
     IBOutlet UIView *GenderView;
+    
+    IBOutlet AsyncImageView *one;
+    IBOutlet AsyncImageView *two;
+    IBOutlet AsyncImageView *three;
+ 
+    NSMutableArray *beamsThumbnails;
 }
 @property (nonatomic, strong) IBOutlet RadioButton* maleButton;
 @property (nonatomic, assign) BOOL isMenuVisible;

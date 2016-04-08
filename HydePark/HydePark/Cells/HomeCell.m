@@ -9,7 +9,7 @@
 #import "HomeCell.h"
 
 @implementation HomeCell
-@synthesize CommentscountLbl,heartCountlbl,flag,commentsBtn,heart,userName,VideoTitle,playVideo,hashTags,videoThumbnail;
+@synthesize CommentscountLbl,heartCountlbl,flag,commentsBtn,heart,userName,VideoTitle,playVideo,hashTags,videoThumbnail,editBtn;
 
 - (void)awakeFromNib {
     // Initialization code

@@ -22,5 +22,6 @@
 @property (nonatomic, retain) NSString *post_ID;
 @property (nonatomic, retain) id seen;
 @property (nonatomic, retain) NSString *profile_link;
+@property (nonatomic, retain) NSString *parent_Id;
 
 @end

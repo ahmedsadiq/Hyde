@@ -27,5 +27,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *hashTags;
 @property (strong, nonatomic) IBOutlet AsyncImageView *videoThumbnail;
 @property (strong, nonatomic) IBOutlet UILabel *videoLength;
+@property (strong, nonatomic) IBOutlet UIButton *editBtn;
 
 @end

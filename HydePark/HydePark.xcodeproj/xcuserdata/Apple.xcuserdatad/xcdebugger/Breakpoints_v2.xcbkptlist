@@ -6,16 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "478073559.626569"
+            filePath = "HydePark/ViewControllers/ViewController.m"
+            timestampString = "481802327.148175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1151"
-            endingLineNumber = "1151"
-            landmarkName = "-tableView:cellForRowAtIndexPath:"
+            startingLineNumber = "936"
+            endingLineNumber = "936"
+            landmarkName = "-sendsocialSignUpCall:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HydePark/ProfileVC.m"
-            timestampString = "478159458.168807"
+            filePath = "HydePark/ViewControllers/ViewController.m"
+            timestampString = "481802513.278186"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "86"
-            endingLineNumber = "86"
-            landmarkName = "-getUserProfile"
+            startingLineNumber = "274"
+            endingLineNumber = "274"
+            landmarkName = "-finishedWithAuth:error:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,13 +41,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HydePark/ViewControllers/HomeVC.m"
-            timestampString = "478350889.361047"
+            filePath = "HydePark/ViewControllers/ViewController.m"
+            timestampString = "481802556.748604"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2376"
-            endingLineNumber = "2376"
-            landmarkName = "-GetCommnetsOnPost"
+            startingLineNumber = "304"
+            endingLineNumber = "304"
+            landmarkName = "-finishedWithAuth:error:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HydePark/ViewControllers/ViewController.m"
+            timestampString = "481802573.283916"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "380"
+            endingLineNumber = "380"
+            landmarkName = "-sessionStateChanged:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -33,7 +33,7 @@
     
     __weak IBOutlet UIImageView *dot;
     GPPSignIn *signIn;
-    
+    UIGestureRecognizer *tapper;
     IBOutlet UIButton *btnStarted;
     IBOutlet UIView *LoginTabLine;
     IBOutlet UIView *socialTabLine;
@@ -41,6 +41,10 @@
     IBOutlet UIView *socialLoginView;
       AppDelegate *appfbLogin;
       AppDelegate *appDelegate;
+    IBOutlet UIView *accounttypeView;
+    NSString *aType;
+    NSString *is_celeb;
+    NSString *gpUsername;
 }
 @property (weak, nonatomic) IBOutlet UIButton *btnSignUp;
 @property (weak, nonatomic) IBOutlet UIButton *gplusbtn;

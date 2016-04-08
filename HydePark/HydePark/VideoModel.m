@@ -9,5 +9,5 @@
 #import "VideoModel.h"
 
 @implementation VideoModel
-@synthesize title,comments_count,userName,topic_id,user_id,profile_image,like_count,seen_count,video_thumbnail_link,video_link,videoID,Tags,video_length,message_Thread,like_by_me,image_link,is_anonymous;
+@synthesize title,comments_count,userName,topic_id,user_id,profile_image,like_count,seen_count,video_thumbnail_link,video_link,videoID,Tags,video_length,message_Thread,like_by_me,image_link,is_anonymous,reply_count;
 @end

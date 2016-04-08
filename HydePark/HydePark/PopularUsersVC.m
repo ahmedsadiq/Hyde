@@ -26,18 +26,21 @@
 {
     if (IS_IPAD) {
         self = [super initWithNibName:@"PopularUsersVC_iPad" bundle:Nil];
-    }else if(IS_IPHONE_6 || IS_IPHONE_5){
+    }else if(IS_IPHONE_6 || IS_IPHONE_5 || IS_IPHONE_4){
         
         self = [super initWithNibName:@"PopularUsersVC_iPhone6" bundle:Nil];
     }
-    else{
+    else if (IS_IPHONE_6Plus){
         self = [super initWithNibName:@"PopularUsersVC" bundle:Nil];
     }
     
     return self;
 }
 
-
+- (void)viewWillAppear {
+    [super viewWillAppear:YES];
+    serverCall = false;
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
@@ -49,16 +52,19 @@
     
     [searchField setValue:[UIColor whiteColor]
                     forKeyPath:@"_placeholderLabel.textColor"];
-    
+    PopularUserTbl.backgroundColor = [UIColor clearColor];
+    PopularUserTbl.opaque = NO;
     [self getFamousUsers];
-    
-    
     if (IS_IPHONE_5 || IS_IPHONE_6) {
-        
         self.view.frame = CGRectMake(0, 0, 375, 667);
-        PopularUserTbl.frame = CGRectMake(104, 0, 375, 563);
+        PopularUserTbl.frame = CGRectMake(0, 50, 375, 620);
         
     }
+    else if(IS_IPHONE_6Plus)
+    {
+        PopularUserTbl.frame = CGRectMake(0, 55, 414, 685);
+    }
+   
     
 }
 
@@ -68,7 +74,7 @@
 }
 
 - (void) getFamousUsers{
-
+    serverCall = TRUE;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     
@@ -91,9 +97,9 @@
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
-            
+            NSLog(@"%@",result);
             if(success == 1) {
-                
+                serverCall = FALSE;
                 usersArray = [result objectForKey:@"users"];
                 
                 if([usersArray isKindOfClass:[NSArray class]])
@@ -133,6 +139,7 @@
                 [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             }
         }else{
+            serverCall = FALSE;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
@@ -146,7 +153,7 @@
     
     float returnValue;
     if (IS_IPAD)
-        returnValue = 100.0f;
+        returnValue = 121.0f;
     else
         returnValue = 83.0f;
     
@@ -167,7 +174,10 @@
     
     
     SearchCell *cell;
-    
+    float returnValue = 83;
+    if(IS_IPAD)
+        returnValue = 124;
+    PopularUserTbl.contentSize = CGSizeMake(PopularUserTbl.frame.size.width,PopUsers.PopUsersArray.count * returnValue );
     if (IS_IPAD) {
         
         NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"SearchCell_iPad" owner:self options:nil];
@@ -200,33 +210,28 @@
     cell.profilePic.layer.borderWidth = 3.0f;
     
     cell.statusImage.hidden = false;
-    
     cell.activityInd.hidden = true;
     [cell.activityInd stopAnimating];
-    
-    if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-    }
     [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
     [cell.statusImage setTag:indexPath.row];
     
     if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
         
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
     }else if ([tempUsers.status isEqualToString:@"FRIEND"]){
         
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
+        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
     }
     
     if ([tempUsers.status isEqualToString:@"PENDING"]) {
         cell.statusImage.hidden = true;
-        
         cell.activityInd.hidden = false;
         [cell.activityInd startAnimating];
     }
     
     
-    
+    [cell setBackgroundColor:[UIColor clearColor]];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 
@@ -237,7 +242,7 @@
     NSIndexPath *path = [PopularUserTbl indexPathForCell:lastVisibleCell];
     if(path.section == 0 && path.row == PopUsers.PopUsersArray.count-1)
     {
-        if(!cannotScroll) {
+        if(!cannotScroll && !serverCall) {
             if(goSearch) {
                 searchPageNum++;
             }
@@ -265,7 +270,7 @@
     PopUser  = [PopUsers.PopUsersArray objectAtIndex:currentSelectedIndex];
     friendId = PopUser.friendID;
     
-    [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+    [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
     
     if ([PopUser.status isEqualToString:@"ADD_FRIEND"]) {
         
@@ -274,7 +279,7 @@
         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
         [PopularUserTbl reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
         
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
         [self sendFriendRequest:PopUser];
         
     }else if ([PopUser.status isEqualToString:@"PENDING"] || [PopUser.status isEqualToString:@"FRIEND"]){
@@ -284,7 +289,7 @@
         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
         [PopularUserTbl reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
         
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
         [self sendCancelRequest];
     }
 }

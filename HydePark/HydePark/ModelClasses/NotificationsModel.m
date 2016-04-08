@@ -9,6 +9,6 @@
 #import "NotificationsModel.h"
 
 @implementation NotificationsModel
-@synthesize name,message,time,notificationType,notificationArray,notif_ID,friend_ID,notificationsData,postData,seen;
+@synthesize name,message,time,notificationType,notificationArray,notif_ID,friend_ID,notificationsData,postData,seen,parent_Id;
 
 @end

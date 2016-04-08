@@ -15,7 +15,7 @@
 
 @interface MyBeam : UIViewController<UITableViewDelegate,UITableViewDataSource>
 {
-
+    
     myBeamsModel *mybeamsObj;
     AppDelegate *appDelegate;
     CommentsModel *CommentsModelObj;
@@ -28,7 +28,7 @@
     
     BOOL liked;
     BOOL seenPost;
-    
+    NSMutableArray *videoObj;
     NSArray *beamsArray;
     NSArray *videosArray;
     NSArray *ArrayForSearch;
@@ -40,6 +40,7 @@
     NSIndexPath* index;
     UIView *overlayView;
     
+    IBOutlet UIView *editView;
 #pragma mark Commentsview
     
     IBOutlet UITableView *commentsTable;
@@ -59,6 +60,7 @@
     int searchPageNum;
     BOOL cannotScroll;
     BOOL goSearch;
+    UIGestureRecognizer *tapper;
     
 }
 @property (strong, nonatomic) IBOutlet UITableView *TableBeams;

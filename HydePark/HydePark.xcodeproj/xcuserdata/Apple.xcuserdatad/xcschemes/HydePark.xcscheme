@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2E315C601AE64660004C305B"
-               BuildableName = "HPC.app"
+               BuildableName = "HydePark.app"
                BlueprintName = "HydePark"
                ReferencedContainer = "container:HydePark.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2E315C601AE64660004C305B"
-            BuildableName = "HPC.app"
+            BuildableName = "HydePark.app"
             BlueprintName = "HydePark"
             ReferencedContainer = "container:HydePark.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2E315C601AE64660004C305B"
-            BuildableName = "HPC.app"
+            BuildableName = "HydePark.app"
             BlueprintName = "HydePark"
             ReferencedContainer = "container:HydePark.xcodeproj">
          </BuildableReference>
@@ -99,7 +99,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2E315C601AE64660004C305B"
-            BuildableName = "HPC.app"
+            BuildableName = "HydePark.app"
             BlueprintName = "HydePark"
             ReferencedContainer = "container:HydePark.xcodeproj">
          </BuildableReference>

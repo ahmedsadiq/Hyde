@@ -15,6 +15,9 @@
 #import "NavigationHandler.h"
 #import "CommentsCell.h"
 #import "CommentsVC.h"
+#import "VideoPlayerVC.h"
+#import "VideoModel.h"
+#import "BeamUploadVC.h"
 @interface MyBeam ()
 
 @end
@@ -29,9 +32,6 @@
     }
     return self;
 }
-
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
@@ -40,15 +40,33 @@
     CommentsModelObj = [[CommentsModel alloc] init];
     pageNum = 1;
     videomodel = [[VideoModel alloc]init];
+    _TableBeams.backgroundColor = [UIColor clearColor];
+    videoObj = [[NSMutableArray alloc] init];
+    _TableBeams.opaque = NO;
+//    UIImageView *tempImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+//    [tempImageView setFrame:_TableBeams.frame];
+//    _TableBeams.backgroundView = tempImageView;
+    tapper = [[UITapGestureRecognizer alloc]
+              initWithTarget:self action:@selector(handleSingleTap:)];
+    tapper.cancelsTouchesInView = NO;
+    [self.view addGestureRecognizer:tapper];
+    //[self getmyBeams];
+    
+}
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [editView setHidden:YES];
     [self getmyBeams];
     
 }
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+- (void)handleSingleTap:(UITapGestureRecognizer *) sender
+{
+    [editView setHidden:YES];
+}
 - (void) getmyBeams{
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     
@@ -106,7 +124,9 @@
                         _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
                         _Videos.VideoID = [tempDict objectForKey:@"id"];
                         _Videos.video_length = [tempDict objectForKey:@"video_length"];
-                        
+                        _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                        _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
+                        _Videos.reply_count = [tempDict objectForKey:@"reply_count"];
                         [mybeamsObj.imagesArray addObject:_Videos.profile_image];
                         [mybeamsObj.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
                         [mybeamsObj.mainArray addObject:_Videos.video_link];
@@ -141,7 +161,7 @@
     float returnValue;
     
     if (IS_IPAD)
-        returnValue = 372.0f;
+        returnValue = 400.0f;
     else
         returnValue = 230.0f;
     
@@ -195,7 +215,6 @@
         cell.userName.text = tempVideos.userName;
         
         cell.VideoTitle.text = tempVideos.title;
-        NSLog(@"%@",tempVideos.userName);
         cell.CommentscountLbl.text = tempVideos.comments_count;
         cell.heartCountlbl.text = tempVideos.like_count;
         
@@ -242,7 +261,8 @@
         }else{
             [cell.heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
         }
-        
+        [cell.editBtn addTarget:self action:@selector(editbtnTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.editBtn setTag:indexPath.row];
         [cell.commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
         [cell.commentsBtn setTag:indexPath.row];
         
@@ -253,7 +273,8 @@
         UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
         [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
         [cell addGestureRecognizer:sgr];
-        
+        [cell setBackgroundColor:[UIColor clearColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
         return cell;
     }
     
@@ -275,8 +296,7 @@
         tempVideos  = [CommentsArray objectAtIndex:indexPath.row];
         cell.userName.text = tempVideos.userName;
         cell.VideoTitle.text = tempVideos.title;
-        
-        NSLog(@"%@",tempVideos.userName);
+       
         cell.CommentscountLbl.text = tempVideos.comments_count;
         cell.heartCountlbl.text = tempVideos.like_count;
         cell.seenLbl.text = tempVideos.seen_count;
@@ -339,7 +359,8 @@
         [cell.playVideo setTag:indexPath.row];
         
         appDelegate.videotoPlay = [tempVideos.mainArray objectAtIndex:indexPath.row];
-        
+        cell.heart.enabled = YES;
+        cell.commentsBtn.enabled = YES;
         [cell.heart addTarget:self action:@selector(Hearts:) forControlEvents:UIControlEventTouchUpInside];
         
         if ([tempVideos.liked_by_me isEqualToString:@"1"]) {
@@ -359,7 +380,8 @@
         if(IS_IPHONE_6){
             cell.contentView.frame = CGRectMake(0, 0, 375, 220);
         }
-        
+        [cell setBackgroundColor:[UIColor clearColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
         return cell;
     }
     return nil;
@@ -402,28 +424,60 @@
 }
 
 -(void)playVideo:(UIButton*)sender{
-    
     UIButton *playBtn = (UIButton *)sender;
     currentSelectedIndex = playBtn.tag;
-    appDelegate.videotoPlay = [mybeamsObj.mainArray objectAtIndex:currentSelectedIndex];
-    myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
-    appDelegate.videoUploader = tempVideos.userName;
-    appDelegate.videotitle = tempVideos.title;
-    appDelegate.profile_pic_url = tempVideos.profile_image;
-    tempVideos  = [mybeamsObj.trendingArray objectAtIndex:currentSelectedIndex];
-    postID = tempVideos.VideoID;
-    [self SeenPost];
+    [videoObj removeAllObjects];
+    for(int i = 0; i < mybeamsObj.trendingArray.count ; i++){
+        myBeamsModel *model = [mybeamsObj.trendingArray objectAtIndex:i];
+        VideoModel *temp = [[VideoModel alloc] init];
+        temp.is_anonymous           = model.is_anonymous;
+        temp.title                  = model.title;
+        temp.comments_count         = model.comments_count;
+        temp.userName               = model.userName;
+        temp.topic_id               = model.topic_id;
+        temp.user_id                = model.user_id;
+        temp.profile_image          = model.profile_image;
+        temp.video_link             = model.video_link;
+        temp.video_thumbnail_link   = model.video_thumbnail_link;
+        temp.videoID                = model.VideoID;
+        temp.video_length           = model.video_length;
+        temp.like_count             = model.like_count;
+        temp.like_by_me             = model.like_by_me;
+        temp.seen_count             = model.seen_count;
+        [videoObj addObject:temp];
+    }
+    VideoPlayerVC *videoPlayer;
+    if(IS_IPAD)
+        videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPad" bundle:nil];
+    else if(IS_IPHONE_6Plus)
+        videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPhonePlus" bundle:nil];
+    else
+        videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+    videoPlayer.videoObjs       = videoObj;
+    videoPlayer.indexToDisplay  = currentSelectedIndex;
+    videoPlayer.isComment       = FALSE;
+    videoPlayer.isFirst         = TRUE;
+    videoPlayer.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+    [UIView animateWithDuration:0.6
+                     animations:^{
+                         [self.view addSubview:videoPlayer.view];
+                         videoPlayer.view.transform=CGAffineTransformMakeScale(1, 1);
+                     }
+                     completion:^(BOOL finished){
+                         [videoPlayer.view removeFromSuperview];
+                         [self.navigationController pushViewController:videoPlayer animated:NO];
+                     }];
     
-    [[NavigationHandler getInstance]MoveToPlayer];
+    [self SeenPost];
 }
 
 - (void)Hearts:(UIButton*)sender{
     
     UIButton *LikeBtn = (UIButton *)sender;
     currentSelectedIndex = LikeBtn.tag;
-    
+    LikeBtn.enabled = NO;
     myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
-    tempVideos  = [tempVideos.trendingArray objectAtIndex:currentSelectedIndex];
+    tempVideos  = [mybeamsObj.trendingArray objectAtIndex:currentSelectedIndex];
     
     postID = tempVideos.VideoID;
     [self LikePost];
@@ -455,12 +509,12 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        NSLog(@"%ld",(long)[(NSHTTPURLResponse *)response statusCode]);
+        
         [SVProgressHUD dismiss];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSLog(@"%@",result);
+         
             int success = [[result objectForKey:@"success"] intValue];
             NSString *message = [result objectForKey:@"message"];
             
@@ -502,7 +556,7 @@
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-            NSLog(@"%@",result);
+           
             int success = [[result objectForKey:@"success"] intValue];
             NSString *message = [result objectForKey:@"message"];
             
@@ -520,18 +574,89 @@
         }
     }];
 }
-
+#pragma mark editTapped
+-(void) editbtnTapped:(UIButton *)sender{
+    editView.hidden = NO;
+    CGAffineTransform gameModViewTransform = editView.transform;
+    editView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.001, 0.001);
+    [UIView animateWithDuration:0.3/2.0 animations:^{
+        editView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 1.1, 1.1);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.3/2 animations:^{
+            editView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.5, 0.5);
+        } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.3/2 animations:^{
+                editView.transform = CGAffineTransformIdentity;
+            }];
+        }];
+    }];
+    editView.transform = gameModViewTransform;
+    UIButton *editbtn = (UIButton *)sender;
+    currentSelectedIndex = editbtn.tag;
+}
+- (IBAction)CancelEditBtn:(id)sender{
+    [editView removeFromSuperview];
+}
+- (IBAction)editBeam:(id)sender{
+    myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
+    tempVideos  = [beamsArray objectAtIndex:currentSelectedIndex];
+    NSString *postIDs = tempVideos.VideoID;
+    BeamUploadVC *uploadController = [[BeamUploadVC alloc] initWithNibName:@"BeamUploadVC" bundle:nil];
+    uploadController.video_thumbnail = tempVideos.video_thumbnail_link;
+    uploadController.postID = postIDs;
+    appDelegate.hasbeenEdited = TRUE;
+    [[self navigationController] pushViewController:uploadController animated:YES];
+}
+-(IBAction)DeleteBtn:(id)sender{
+    [editView setHidden:YES];
+    myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
+    tempVideos  = [beamsArray objectAtIndex:currentSelectedIndex];
+    NSString *postIDs = tempVideos.VideoID;
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:@"deletePost",@"method",
+                              token,@"session_token",postIDs,@"post_id",nil];
+    
+    NSData *postData = [Utils encodeDictionary:postDict];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setHTTPBody:postData];
+    
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
+        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
+        {
+            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            int success = [[result objectForKey:@"success"] intValue];
+            NSString *message = [result objectForKey:@"message"];
+            if(success == 1){
+                [mybeamsObj.trendingArray removeObjectAtIndex:currentSelectedIndex];
+                beamsArray = mybeamsObj.trendingArray;
+                [_TableBeams reloadData];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Done" message:message
+                                                               delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                [alert show];
+            }
+        }
+        else{
+            
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [alert show];
+        }
+    }];
+}
 #pragma mark Get Comments
 
 -(void) ShowCommentspressed:(UIButton *)sender{
-    
-    commentsTable.hidden = NO;
     UIButton *CommentsBtn = (UIButton *)sender;
     currentSelectedIndex = CommentsBtn.tag;
     
     myBeamsModel *tempVideos = [[myBeamsModel alloc]init];
     tempVideos  = [beamsArray objectAtIndex:currentSelectedIndex];
-  
+    
     videomodel.videoID = tempVideos.VideoID;
     videomodel.video_thumbnail_link = tempVideos.video_thumbnail_link;
     videomodel.video_link = tempVideos.video_link;
@@ -543,12 +668,12 @@
     videomodel.like_by_me = tempVideos.like_by_me;
     videomodel.seen_count = tempVideos.seen_count;
     videomodel.title = tempVideos.title;
-    
+    videomodel.reply_count = tempVideos.reply_count;
     postID = tempVideos.VideoID;
-
+    
     ParentCommentID = @"-1";
     [self GetCommnetsOnPost];
-
+    
 }
 -(void) GetCommnetsOnPost{
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
@@ -566,7 +691,7 @@
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
-             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *users = [result objectForKey:@"comments"];
@@ -608,13 +733,17 @@
                     commentsVideosArray = CommentsModelObj.mainArray;
                     
                 }
-                CommentsVC *commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+                CommentsVC *commentController ;
+                if(IS_IPAD)
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC_iPad" bundle:nil];
+                else
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
                 commentController.commentsObj = CommentsModelObj;
                 commentController.postArray = videomodel;
                 [[self navigationController] pushViewController:commentController animated:YES];
-
-//                [commentsTable reloadData];
-//                [self.view addSubview:commentsView];
+                
+                //                [commentsTable reloadData];
+                //                [self.view addSubview:commentsView];
                 if (IS_IPHONE_6) {
                     commentsView.frame = CGRectMake(0, 0, 375, 667);
                     commentsTable.frame = CGRectMake(0,297,375,370);
@@ -696,7 +825,7 @@
 - (IBAction)editBtn:(id)sender {
 }
 
-- (IBAction)DeleteBtn:(id)sender {
-    [_TableBeams deleteRowsAtIndexPaths:[NSArray arrayWithObject:index] withRowAnimation:UITableViewRowAnimationRight];
-}
+//- (IBAction)DeleteBtn:(id)sender {
+//    [_TableBeams deleteRowsAtIndexPaths:[NSArray arrayWithObject:index] withRowAnimation:UITableViewRowAnimationRight];
+//}
 @end

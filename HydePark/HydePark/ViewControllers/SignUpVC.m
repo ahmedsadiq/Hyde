@@ -47,18 +47,16 @@
 
 #pragma mark - Helpers
 
-- (void)showSelectedButton:(NSArray *)radioButtons {
-   btnTitle = [(DLRadioButton *)radioButtons[0] selectedButton].titleLabel.text;
-    [accountType setTitle:btnTitle forState:UIControlStateNormal];
-    accounttypeView.hidden = YES;
- 
-}
-
-- (IBAction)touched:(id)sender {
-    
-    
-    [self showSelectedButton:self.topRadioButtons];
-}
+//- (void)showSelectedButton:(NSArray *)radioButtons {
+//   btnTitle = [(DLRadioButton *)radioButtons[0] selectedButton].titleLabel.text;
+//    [accountType setTitle:btnTitle forState:UIControlStateNormal];
+//    accounttypeView.hidden = YES;
+// 
+//}
+//
+//- (IBAction)touched:(id)sender {
+//    [self showSelectedButton:self.topRadioButtons];
+//}
 
 
 
@@ -71,12 +69,12 @@
     accountTypes = [[NSArray alloc] initWithObjects:@"Normal",@"Public Figure", nil];
     
     // set up button icons
-    for (DLRadioButton *radioButton in self.topRadioButtons) {
-        radioButton.ButtonIcon = [UIImage imageNamed:@"unchecked24.png"];
-        radioButton.ButtonIconSelected = [UIImage imageNamed:@"checked24.png"];
-    }
-    
-    
+//    for (DLRadioButton *radioButton in self.topRadioButtons) {
+//        radioButton.ButtonIcon = [UIImage imageNamed:@"unchecked24.png"];
+//        radioButton.ButtonIconSelected = [UIImage imageNamed:@"checked24.png"];
+//    }
+//    
+//    
     UIColor *color = [UIColor whiteColor];
     txtUserName.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"User Name" attributes:@{NSForegroundColorAttributeName: color}];
     txtEmail.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"Email" attributes:@{NSForegroundColorAttributeName: color}];
@@ -138,6 +136,11 @@
                 [alertView show];
                 [txtDisplayName resignFirstResponder];
             }
+            else if([accountType.titleLabel.text isEqualToString:@"Account Type"])
+            {
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Empty Field" message:@"Please select account type." delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+                [alertView show];
+            }
             else {
                 [self sendSignUpCall];
             }
@@ -149,13 +152,21 @@
         return;
     }
 }
+-(IBAction)normalBtnPressed:(id)sender{
+    is_celeb = @"0";
+    accounttypeView.hidden = TRUE;
+}
+-(IBAction)CelebBtnPressed:(id)sender{
+    is_celeb = @"1";
+    accounttypeView.hidden = TRUE;
+}
 -(void) sendSignUpCall {
     [SVProgressHUD showWithStatus:@"Signing Up..."];
-    if ([btnTitle isEqualToString:@"Normal"]) {
-        is_celeb = @"0";
-    }else{
-        is_celeb = @"1";
-    }
+//    if ([btnTitle isEqualToString:@"Normal"]) {
+//        is_celeb = @"0";
+//    }else{
+//        is_celeb = @"1";
+//    }
     
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_SIGN_UP,@"method",
@@ -187,7 +198,11 @@
                 NSDictionary *data = [result objectForKey:@"data"];
                 NSDictionary *profile = [data objectForKey:@"profile"];
                 NSString *sessionToken = [profile objectForKey:@"session_token"];
-                
+                NSString *is_celebs = [profile objectForKey:@"is_celeb"];
+                BOOL is_celebrity = [is_celebs boolValue];
+                NSString *user_id = [profile objectForKey:@"id"];
+                [[NSUserDefaults standardUserDefaults] setObject:user_id forKey:@"User_Id"];
+                [[NSUserDefaults standardUserDefaults] setBool:is_celebrity forKey:@"is_celeb"];
                 [[NSUserDefaults standardUserDefaults] setObject:sessionToken forKey:@"session_token"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 
@@ -233,34 +248,34 @@
 }
 
 - (IBAction)accountType:(id)sender {
+    senderForNiD = sender;
+    //accounttypeView.hidden = NO;
     
-    accounttypeView.hidden = NO;
-    
-//    NSArray * arr = [[NSArray alloc] init];
-//    arr = accountTypes;
-//    NSArray * arrImage = [[NSArray alloc] init];
-//    arrImage = [NSArray arrayWithObjects:[UIImage imageNamed:@""], [UIImage imageNamed:@""], nil];
-//    if(dropDown == nil) {
-//        CGFloat f = arr.count*40;
-//        dropDown = [[NIDropDown alloc]showDropDown:sender :&f :arr :arrImage :@"down":true];
-//        dropDown.delegate = self;
-//    }
-//    else {
-//        [dropDown hideDropDown:sender];
-//        [self rel];
-//    }
+    NSArray * arr = [[NSArray alloc] init];
+    arr = accountTypes;
+    NSArray * arrImage = [[NSArray alloc] init];
+    arrImage = [NSArray arrayWithObjects:[UIImage imageNamed:@""], [UIImage imageNamed:@""], nil];
+    if(dropDown == nil) {
+        CGFloat f = arr.count*40;
+        dropDown = [[NIDropDown alloc]showDropDown:sender :&f :arr :arrImage :@"down":true];
+        dropDown.delegate = self;
+    }
+    else {
+        [dropDown hideDropDown:sender];
+        [self rel];
+    }
 }
 
 - (void) niDropDownDelegateMethod: (NIDropDown *) sender {
     
     
     if(sender.selectedIndex == 0) {
-        [accountType setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [accountType setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         is_celeb = @"0";
     
     }
     else if (sender.selectedIndex == 1) {
-        [accountType setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [accountType setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         is_celeb = @"1";
         
     }
@@ -326,6 +341,7 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
+    [dropDown hideDropDown:senderForNiD];
     [self animateTextField: textField up: YES];
 }
 

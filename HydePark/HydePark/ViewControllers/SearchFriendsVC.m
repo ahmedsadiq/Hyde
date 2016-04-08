@@ -180,18 +180,18 @@
     cell.profilePic.layer.borderColor = [UIColor whiteColor].CGColor;
     cell.profilePic.layer.borderWidth = 3.0f;
     
-    if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-    }
+//    if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
+//        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+//    }
     [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
     [cell.statusImage setTag:indexPath.row];
     
     if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
         
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
     }else if ([tempUsers.status isEqualToString:@"PENDING"]){
         
-        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
+        [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
     }
     
     return cell;
@@ -270,19 +270,19 @@
     [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
     
     if ([PopUser.status isEqualToString:@"ADD_FRIEND"]) {
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
         [self sendFriendRequest];
         
     }else if ([PopUser.status isEqualToString:@"PENDING"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
         [self sendCancelRequest];
         
     }else if ([PopUser.status isEqualToString:@"FRIEND"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
         [self sendDeleteFriend];
         
     }else if ([PopUser.status isEqualToString:@"ACCEPT_REQUEST"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
         [self sendDeleteFriend];
         
     }

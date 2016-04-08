@@ -33,7 +33,11 @@
     return self;
 }
 
-
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:NO];
+    [blockerView removeFromSuperview];
+    serverCall = false;
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
@@ -41,17 +45,24 @@
     userChannelObj = [[UserChannelModel alloc]init];
     CommentsModelObj = [[CommentsModel alloc] init];
     videomodel = [[VideoModel alloc]init];
+    videoCommentModel = [[VideoModel alloc] init];
+    pageNum = 1;
+    notificationsTbl.backgroundColor = [UIColor clearColor];
+    notificationsTbl.opaque = NO;
+//    UIImageView *tempImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+//    [tempImageView setFrame:notificationsTbl.frame];
+//    notificationsTbl.backgroundView = tempImageView;
     [self getNotigications];
     
 }
 -(void) getNotigications{
-    
+    serverCall = TRUE;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
+     NSString *pageStr = [NSString stringWithFormat:@"%d",pageNum];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_GET_NOTIFICATIONS,@"method",
-                              token,@"session_token",@"1",@"page_no",nil];
+                              token,@"session_token",pageStr,@"page_no",nil];
     
     NSData *postData = [Utils encodeDictionary:postDict];
     
@@ -70,32 +81,48 @@
             int success = [[result objectForKey:@"success"] intValue];
             
             if(success == 1){
+                serverCall = FALSE;
                 notificationsArray = [result objectForKey:@"notifications"];
-                notifModel.notificationArray = [[NSMutableArray alloc] init];
-                
-                for(NSDictionary *tempDict in notificationsArray){
-                    
-                    NotificationsModel *_notification = [[NotificationsModel alloc] init];
-                    
-                    _notification.notificationsData = [tempDict objectForKey:@"response"];
-                    _notification.notif_ID          = [tempDict objectForKey:@"id"];
-                    _notification.time              = [tempDict objectForKey:@"timestamp"];
-                    _notification.seen              = [tempDict objectForKey:@"seen"];
-                    _notification.notificationType  = [tempDict objectForKey:@"type"];
-                    _notification.message           = [_notification.notificationsData objectForKey:@"message"];
-                    _notification.postData          = [_notification.notificationsData objectForKey:@"post"];
-                    _notification.friend_ID         = [_notification.notificationsData objectForKey:@"friend_id"];
-                    _notification.post_ID           = [_notification.notificationsData objectForKey:@"post_id"];
-                    [notifModel.notificationArray addObject:_notification];
+                if([notificationsArray isKindOfClass:[NSArray class]])
+                {
+                    if(pageNum == 1)
+                        notifModel.notificationArray = [[NSMutableArray alloc] init];
+                    for(NSDictionary *tempDict in notificationsArray){
+                        
+                        NotificationsModel *_notification = [[NotificationsModel alloc] init];
+                        _notification.notificationsData = [tempDict objectForKey:@"response"];
+                        _notification.notif_ID          = [tempDict objectForKey:@"id"];
+                        _notification.time              = [tempDict objectForKey:@"timestamp"];
+                        _notification.seen              = [tempDict objectForKey:@"seen"];
+                        _notification.notificationType  = [tempDict objectForKey:@"type"];
+                        _notification.message           = [_notification.notificationsData objectForKey:@"message"];
+                        _notification.postData          = [_notification.notificationsData objectForKey:@"post"];
+                        _notification.friend_ID         = [_notification.notificationsData objectForKey:@"friend_id"];
+                        _notification.post_ID           = [_notification.notificationsData objectForKey:@"post_id"];
+                        _notification.parent_Id         = [_notification.notificationsData objectForKey:@"parent_comment_id"];
+                        [notifModel.notificationArray addObject:_notification];
+                    }
+                    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+                    int startIndex = (pageNum-1) *10;
+                    for (int i = startIndex ; i < startIndex+10; i++) {
+                        if(i<notifModel.notificationArray.count) {
+                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+                        }
+                    }
+                    [notificationsTbl beginUpdates];
+                    [notificationsTbl insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+                    [notificationsTbl endUpdates];
+                    // [notificationsTbl reloadData];
                 }
-                
-                [notificationsTbl reloadData];
+                else {
+                    cannotScroll = true;
+                }
             }
             else{
+                serverCall = FALSE;
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
                 [alert show];
             }
-            
         }
     }];
 }
@@ -157,30 +184,39 @@
     NSString *str1 = [NSString stringWithFormat:@"%@",notifiModel.notificationType];
     cell.message.text = notifiModel.message;
     if([notifiModel.seen isEqualToString:@"1"]){
-        cell.message.textColor = [UIColor redColor];
+       // cell.message.textColor = [UIColor redColor];
     }
     if ([str1 isEqualToString:@"LIKE_POST"]) {
-        [cell.notifImage setImage:[UIImage imageNamed:@"like.png"]];
+        [cell.notifImage setImage:[UIImage imageNamed:@"likeNoti.png"]];
           [cell.notifyBtn addTarget:self action:@selector(getLikePost:) forControlEvents:UIControlEventTouchUpInside];
     }else if ([str1 isEqualToString:@"LIKE_COMMENT"]) {
-        [cell.notifImage setImage:[UIImage imageNamed:@"like.png"]];
+        [cell.notifImage setImage:[UIImage imageNamed:@"likeNoti.png"]];
+        [cell.notifyBtn addTarget:self action:@selector(getCommentsPost:) forControlEvents:UIControlEventTouchUpInside];
     }
     else if ([str1 isEqualToString:@"TAG_FRIENDS"]){
-        [cell.notifImage setImage:[UIImage imageNamed:@"tag.png"]];
+        [cell.notifImage setImage:[UIImage imageNamed:@"tagNoti.png"]];
         
-    }else if ([str1 isEqualToString:@"COMMENT_POST"]){
-        [cell.notifImage setImage: [UIImage imageNamed:@"comment.png"]];
+    }else if([str1 isEqualToString:@"COMMENT_COMMENT"]){
+        
+        [cell.notifImage setImage: [UIImage imageNamed:@"commentNoti.png"]];
+        [cell.notifyBtn addTarget:self action:@selector(getCommentsOnComments:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    else if ([str1 isEqualToString:@"COMMENT_POST"]){
+        [cell.notifImage setImage: [UIImage imageNamed:@"commentNoti.png"]];
         [cell.notifyBtn addTarget:self action:@selector(getCommentsPost:) forControlEvents:UIControlEventTouchUpInside];
     }else if ([str1  isEqualToString:@"REQUEST_RECIEVED"]){
-        [cell.notifImage setImage:[UIImage imageNamed:@"request.png"]];
+        [cell.notifImage setImage:[UIImage imageNamed:@"followNoti.png"]];
+        [cell.notifyBtn addTarget:self action:@selector(getuserChannelBtn:) forControlEvents:UIControlEventTouchUpInside];
         
     }else if([str1 isEqualToString:@"REQUEST_ACCEPTED"]){
-        [cell.notifImage setImage:[UIImage imageNamed:@"accept-friend.png"]];
+        [cell.notifImage setImage:[UIImage imageNamed:@"followNoti.png"]];
     }
     else if ([str1 isEqualToString:@"FOLLOWED"])
     {
+        [cell.notifImage setImage:[UIImage imageNamed:@"followNoti.png"]];
         [cell.notifyBtn addTarget:self action:@selector(getuserChannelBtn:) forControlEvents:UIControlEventTouchUpInside];
     }
+    
     [cell.notifyBtn setTag:indexPath.row];
     //cell.message.frame = CGRectMake(cell.Name.frame.origin.x + cell.Name.frame.size.width + 20, cell.message.frame.origin.y, cell.message.frame.size.width, cell.message.frame.size.height);
     
@@ -189,6 +225,8 @@
     cell.bgView.layer.shadowOpacity = 2;
     cell.bgView.layer.shadowRadius  = 4.0;
     
+    [cell setBackgroundColor:[UIColor clearColor]];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 -(void)cellSwiped:(UIGestureRecognizer *)gestureRecognizer {
@@ -200,7 +238,22 @@
         
     }
 }
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)aScrollView
+{
+    NSArray *visibleRows = [notificationsTbl visibleCells];
+    UITableViewCell *lastVisibleCell = [visibleRows lastObject];
+    NSIndexPath *path = [notificationsTbl indexPathForCell:lastVisibleCell];
+    if(path.section == 0 && path.row == notifModel.notificationArray.count-1)
+    {
+        if(!cannotScroll && !serverCall) {
+                pageNum++;
+                [self getNotigications];
+        }
+        
+    }
+}
 -(void)getuserChannelBtn:(UIButton*)sender{
+     [self.view addSubview:blockerView];
     UIButton *LikeBtn = (UIButton *)sender;
     currentSelectedIndex = LikeBtn.tag;
     NotificationsModel *notifiModel = [[NotificationsModel alloc]init];
@@ -209,14 +262,60 @@
     [self GetUsersChannel];
 }
 -(void)getCommentsPost:(UIButton*)sender{
+     [self.view addSubview:blockerView];
+    UIButton *LikeBtn = (UIButton *)sender;
+    currentSelectedIndex = LikeBtn.tag;
+    NotificationsModel *notifiModel = [[NotificationsModel alloc]init];
+    notifiModel  = [notifModel.notificationArray objectAtIndex:currentSelectedIndex];
+    postID =  notifiModel.post_ID;
+    ParentCommentID = notifiModel.parent_Id;
+    NSDictionary *postDate = notifiModel.postData;
+    videoCommentModel.userName             = [postDate valueForKey:@"full_name"];
+    videoCommentModel.is_anonymous         = [postDate valueForKey:@"is_anonymous"];
+    videoCommentModel.title                = [postDate valueForKey:@"caption"];
+    videoCommentModel.comments_count       = [postDate valueForKey:@"comment_count"];
+    videoCommentModel.topic_id             = [postDate valueForKey:@"topic_id"];
+    videoCommentModel.user_id              = [postDate valueForKey:@"user_id"];
+    videoCommentModel.profile_image        = [postDate valueForKey:@"profile_link"];
+    videoCommentModel.like_count           = [postDate valueForKey:@"like_count"];
+    videoCommentModel.seen_count           = [postDate valueForKey:@"seen_count"];
+    videoCommentModel.video_link           = [postDate valueForKey:@"video_link"];
+    videoCommentModel.video_thumbnail_link = [postDate valueForKey:@"video_thumbnail_link"];
+    videoCommentModel.videoID              = [postDate valueForKey:@"id"];
+    videoCommentModel.Tags                 = [postDate valueForKey:@"tag_friends"];
+    videoCommentModel.video_length         = [postDate valueForKey:@"video_length"];
+    videoCommentModel.like_by_me           = [postDate valueForKey:@"like_by_me"];
+    [self getComments];
+}
+-(void)getCommentsOnComments:(UIButton*)sender{
+    [self.view addSubview:blockerView];
     UIButton *LikeBtn = (UIButton *)sender;
     currentSelectedIndex = LikeBtn.tag;
     NotificationsModel *notifiModel = [[NotificationsModel alloc]init];
     notifiModel  = [notifModel.notificationArray objectAtIndex:currentSelectedIndex];
     postID = notifiModel.post_ID;
-    [self getPost];
+    ParentCommentID = notifiModel.parent_Id;
+    NSDictionary *postDate = notifiModel.postData;
+    videoCommentModel.userName             = [postDate valueForKey:@"full_name"];
+    videoCommentModel.is_anonymous         = [postDate valueForKey:@"is_anonymous"];
+    videoCommentModel.title                = [postDate valueForKey:@"caption"];
+    videoCommentModel.comments_count       = [postDate valueForKey:@"comment_count"];
+    videoCommentModel.topic_id             = [postDate valueForKey:@"topic_id"];
+    videoCommentModel.user_id              = [postDate valueForKey:@"user_id"];
+    videoCommentModel.profile_image        = [postDate valueForKey:@"profile_link"];
+    videoCommentModel.like_count           = [postDate valueForKey:@"like_count"];
+    videoCommentModel.seen_count           = [postDate valueForKey:@"seen_count"];
+    videoCommentModel.video_link           = [postDate valueForKey:@"video_link"];
+    videoCommentModel.video_thumbnail_link = [postDate valueForKey:@"video_thumbnail_link"];
+    videoCommentModel.videoID              = [postDate valueForKey:@"id"];
+    videoCommentModel.Tags                 = [postDate valueForKey:@"tag_friends"];
+    videoCommentModel.video_length         = [postDate valueForKey:@"video_length"];
+    videoCommentModel.like_by_me           = [postDate valueForKey:@"like_by_me"];
+    videoCommentModel.reply_count          = [postDate valueForKey:@"reply_count"];
+    [self getComments];
 }
 -(void)getLikePost:(UIButton*)sender{
+     [self.view addSubview:blockerView];
     UIButton *LikeBtn = (UIButton *)sender;
     currentSelectedIndex = LikeBtn.tag;
     NotificationsModel *notifiModel = [[NotificationsModel alloc]init];
@@ -237,7 +336,12 @@
     videomodel.Tags                 = [postDate valueForKey:@"tag_friends"];
     videomodel.video_length         = [postDate valueForKey:@"video_length"];
     videomodel.like_by_me           = [postDate valueForKey:@"like_by_me"];
-    CommentsVC *commentController   = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+    
+    CommentsVC *commentController ;
+    if(IS_IPAD)
+        commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC_iPad" bundle:nil];
+    else
+        commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
     commentController.commentsObj   = nil;
     commentController.postArray     = videomodel;
     [[self navigationController] pushViewController:commentController animated:YES];
@@ -290,7 +394,7 @@
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_COMMENTS_BY_PARENT_ID,@"method",
-                              token,@"Session_token",@"1",@"page_no",@"-1",@"parent_id",postID,@"post_id", nil];
+                              token,@"Session_token",@"1",@"page_no",ParentCommentID,@"parent_id",postID,@"post_id", nil];
     NSData *postData = [Utils encodeDictionary:postDict];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -333,7 +437,7 @@
                     _comment.VideoID = [tempDict objectForKey:@"id"];
                     _comment.video_length = [tempDict objectForKey:@"video_length"];
                     _comment.timestamp = [tempDict objectForKey:@"timestamp"];
-                    
+                    _comment.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
                     [CommentsModelObj.ImagesArray addObject:_comment.profile_link];
                     [CommentsModelObj.ThumbnailsArray addObject:_comment.video_thumbnail_link];
                     [CommentsModelObj.mainArray addObject:_comment.video_link];
@@ -343,13 +447,19 @@
                     commentsVideosArray = CommentsModelObj.mainArray;
                     
                 }
-                CommentsVC *commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+     
+                CommentsVC *commentController ;
+                if(IS_IPAD)
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC_iPad" bundle:nil];
+                else
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
                 commentController.commentsObj = CommentsModelObj;
-                commentController.postArray = videomodel;
+                commentController.postArray = videoCommentModel;
                 [[self navigationController] pushViewController:commentController animated:YES];
             }
         }
         else{
+            
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
@@ -431,7 +541,8 @@
                     _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
                     _Videos.video_length = [tempDict objectForKey:@"video_length"];
                     _Videos.like_by_me = [tempDict objectForKey:@"like_by_me"];
-                    
+                    _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                     _Videos.reply_count  = [tempDict objectForKey:@"reply_count"];
                     [userChannelObj.ImagesArray addObject:_Videos.profile_image];
                     [userChannelObj.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
                     [userChannelObj.mainArray addObject:_Videos.video_link];
@@ -442,12 +553,14 @@
                     chArrImage = userChannelObj.ImagesArray;
                     chArrThumbnail = userChannelObj.ThumbnailsArray;
                 }
+                
                 UserChannel *commentController = [[UserChannel alloc] initWithNibName:@"UserChannel" bundle:nil];
                 commentController.ChannelObj = userChannelObj;
                 [[self navigationController] pushViewController:commentController animated:YES];
             }
         }
         else{
+            
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];

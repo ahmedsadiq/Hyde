@@ -30,6 +30,12 @@
     NSArray *arrThumbnail;
     NSArray *CommentsArray;
     NSArray *commentsVideosArray;
+    NSUInteger currentIndex;
+    NSMutableArray *videoObj;
+    NSArray *FollowingsArray;
+    NSMutableArray *FollowingsAM;
 }
+- (IBAction)getFollowings:(id)sender;
+- (IBAction)getFollowers:(id)sender;
 @property (strong, nonatomic) UserChannelModel *ChannelObj;
 @end

@@ -18,9 +18,10 @@
     NSArray *imagesArray;
     NSArray *topicNameArray;
     NSArray *beamsArray;
-    
+    NSString *topicString;
+    NSMutableArray *videoModelContainer;
     NSURL *url;
-    
+    NSMutableArray *topicsS;
     IBOutlet UIButton *topic_1;
     IBOutlet UIButton *topic_2;
     IBOutlet UIButton *topic_3;

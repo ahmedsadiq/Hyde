@@ -97,7 +97,10 @@ static NavigationHandler *instance= NULL;
             HomeVC *homeVC1 = [[HomeVC alloc] initWithNibName:@"HomeVC_iPad" bundle:nil];
             navController = [[UINavigationController alloc] initWithRootViewController:homeVC1];
         }
-        
+        else if(IS_IPHONE_5){
+            HomeVC *homeVC1 = [[HomeVC alloc] initWithNibName:@"HomeVC_iPhone5" bundle:nil];
+            navController = [[UINavigationController alloc] initWithRootViewController:homeVC1];
+        }
         else{
             
             HomeVC *homeVC2 = [[HomeVC alloc] initWithNibName:@"HomeVC" bundle:nil];
@@ -205,7 +208,7 @@ static NavigationHandler *instance= NULL;
     [navController popToRootViewControllerAnimated:NO];
     if (IS_IPAD) {
         
-        ProfileVC *myBeam = [[ProfileVC alloc] initWithNibName:@"ProfileVC_iPad" bundle:nil];
+        ProfileVC *myBeam = [[ProfileVC alloc] initWithNibName:@"ProfileVC" bundle:nil];
         [navController pushViewController:myBeam animated:YES];
     }
     else{
@@ -224,8 +227,12 @@ static NavigationHandler *instance= NULL;
     //    }
     //    else{
     //
-    CommentsVC *myBeam = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
-    [navController pushViewController:myBeam animated:YES];
+    CommentsVC *commentController ;
+    if(IS_IPAD)
+        commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC_iPad" bundle:nil];
+    else
+        commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+    [navController pushViewController:commentController animated:YES];
 }
 
 -(void)MoveToNotifications{

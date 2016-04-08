@@ -27,7 +27,7 @@
 @property (nonatomic, retain) NSString *user_id;
 @property (nonatomic, retain) NSString *profile_link;
 @property (nonatomic, retain) NSString *is_anonymous;
-
+@property (nonatomic, retain) NSString *reply_count;
 @property (nonatomic, retain) NSMutableArray *CommentsArray;
 @property (nonatomic, retain) NSMutableArray *mainArray;
 @property (nonatomic, retain) NSMutableArray *ImagesArray;

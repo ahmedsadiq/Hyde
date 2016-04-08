@@ -9,7 +9,7 @@
 #import "CommentsCell.h"
 
 @implementation CommentsCell
-@synthesize playVideo,heart,profileImagePost,profileImage,VideoTitle;
+@synthesize playVideo,heart,profileImagePost,profileImage,VideoTitle,heartCountlbl;
 - (void)awakeFromNib {
     // Initialization code
 }

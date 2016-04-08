@@ -37,9 +37,9 @@
 #import "AVFoundation/AVFoundation.h"
 #import "UserChannel.h"
 #import "CommentsVC.h"
-
+#import "NewHomeCells.h"
 #import "VideoPlayerVC.h"
-
+#import "BeamUploadVC.h"
 @interface HomeVC ()
 
 @end
@@ -51,45 +51,95 @@
     if (IS_IPAD) {
         self = [super initWithNibName:@"HomeVC_iPad" bundle:Nil];
     }
+    else if(IS_IPHONE_5){
+        self = [super initWithNibName:@"HomeVC_iPhone5" bundle:Nil];
+    }
     else{
         self = [super initWithNibName:@"HomeVC" bundle:Nil];
     }
+    
+
     return self;
 }
-
+- (void) updateNotication:(NSNotification *) notification
+{
+    pageNum = 1;
+    isDownwards = FALSE;
+    if(![newsfeedsVideos count] == 0){
+        [newsfeedsVideos removeAllObjects];
+        [_TableHome reloadData];
+    }
+    [self getHomeContent];
+}
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     isRecording = false;
-    if(currentState == 0)
-        [_TableHome reloadData];
-    else if(currentState == 2)
-        [_forumTable reloadData];
-    else if(currentState == 3)
-        [_TablemyChannel reloadData];
+    if(currentState == 0){
+        if(!fromImagePicker){
+            [self getMyChannel];
+        }
+        if(appDelegate.timeToupdateHome)
+        {
+            appDelegate.timeToupdateHome = FALSE;
+            pageNum = 1;
+            isDownwards = FALSE;
+            [newsfeedsVideos removeAllObjects];
+            [self getHomeContent];
+        }
+        else{
+            [_TableHome reloadData];
+        }
+    }
+    else if(currentState == 2){
+        if(appDelegate.timeToupdateHome){
+            appDelegate.timeToupdateHome = FALSE;
+            forumPageNumber = 1;
+            [forumsVideo removeAllObjects];
+            [self getTrendingVideos];
+        }
+        else{
+            [_forumTable reloadData];
+        }
+        if(!fromImagePicker){
+            [self getMyChannel];
+        }
+    }
+    else if(currentState == 3 && !fromImagePicker){
+        [self getMyChannel];
+    }
     isDownwards = false;
+    fetchingContent = false;
+    fetchingFroum = false;
     
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    [self setupRefreshControl];
-    [self setupRefreshControlHome];
-    [self setupRefreshControlChannel];
     //self.navigationController.navigationBarHidden = YES;
     searchField.attributedPlaceholder =
     [[NSAttributedString alloc]
      initWithString:@"Find other Corners"
      attributes:@{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    searchTable.dataSource = self;
-    searchTable.delegate = self;
-    [searchTable setBackgroundColor:BlueThemeColor(241,245,248)];
+    searchField2.attributedPlaceholder =
+    [[NSAttributedString alloc]
+     initWithString:@"Find other Corners"
+     attributes:@{NSForegroundColorAttributeName:[UIColor whiteColor]}];
+    _searchTable.dataSource = self;
+    _searchTable.delegate = self;
+    fromImagePicker = FALSE;
+    [_searchTable setBackgroundColor:BlueThemeColor(241,245,248)];
     [commentsTable setBackgroundColor:BlueThemeColor(241, 245, 248)];
-    [_TableHome setBackgroundColor:BlueThemeColor(241,245,248)];
-    [_TablemyChannel setBackgroundColor:BlueThemeColor(241,245,248)];
-    [_forumTable setBackgroundColor:BlueThemeColor(241,245,248)];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(updateNotication:)
+                                                 name:@"TestNotification"
+                                               object:nil];
+    //[_TableHome setBackgroundColor:BlueThemeColor(241,245,248)];
+    //[_TablemyChannel setBackgroundColor:BlueThemeColor(241,245,248)];
+    //[_forumTable setBackgroundColor:BlueThemeColor(241,245,248)];
     normalAttrdict = [NSDictionary dictionaryWithObject:BlueThemeColor(145,151,163) forKey:NSForegroundColorAttributeName];
     highlightAttrdict = [NSDictionary dictionaryWithObject:BlueThemeColor(54,78,141) forKey:NSForegroundColorAttributeName ];
     tagsString = @"";
@@ -101,12 +151,12 @@
     commentAllowed = @"-1";
     privacySelected = @"PUBLIC";
     TopicSelected = @"1";
-    
+    adsViewb = TRUE;
     [_progressview setProgress:0.0 animated:YES];
     CGAffineTransform transform = CGAffineTransformMakeScale(1.0f, 3.0f);
     _progressview.transform = transform;
     totalBytesUploaded = 0.0;
-    
+    drawerBtn.contentEdgeInsets = UIEdgeInsetsMake(12, 12, 9 , 9);
     appDelegate = (AppDelegate*)[UIApplication sharedApplication].delegate;
     
     loadFollowings = false;
@@ -118,19 +168,21 @@
     _TableHome.dataSource = self;
     _TablemyChannel.dataSource = self;
     _forumTable.dataSource = self;
+  
     [self setUserCoverImage];
     [self setUserProfileImage];
     [self initWithDataArr];
     _statusText.delegate = self;
-    
+    [_uploadbeamScroller setContentSize:CGSizeMake(_uploadbeamScroller.frame.size.width,600)];
     count = 10;
+
     [self setContentResolutions];
     TabBarFrame = _BottomBar.frame;
     channelContainerHeight = channelContainerView.frame.size.height;
     channelContainerOriginalFrame = channelContainerView.frame;
     channelTableFrame = _TablemyChannel.frame;
     
-    [btnHome setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
+    [btnHome setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [btnChannel setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     [btnTrending setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
     
@@ -139,11 +191,10 @@
     [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.view addGestureRecognizer:sgr];
     
-    [_uploadbeamScroller setContentSize:CGSizeMake(_uploadbeamScroller.frame.size.width,600)];
+   
     mainScrollerFrame = _mainScroller.frame;
-    originalChannelFrame = _TablemyChannel.frame;
-    originalChannelInnerViewFrame = channgelInnerView.frame;
-#pragma mark profileView
+   // originalChannelFrame = _TablemyChannel.frame;
+   #pragma mark profileView
     
     profilePic.layer.cornerRadius = profilePic.frame.size.width / 2;
     profilePic.clipsToBounds = YES;
@@ -163,15 +214,33 @@
     [self getHomeContent];
     [self getMyChannel];
     [self getTrendingVideos];
+    
     tapper = [[UITapGestureRecognizer alloc]
               initWithTarget:self action:@selector(handleSingleTap:)];
     tapper.cancelsTouchesInView = NO;
     [self.view addGestureRecognizer:tapper];
     [self setAudioRecordSettings];
-}
+    [self setcontentForCeleb];
 
+}
+-(void) setcontentForCeleb{
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:@"is_celeb"]){
+        _adsBar.hidden = YES;
+        btnBBC.enabled = NO;
+        btnRedBull.enabled = NO;
+        btnEmirates.enabled = NO;
+        adsViewb = FALSE;
+        _TablemyChannel.frame = CGRectMake(_TablemyChannel.frame.origin.x, _TablemyChannel.frame.origin.y - 50, _TablemyChannel.frame.size.width, _TablemyChannel.frame.size.height);
+        originalChannelFrame = _TablemyChannel.frame;
+        if(IS_IPHONE_6Plus)
+        {
+            _TablemyChannel.frame = CGRectMake(_TablemyChannel.frame.origin.x, _TablemyChannel.frame.origin.y - 10, _TablemyChannel.frame.size.width, _TablemyChannel.frame.size.height);
+            originalChannelFrame = _TablemyChannel.frame;
+            originalChannelFrame.origin.y += 40;
+        }
+    }
+}
 -(void)initWithDataArr{
-    
     uploadBeamTag = true;
     uploadAnonymous = false;
     pageNum = 1;
@@ -187,8 +256,25 @@
     CommentsModelObj = [[CommentsModel alloc]init];
     getFollowings = [[Followings alloc] init];
     FollowingsAM = [[NSMutableArray alloc]init];
+    
     videomodel = [[VideoModel alloc]init];
     videoObj = [[NSMutableArray alloc] init];
+    _forumTable.backgroundColor = [UIColor clearColor];
+    _forumTable.opaque = NO;
+    UIImageView *tempImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+    [tempImageView setFrame:_forumTable.frame];
+    _forumTable.backgroundView = tempImageView;
+    _TableHome.backgroundColor = [UIColor clearColor];
+    _TableHome.opaque = NO;
+     UIImageView *tempImageView1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+    [tempImageView1 setFrame:_TableHome.frame];
+    _TableHome.backgroundView = tempImageView1;
+    _TablemyChannel.opaque = NO;
+    _TablemyChannel.backgroundColor = [UIColor clearColor];
+    countDownlabel.textAlignment = NSTextAlignmentCenter;
+    _searchTable.opaque = NO;
+    _searchTable.backgroundColor = [UIColor clearColor];
+
 }
 -(void)setContentResolutions{
     if (IS_IPHONE_4) {
@@ -197,12 +283,15 @@
         _BottomBar.autoresizingMask = UIViewAutoresizingNone;
         _BottomBar.frame = CGRectMake(0, 433, 320, 47);
     }else if (IS_IPAD){
-        _BottomBar.frame = CGRectMake(0, 854, 768, 170);
+        _BottomBar.frame = CGRectMake(0, 870, 768, 154);
+        _BottomBar.autoresizingMask = UIViewAutoresizingNone;
         [_mainScroller setContentSize:CGSizeMake(2304, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
         originalChannelFrame.size.width = 768;
         originalChannelFrame.size.height = 568;
-        originalChannelFrame.origin.y = 390;
+        originalChannelFrame.origin.y += 640;
+        originalChannelInnerViewFrame = channgelInnerView.frame;
+        originalChannelInnerViewFrame.origin.y -= 22.0f;
     }
     else if(IS_IPHONE_6){
         originalChannelFrame.size.width = 375;
@@ -214,32 +303,46 @@
         [_mainScroller setContentSize:CGSizeMake(1125, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
         profilePic.frame = CGRectMake(profilePic.frame.origin.x-10, profilePic.frame.origin.y+20, profilePic.frame.size.width+20, profilePic.frame.size.height+20);
+        countDownlabel.frame = CGRectMake(120,200,countDownlabel.frame.size.width,countDownlabel.frame.size.height);
+        audioBtnImage.frame = CGRectMake(140, 250, audioBtnImage.frame.size.width, audioBtnImage.frame.size.height);
+        _audioRecordBtn.frame = CGRectMake(140, 250, _audioRecordBtn.frame.size.width, _audioRecordBtn.frame.size.height);
+        closeBtnAudio.frame = CGRectMake(330, 30, closeBtnAudio.frame.size.width, closeBtnAudio.frame.size.height);
+        originalChannelInnerViewFrame = channgelInnerView.frame;
+        originalChannelInnerViewFrame.origin.y -= 28.0f;
+        
     }
     else if(IS_IPHONE_6Plus)
     {
         _BottomBar.autoresizingMask = UIViewAutoresizingNone;
         _BottomBar.frame = CGRectMake(0, 626, 414, 110);
         _optionsView.frame = CGRectMake(0, 0, 414, 736);
+        [_forumTable setContentSize:CGSizeMake(414, _forumTable.frame.size.height)];
         searchView.frame = CGRectMake(0, 0, 414, 736);
-        originalChannelFrame.size.width = 414;
-        originalChannelFrame.size.height = 650;
-        originalChannelFrame.origin.y = 390;
-        [_mainScroller setContentSize:CGSizeMake(1472, _mainScroller.frame.size.height)];
+        [_mainScroller setContentSize:CGSizeMake(1242, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
-        
+        _uploadBeamView.frame = CGRectMake(0,0,414,736);
+        channgelInnerView.frame = CGRectMake(channgelInnerView.frame.origin.x, channgelInnerView.frame.origin.y - 20, 414, channgelInnerView.frame.size.height);
+        originalChannelInnerViewFrame = channgelInnerView.frame;
+        originalChannelInnerViewFrame.origin.y -= 10.0f;
+        _TablemyChannel.frame = CGRectMake(0, 360, 414, _TablemyChannel.frame.size.height);
+        originalChannelFrame = _TablemyChannel.frame;
+        originalChannelFrame.origin.y += 40.0f;
+        channelContainerView.frame = CGRectMake(channelContainerView.frame.origin.x, channelContainerView.frame.origin.y , channelContainerView.frame.size.width, channelContainerView.frame.size.height );
+        channelContainerOriginalFrame = channelContainerView.frame;
     }else if(IS_IPHONE_5)
     {
         _BottomBar.autoresizingMask = UIViewAutoresizingNone;
-        _BottomBar.frame = CGRectMake(0, 525, 320, 50);
-        _optionsView.frame = CGRectMake(0, 0, 320, 568);
-        searchView.frame = CGRectMake(0, 0, 320, 568);
-        //camLabel.autoresizingMask = UIViewAutoresizingNone;
-        camLabel.frame = CGRectMake(beamLabel.frame.origin.x + 160,beamLabel.frame.origin.y , beamLabel.frame.size.width, beamLabel.frame.size.height);
-        cameraIcon.frame = CGRectMake(beamIcon.frame.origin.x + 160, beamIcon.frame.origin.y, beamIcon.frame.size.width + 5, beamIcon.frame.size.height);
+        _BottomBar.frame = CGRectMake(0, 468, 320, 100);
         [_mainScroller setContentSize:CGSizeMake(960, _mainScroller.frame.size.height)];
         [_mainScroller setContentOffset:CGPointMake(0,0)];
+        originalChannelInnerViewFrame = channgelInnerView.frame;
+        originalChannelInnerViewFrame.origin.y -= 22.0f;
+        originalChannelFrame.size.width = 320;
+        originalChannelFrame.size.height = 568;
+        originalChannelFrame.origin.y = 345;
+        
     }
-    
+    adsFrame = _adsView.frame;
 }
 - (void)handleSingleTap:(UITapGestureRecognizer *) sender
 {
@@ -267,6 +370,7 @@
 #pragma mark Server Calls
 
 - (void) getTrendingVideos{
+    fetchingFroum = true;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
@@ -282,11 +386,12 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        [_refreshControl endRefreshing];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            _ForumRefreshBtn.hidden = YES;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
+            fetchingFroum = false;
             if(success == 1) {
                 NSArray *tempArray = [result objectForKey:@"posts"];
                 if(tempArray.count > 0)
@@ -314,9 +419,11 @@
                         _Videos.video_link = [tempDict objectForKey:@"video_link"];
                         _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
                         _Videos.VideoID = [tempDict objectForKey:@"id"];
+                         _Videos.Post_ID = [tempDict objectForKey:@"id"];
                         _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
                         _Videos.video_length = [tempDict objectForKey:@"video_length"];
                         _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                        _Videos.reply_count = [tempDict objectForKey:@"reply_count"];
                         [getTrendingVideos.ImagesArray addObject:_Videos.profile_image];
                         [getTrendingVideos.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
                         [getTrendingVideos.mainArray addObject:_Videos.video_link];
@@ -334,10 +441,11 @@
                     int startIndex = (forumPageNumber-1) *10;
                     for (int i = startIndex ; i < startIndex+10; i++) {
                         if(i<forumsVideo.count) {
-                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+                            [indexPaths addObject:[NSIndexPath indexPathForRow:i/2 inSection:0]];
                         }
                     }
                     if(isDownwards) {
+                        NSLog(@"numberOfRowsInSection: %ld", [_forumTable numberOfRowsInSection:0]);
                         [_forumTable beginUpdates];
                         [_forumTable insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
                         [_forumTable endUpdates];
@@ -349,7 +457,8 @@
                 cannotScrollForum = true;
         }
         else{
-            [_refreshControl endRefreshing];
+            fetchingFroum = false;
+            _ForumRefreshBtn.hidden = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
@@ -357,6 +466,7 @@
     }];
 }
 -(void) getFollowing{
+    [FollowingsAM removeAllObjects];
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSString *userId = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"id"];
@@ -388,13 +498,13 @@
                     _responseData.status = [tempDict objectForKey:@"state"];
                     [FollowingsAM addObject:_responseData];
                 }
-                [searchTable reloadData];
-                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                [_searchTable reloadData];
             }
         }
     }];
 }
 -(void) getFollowers{
+    [FollowingsAM removeAllObjects];
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSString *userId = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"id"];
@@ -425,7 +535,7 @@
                     _responseData.status = [tempDict objectForKey:@"state"];
                     [FollowingsAM addObject:_responseData];
                 }
-                [searchTable reloadData];
+                [_searchTable reloadData];
                 [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             }
         }
@@ -433,7 +543,7 @@
 }
 
 - (void) getHomeContent{
-    
+    fetchingContent = true;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     secondsConsumed  = 0;
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
@@ -450,12 +560,12 @@
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
         
-        [_refreshControlHome endRefreshing];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            _homeRefreshBtn.hidden = YES;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
-            
+            fetchingContent = false;
             if(success == 1) {
                 NSArray *tempArray = [result objectForKey:@"posts"];
                 
@@ -484,9 +594,12 @@
                         _Videos.video_link = [tempDict objectForKey:@"video_link"];
                         _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
                         _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.Post_ID = [tempDict objectForKey:@"id"];
                         _Videos.video_length = [tempDict objectForKey:@"video_length"];
                         _Videos.image_link = [tempDict objectForKey:@"image_link"];
                         _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                        _Videos.reply_count = [tempDict objectForKey:@"reply_count"];
+                        
                         [getTrendingVideos.homeImagesArray addObject:_Videos.profile_image];
                         [getTrendingVideos.homeThumbnailsArray addObject:_Videos.video_thumbnail_link];
                         [getTrendingVideos.mainhomeArray addObject:_Videos.video_link];
@@ -505,7 +618,7 @@
                     int startIndex = (pageNum-1) *10;
                     for (int i = startIndex ; i < startIndex+10; i++) {
                         if(i<newsfeedsVideos.count) {
-                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+                            [indexPaths addObject:[NSIndexPath indexPathForRow:i/2 inSection:0]];
                         }
                     }
                     if(isDownwards) {
@@ -516,20 +629,21 @@
                     else {
                         [_TableHome reloadData];
                     }
-                    
-                    if ([newsfeedsVideos count] == 0) {
-                        [noBeamsView setHidden:NO];
-                    }else{
-                        noBeamsView.hidden = YES;
-                    }
                 }
             }
             else
+            {
                 cannotScroll = true;
+            }
+            if ([newsfeedsVideos count] == 0) {
+                [noBeamsView setHidden:NO];
+            }else{
+                noBeamsView.hidden = YES;
+            }
         }
         else{
-            
-            [_refreshControlHome endRefreshing];
+            fetchingContent = false;
+            _homeRefreshBtn.hidden = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
             [alert show];
         }
@@ -555,9 +669,9 @@
     [request setHTTPBody:postData];
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
-        [_refreshControlChannel endRefreshing];
         if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
         {
+            _ChannelRefreshBtn.hidden = YES;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
             NSDictionary *posts = [result objectForKey:@"profile"];
@@ -580,9 +694,6 @@
                 User_pic.imageURL = [NSURL URLWithString:_profile.profile_image];
                 NSURL *url = [NSURL URLWithString:_profile.profile_image];
                 [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-                appDelegate.IS_celeb = [_profile.is_celeb boolValue];
-                
-                
                 channelCover.imageURL = [NSURL URLWithString:_profile.cover_image];
                 NSURL *url1 = [NSURL URLWithString:_profile.cover_image];
                 [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
@@ -619,10 +730,13 @@
                         _Videos.video_link = [tempDict objectForKey:@"video_link"];
                         _Videos.video_thumbnail_link = [tempDict objectForKey:@"video_thumbnail_link"];
                         _Videos.VideoID = [tempDict objectForKey:@"id"];
+                        _Videos.Post_ID = [tempDict objectForKey:@"id"];
                         _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
                         _Videos.video_length = [tempDict objectForKey:@"video_length"];
                         _Videos.like_by_me = [tempDict objectForKey:@"liked_by_me"];
                         _Videos.image_link = [tempDict objectForKey:@"image_link"];
+                        _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                        _Videos.reply_count = [tempDict objectForKey:@"reply_count"];
                         [myChannelObj.ImagesArray addObject:_Videos.profile_image];
                         [myChannelObj.ThumbnailsArray  addObject:_Videos.video_thumbnail_link];
                         [myChannelObj.mainArray addObject:_Videos.video_link];
@@ -634,23 +748,23 @@
                         chArrThumbnail = myChannelObj.ThumbnailsArray;
                         [channelVideos addObject:_Videos];
                     }
-                    //                    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
-                    //                    int startIndex = (myCornerPageNum-1) *10;
-                    //                    for (int i = startIndex ; i < startIndex+10; i++) {
-                    //                        if(i<channelVideos.count) {
-                    //                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
-                    //                        }
-                    //                    }
-                    //                    [_TablemyChannel beginUpdates];
-                    //                    [_TablemyChannel insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
-                    //                    [_TablemyChannel endUpdates];
+//                    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+//                    int startIndex = (myCornerPageNum-1) *10;
+//                    for (int i = startIndex ; i < startIndex+10; i++) {
+//                        if(i<channelVideos.count) {
+//                            [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+//                        }
+//                    }
+//                    [_TablemyChannel beginUpdates];
+//                    [_TablemyChannel insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+//                    [_TablemyChannel endUpdates];
                     [_TablemyChannel reloadData];
                 }
                 else
                     cannotScrollMyCorner = true;
             }
             else{
-                [_refreshControlChannel endRefreshing];
+                _ChannelRefreshBtn.hidden = NO;
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
                 [alert show];
             }
@@ -661,60 +775,73 @@
 
 
 #pragma mark - PulltoRefresh
-- (void)setupRefreshControl
-{
-    
-    UITableViewController *tableViewController = [[UITableViewController alloc] init];
-    tableViewController.tableView = _forumTable;
-    self.refreshControl = [[UIRefreshControl alloc] init];
-    _refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
-    [self.refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
-    tableViewController.refreshControl = self.refreshControl;
-}
-
-- (void)refresh:(id)sender
-{
-    [self getTrendingVideos];
-    
-}
-- (void)setupRefreshControlHome
-{
-    
-    UITableViewController *tableViewController = [[UITableViewController alloc] init];
-    tableViewController.tableView = _TableHome;
-    self.refreshControlHome = [[UIRefreshControl alloc] init];
-    _refreshControlHome.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
-    [self.refreshControlHome addTarget:self action:@selector(refreshHome:) forControlEvents:UIControlEventValueChanged];
-    tableViewController.refreshControl = self.refreshControlHome;
-}
-
-- (void)refreshHome:(id)sender
-{
-    
-    
-    [newsfeedsVideos removeAllObjects];
-    [_TableHome reloadData];
+- (IBAction)homeRefreshBtnPressed:(id)sender {
     pageNum = 1;
     [self getHomeContent];
-    
-}
-- (void)setupRefreshControlChannel
-{
-    
-    UITableViewController *tableViewController = [[UITableViewController alloc] init];
-    tableViewController.tableView = _TablemyChannel;
-    self.refreshControlChannel = [[UIRefreshControl alloc] init];
-    _refreshControlChannel.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
-    [self.refreshControlChannel addTarget:self action:@selector(refreshChannel:) forControlEvents:UIControlEventValueChanged];
-    tableViewController.refreshControl = self.refreshControlChannel;
+    myCornerPageNum = 1;
+    [self getMyChannel];
 }
 
-- (void)refreshChannel:(id)sender
-{
-    if(tabBarIsShown)
-        [self getMyChannel];
-    
+- (IBAction)ForumRefreshBtnPressed:(id)sender {
+    forumPageNumber = 1;
+    [self getTrendingVideos];
 }
+- (IBAction)ChannelRefreshBtnPressed:(id)sender {
+    myCornerPageNum = 1;
+    [self getMyChannel];
+}
+//- (void)setupRefreshControl
+//{
+//    
+//    UITableViewController *tableViewController = [[UITableViewController alloc] init];
+//    tableViewController.tableView = _forumTable;
+//    self.refreshControl = [[UIRefreshControl alloc] init];
+//    _refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
+//    [self.refreshControl addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventValueChanged];
+//    tableViewController.refreshControl = self.refreshControl;
+//}
+//
+//- (void)refresh:(id)sender
+//{   forumPageNumber = 1;
+//    [self getTrendingVideos];
+//    
+//}
+//- (void)setupRefreshControlHome
+//{
+//    
+//    UITableViewController *tableViewController = [[UITableViewController alloc] init];
+//    tableViewController.tableView = _TableHome;
+//    self.refreshControlHome = [[UIRefreshControl alloc] init];
+//    _refreshControlHome.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
+//    [self.refreshControlHome addTarget:self action:@selector(refreshHome:) forControlEvents:UIControlEventValueChanged];
+//    tableViewController.refreshControl = self.refreshControlHome;
+//}
+//
+//- (void)refreshHome:(id)sender
+//{
+//    //[newsfeedsVideos removeAllObjects];
+//    [_TableHome reloadData];
+//    pageNum = 1;
+//    [self getHomeContent];
+//    
+//}
+//- (void)setupRefreshControlChannel
+//{
+//    
+//    UITableViewController *tableViewController = [[UITableViewController alloc] init];
+//    tableViewController.tableView = _TablemyChannel;
+//    self.refreshControlChannel = [[UIRefreshControl alloc] init];
+//    _refreshControlChannel.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pull to Refresh"];
+//    [self.refreshControlChannel addTarget:self action:@selector(refreshChannel:) forControlEvents:UIControlEventValueChanged];
+//    tableViewController.refreshControl = self.refreshControlChannel;
+//}
+//
+//- (void)refreshChannel:(id)sender
+//{
+//    if(tabBarIsShown)
+//        [self getMyChannel];
+//    
+//}
 
 #pragma mark - Like Post
 - (void) LikePost:(NSUInteger )indexToLike{
@@ -752,7 +879,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"1";
                         [forumsVideo replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_forumTable beginUpdates];
                         [_forumTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -768,7 +895,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"1";
                         [newsfeedsVideos replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_TableHome beginUpdates];
                         [_TableHome reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -784,7 +911,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"1";
                         [channelVideos replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_TablemyChannel beginUpdates];
                         [_TablemyChannel reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -803,7 +930,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"0";
                         [forumsVideo replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_forumTable beginUpdates];
                         [_forumTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -820,7 +947,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"0";
                         [newsfeedsVideos replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_TableHome beginUpdates];
                         [_TableHome reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -837,7 +964,7 @@
                         _Videos.like_count = [NSString stringWithFormat: @"%ld", likeCount];
                         _Videos.like_by_me = @"0";
                         [channelVideos replaceObjectAtIndex:indexToLike withObject:_Videos];
-                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike inSection:0];
+                        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:indexToLike/2 inSection:0];
                         NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
                         [_TablemyChannel beginUpdates];
                         [_TablemyChannel reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
@@ -862,7 +989,7 @@
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_POST_SEEN,@"method",
                               token,@"session_token",postID,@"post_id",nil];
-    
+    NSLog(@"%@",postID);
     NSData *postData = [Utils encodeDictionary:postDict];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -988,18 +1115,20 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     if(tableView.tag == 2) {
-        if(appDelegate.IS_celeb && indexPath.row == 0) {
-            if (IS_IPAD)
-                returnValue = 200.0f;
-            else
-                returnValue = 112;
-        }
-        else {
-            if (IS_IPAD)
-                returnValue = 362.0f;
-            else
-                returnValue = 250.0f;
-        }
+        //        if(appDelegate.IS_celeb && indexPath.row == 0) {
+        //            if (IS_IPAD)
+        //                returnValue = 200.0f;
+        //            else
+        //                returnValue = 112;
+        //        }
+        //        else {
+        if (IS_IPAD)
+            returnValue = 362.0f;
+        else if(IS_IPHONE_5)
+            returnValue = 150.0f;
+        else
+            returnValue = 180.0f;
+        //}
         
     }
     else {
@@ -1007,29 +1136,33 @@
             if (IS_IPAD)
                 returnValue = 350.0f;
             else
-                returnValue = 150.0f;
+                returnValue = 180.0f;
         }
         else {
             if (IS_IPAD)
                 returnValue = 362.0f;
             else
-                returnValue = 250.0f;
+                returnValue = 180.0f;
         }
     }
     if(tableView.tag == 10) {
         
         if (IS_IPAD)
             returnValue = 362.0f;
+        else if(IS_IPHONE_5)
+            returnValue = 150.0f;
         else
-            returnValue = 250.0f;
+            returnValue = 180.0f;
     }
     
     if(tableView.tag == 3) {
         
         if (IS_IPAD)
             returnValue = 362.0f;
+        else if(IS_IPHONE_5)
+            returnValue = 150.0f;
         else
-            returnValue = 250.0f;
+            returnValue = 180.0f;
     }
     if(tableView.tag == 20) {
         
@@ -1053,7 +1186,6 @@
             returnValue = 250.0f;
     }
     
-    
     return returnValue;
 }
 
@@ -1068,23 +1200,30 @@
     
     
     if (tableView.tag == 10) {
-        value = [newsfeedPostArray count];
-        
-    }else if (tableView.tag == 3 && trendArray != nil){
-        value = [trendArray count] ;
-        
-    }else if (tableView.tag == 2){
-        
-        value = chPostArray.count;
-        if(appDelegate.IS_celeb) {
-            value = value+1;
+        int rows = (int)([newsfeedsVideos count]/2);
+        if([newsfeedsVideos count] %2 == 1) {
+            rows++;
         }
-        value = value ;
+        return rows;
+        
+    }else if (tableView.tag == 3 && forumsVideo != nil){
+        int rows = (int)([forumsVideo count]/2);
+        if([forumsVideo count] %2 == 1) {
+            rows++;
+        }
+        return rows;
+    }else if (tableView.tag == 2){
+        int rows = (int)([channelVideos count]/2);
+        if([channelVideos count] %2 == 1) {
+            rows++;
+        }
+        return rows;
+//        if(appDelegate.IS_celeb) {
+//            value = value+1;
+//        }
+        //value = value ;
     }else if (tableView.tag == 20){
-        if(loadFollowings == true)
             value = FollowingsAM.count;
-        else
-            value = usersArray.count;
     }else if (tableView.tag == 25){
         
         value = chPostArray.count;
@@ -1099,54 +1238,73 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     if (tableView.tag == 10) {
-        ChannelCell *cell;
+        //ChannelCell *cell;
+        NewHomeCells *cell;
         IsStatus = NO;
+        currentIndexHome = (indexPath.row * 2);
         if (IS_IPAD) {
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell_iPad" owner:self options:nil];
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells_iPad" owner:self options:nil];
+            cell = [nib objectAtIndex:0];
+        }
+        else if(IS_IPHONE_5){
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHome_iPhone5" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
         else{
             
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell" owner:self options:nil];
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
-        _TableHome.contentSize = CGSizeMake(_TableHome.frame.size.width,newsfeedPostArray.count * returnValue + _BottomBar.frame.size.height + 50);
+        if(IS_IPHONE_6Plus){
+            cell.leftreplImg.frame = CGRectMake(cell.leftreplImg.frame.origin.x + 15, cell.leftreplImg.frame.origin.y, cell.leftreplImg.frame.size.width, cell.leftreplImg.frame.size.width);
+            cell.CH_CommentscountLbl.frame = CGRectMake(cell.CH_CommentscountLbl.frame.origin.x + 15, cell.CH_CommentscountLbl.frame.origin.y, cell.CH_CommentscountLbl.frame.size.width , cell.CH_CommentscountLbl.frame.size.height);
+        }
+        NSInteger valueToInc = 50;
+        if(pageNum > 1)
+             valueToInc = pageNum * 100;
+        _TableHome.contentSize = CGSizeMake(_TableHome.frame.size.width,newsfeedsVideos.count/2 * returnValue +_BottomBar.frame.size.height );
         
         GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
-        tempVideos  = [newsfeedPostArray objectAtIndex:indexPath.row];
-        cell.CH_userName.text = tempVideos.userName;
-        
-        appDelegate.videotitle = tempVideos.title;
-        appDelegate.videotags = tempVideos.Tags;
-        appDelegate.profile_pic_url = tempVideos.profile_image;
-        
+        tempVideos  = [newsfeedsVideos objectAtIndex:currentIndexHome];
+        cell.CH_userName.text = tempVideos.userName; 
         cell.Ch_videoLength.text = tempVideos.video_length;
         cell.CH_VideoTitle.text = tempVideos.title;
-        cell.CH_CommentscountLbl.text = tempVideos.comments_count;
-        cell.CH_heartCountlbl.text = tempVideos.like_count;
-        cell.CH_seen.text = tempVideos.seen_count;
-        tempVideos.video_link = [newsfeedVideosArray objectAtIndex:indexPath.row];
-        if([tempVideos.is_anonymous  isEqualToString: @"0"]){
-            cell.CH_profileImage.imageURL = [NSURL URLWithString:[newsfeedArrImage objectAtIndex:indexPath.row]];
-            NSURL *url = [NSURL URLWithString:[newsfeedArrImage objectAtIndex:indexPath.row]];
-            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+        if([tempVideos.comments_count isEqualToString:@"0"])
+        {
+            cell.CH_CommentscountLbl.hidden = YES;
+            cell.leftreplImg.hidden = YES;
         }
         else{
-            cell.CH_profileImage.image = [UIImage imageNamed:@"anonymousDp.png"];
+            cell.CH_CommentscountLbl.text = tempVideos.comments_count;
+        }
+        cell.CH_heartCountlbl.text = tempVideos.like_count;
+        cell.CH_seen.text = tempVideos.seen_count;
+        //tempVideos.video_link = [newsfeedVideosArray objectAtIndex:indexPath.row];
+        cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        NSURL *url1 = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+        if([tempVideos.is_anonymous  isEqualToString: @"0"]){
+  
+        }
+        else{
+            //cell.CH_Video_Thumbnail.image = [UIImage imageNamed:@"anonymousDp.png"];
             cell.CH_userName.text = @"Anonymous";
             cell.userProfileView.enabled = false;
         }
-        cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:[newsfeedArrThumbnail objectAtIndex:indexPath.row]];
-        NSURL *url1 = [NSURL URLWithString:[newsfeedArrThumbnail objectAtIndex:indexPath.row]];
-        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+        cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /6.2f;
+        if(IS_IPAD)
+            cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /7.4f;
+        cell.imgContainer.layer.masksToBounds = YES;
+        [cell.CH_Video_Thumbnail roundCorners];
+ 
         UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
         [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
         [cell addGestureRecognizer:sgr];
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
-        appDelegate.videotoPlay = [getTrendingVideos.mainhomeArray objectAtIndex:indexPath.row];
+        //appDelegate.videotoPlay = [getTrendingVideos.mainhomeArray objectAtIndex:indexPath.row];
         [cell.userProfileView addTarget:self action:@selector(MovetoUserProfile:) forControlEvents:UIControlEventTouchUpInside];
-        cell.userProfileView.tag = indexPath.row;
-        [cell.CH_heart setTag:indexPath.row];
+        cell.userProfileView.tag = currentIndexHome;
+        [cell.CH_heart setTag:currentIndexHome];
         [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
@@ -1155,103 +1313,147 @@
         }
         
         [cell.CH_flag addTarget:self action:@selector(Flag:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.CH_playVideo setTag:indexPath.row];
+        [cell.CH_playVideo setTag:currentIndexHome];
         
-        [cell.CH_flag setTag:indexPath.row];
+        [cell.CH_flag setTag:currentIndexHome];
         cell.CH_commentsBtn.enabled = YES;
-        
+         cell.CH_RcommentsBtn.enabled = YES;
         [cell.CH_commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.CH_commentsBtn setTag:indexPath.row];
-        [cell setBackgroundColor:BlueThemeColor(241, 245, 248)];
-        
-        cell.CH_Video_Thumbnail.layer.shadowColor = [UIColor lightGrayColor].CGColor;
-        cell.CH_Video_Thumbnail.layer.shadowOffset = CGSizeMake(0.0f, 2.0f);
-        cell.CH_Video_Thumbnail.layer.shadowOpacity = 1;
-        cell.CH_Video_Thumbnail.layer.shadowRadius = 3.0;
-        
-        [cell.CH_profileImage roundImageCorner];
-        
-        cell.imgContainer.backgroundColor = [UIColor clearColor];
-        cell.imgContainer.layer.shadowColor = [UIColor blackColor].CGColor;
-        cell.imgContainer.layer.shadowOffset = CGSizeMake(2,2);
-        cell.imgContainer.layer.shadowOpacity = 0.5;
-        cell.imgContainer.layer.shadowRadius = 0.5;
-        cell.imgContainer.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:cell.imgContainer.bounds cornerRadius:90.0].CGPath;
-        
+        [cell.CH_commentsBtn setTag:currentIndexHome];
+
+        currentIndexHome++;
+        if(currentIndexHome < newsfeedsVideos.count)
+        {
+            GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
+            tempVideos  = [newsfeedsVideos objectAtIndex:currentIndexHome];
+            [cell.CH_RcommentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RcommentsBtn setTag:currentIndexHome];
+            [cell.CH_RplayVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RplayVideo setTag:currentIndexHome];
+            [cell.CH_Rheart setTag:currentIndexHome];
+            [cell.CH_Rheart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
+            cell.CH_RVideoTitle.text = tempVideos.title;
+            cell.CH_Rseen.text = tempVideos.seen_count;
+            cell.RimgContainer.layer.cornerRadius  = cell.RimgContainer.frame.size.width /6.2f;
+            if(IS_IPAD)
+                cell.RimgContainer.layer.cornerRadius  = cell.RimgContainer.frame.size.width /7.4f;
+            cell.RimgContainer.layer.masksToBounds = YES;
+            [cell.CH_RVideo_Thumbnail roundCorners];
+            cell.CH_RheartCountlbl.text             = tempVideos.like_count;
+            if([tempVideos.comments_count isEqualToString:@"0"])
+            {
+                cell.CH_RCommentscountLbl.hidden = YES;
+                cell.rightreplImg.hidden = YES;
+            }
+            else{
+                 cell.CH_RCommentscountLbl.text = tempVideos.comments_count;
+            }
+            cell.CH_RuserName.text = tempVideos.userName;
+            cell.CH_RVideo_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            NSURL *url = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+            if([tempVideos.is_anonymous  isEqualToString: @"0"]){
+           
+            }
+            else{
+                //cell.CH_RVideo_Thumbnail.image =[UIImage imageNamed:@"anonymousDp.png"];
+                cell.CH_RuserName.text = @"Anonymous";
+            }
+            if ([tempVideos.like_by_me isEqualToString:@"1"]) {
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+            }else{
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
+            }
+            currentIndexHome++;
+        }
+        else{
+            cell.CH_RprofileImage.hidden = YES;
+            cell.CH_Rseen.hidden = YES;
+            cell.CH_RcommentsBtn.hidden = YES;
+            cell.CH_RuserName.hidden = YES;
+            cell.CH_Rheart.hidden = YES;
+            cell.RimgContainer.hidden = YES;
+            cell.CH_RplayVideo.hidden = YES;
+            cell.Rtransthumb.hidden = YES;
+            cell.CH_RVideoTitle.hidden = YES;
+            cell.rightreplImg.hidden = YES;
+            cell.CH_RCommentscountLbl.hidden = YES;
+            cell.playImage.hidden = YES;
+        }
+        [cell setBackgroundColor:[UIColor clearColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
         return cell;
         
     }else if(tableView.tag == 3){
         
-        ChannelCell *cell;
+        //ChannelCell *cell;
+        NewHomeCells *cell;
         IsStatus = NO;
-        //currentState = 2;
+        currentIndex = (indexPath.row * 2);
         if (IS_IPAD) {
-            
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell_iPad" owner:self options:nil];
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells_iPad" owner:self options:nil];
+            cell = [nib objectAtIndex:0];
+        }
+        else if(IS_IPHONE_5){
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHome_iPhone5" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
         else{
             
-            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell" owner:self options:nil];
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
-        _forumTable.contentSize = CGSizeMake(_forumTable.frame.size.width,trendArray.count * returnValue + _BottomBar.frame.size.height + 50);
+        if(IS_IPHONE_6Plus){
+            cell.leftreplImg.frame = CGRectMake(cell.leftreplImg.frame.origin.x + 15, cell.leftreplImg.frame.origin.y, cell.leftreplImg.frame.size.width, cell.leftreplImg.frame.size.width);
+            cell.CH_CommentscountLbl.frame = CGRectMake(cell.CH_CommentscountLbl.frame.origin.x + 15, cell.CH_CommentscountLbl.frame.origin.y, cell.CH_CommentscountLbl.frame.size.width , cell.CH_CommentscountLbl.frame.size.height);
+        }
+        NSInteger valueToInc = 50;
+        if(forumPageNumber > 1)
+            valueToInc = forumPageNumber * 100;
+        _forumTable.contentSize = CGSizeMake(_forumTable.frame.size.width,forumsVideo.count/2 * returnValue + _BottomBar.frame.size.height );
         
         GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
-        tempVideos  = [trendArray objectAtIndex:indexPath.row];
+        tempVideos  = [forumsVideo objectAtIndex:currentIndex];
         cell.CH_userName.text = tempVideos.userName;
-        
-        appDelegate.videotitle = tempVideos.title;
-        appDelegate.videotags = tempVideos.Tags;
-        appDelegate.profile_pic_url = tempVideos.profile_image;
-        
         cell.Ch_videoLength.text = tempVideos.video_length;
         cell.CH_VideoTitle.text = tempVideos.title;
-        cell.CH_CommentscountLbl.text = tempVideos.comments_count;
-        cell.CH_heartCountlbl.text = tempVideos.like_count;
-        cell.CH_seen.text = tempVideos.seen_count;
-        tempVideos.video_link = [videosArray objectAtIndex:indexPath.row];
-        if([tempVideos.is_anonymous  isEqualToString: @"0"]){
-            cell.CH_profileImage.imageURL = [NSURL URLWithString:[arrImage objectAtIndex:indexPath.row]];
-            NSURL *url = [NSURL URLWithString:[arrImage objectAtIndex:indexPath.row]];
-            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+        if([tempVideos.comments_count isEqualToString:@"0"])
+        {
+            cell.CH_CommentscountLbl.hidden = YES;
+            cell.leftreplImg.hidden = YES;
         }
         else{
-            cell.CH_profileImage.image =[UIImage imageNamed:@"anonymousDp.png"];
+            cell.CH_CommentscountLbl.text = tempVideos.comments_count;
+        }
+        cell.CH_heartCountlbl.text = tempVideos.like_count;
+        cell.CH_seen.text = tempVideos.seen_count;
+        //tempVideos.video_link = [videosArray objectAtIndex:indexPath.row];
+        cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        NSURL *url1 = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+        if([tempVideos.is_anonymous  isEqualToString: @"0"]){
+         
+        }
+        else{
+           // cell.CH_Video_Thumbnail.image =[UIImage imageNamed:@"anonymousDp.png"];
             cell.CH_userName.text = @"Anonymous";
             cell.userProfileView.enabled = false;
         }
-        cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
-        NSURL *url1 = [NSURL URLWithString:[arrThumbnail objectAtIndex:indexPath.row]];
-        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+     
         [cell.userProfileView addTarget:self action:@selector(MovetoUserProfile:) forControlEvents:UIControlEventTouchUpInside];
         cell.userProfileView.tag = indexPath.row;
-        cell.CH_profileImage.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-        for (UIView* subview in cell.CH_profileImage.subviews)
-            subview.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-        
-        cell.CH_profileImage.layer.shadowColor = [UIColor blackColor].CGColor;
-        cell.CH_profileImage.layer.shadowOpacity = 0.7f;
-        cell.CH_profileImage.layer.shadowOffset = CGSizeMake(0, 5);
-        cell.CH_profileImage.layer.shadowRadius = 5.0f;
-        cell.CH_profileImage.layer.masksToBounds = NO;
-        
-        cell.CH_profileImage.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-        cell.CH_profileImage.layer.masksToBounds = NO;
-        cell.CH_profileImage.clipsToBounds = YES;
-        
-        cell.CH_profileImage.layer.backgroundColor = [UIColor clearColor].CGColor;
-        cell.CH_profileImage.layer.borderColor = [UIColor whiteColor].CGColor;
-        cell.CH_profileImage.layer.borderWidth = 0.0f;
-        
+        cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /6.2f;
+        if(IS_IPAD)
+            cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /7.4f;
+        cell.imgContainer.layer.masksToBounds = YES;
+        [cell.CH_Video_Thumbnail roundCorners];
+        cell.CH_commentsBtn.enabled = YES;
+        cell.CH_RcommentsBtn.enabled = YES;
         UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
         [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
         [cell addGestureRecognizer:sgr];
-        
-        
         [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
-        appDelegate.videotoPlay = [getTrendingVideos.mainArray objectAtIndex:indexPath.row];
-        [cell.CH_heart setTag:indexPath.row];
+        [cell.CH_heart setTag:currentIndex];
         [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
         if ([tempVideos.like_by_me isEqualToString:@"1"]) {
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
@@ -1259,132 +1461,230 @@
             [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
         }
         
-        //  cell.CH_seen.hidden = NO;
-        //  cell.CH_seen.frame = CGRectMake(cell.CH_flag.frame.size.width + cell.CH_flag.frame.origin.x +15, cell.CH_seen.frame.origin.y,  cell.CH_seen.frame.size.width,  cell.CH_seen.frame.size.height);
-        
-        //[cell.CH_flag setBackgroundImage:[UIImage imageNamed:@"Eye_256.png"] forState:UIControlStateNormal];
+      
         [cell.CH_flag addTarget:self action:@selector(Flag:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.CH_playVideo setTag:indexPath.row];
+        [cell.CH_playVideo setTag:currentIndex];
         
-        [cell.CH_flag setTag:indexPath.row];
+        [cell.CH_flag setTag:currentIndex];
         [cell.CH_commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
-        [cell.CH_commentsBtn setTag:indexPath.row];
-        [cell setBackgroundColor:BlueThemeColor(241, 245, 248)];
+        [cell.CH_commentsBtn setTag:currentIndex];
+        currentIndex++;
+        if(currentIndex < forumsVideo.count)
+        {
+            GetTrendingVideos *tempVideos = [[GetTrendingVideos alloc]init];
+            tempVideos  = [forumsVideo objectAtIndex:currentIndex];
+            [cell.CH_RcommentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RcommentsBtn setTag:currentIndex];
+            [cell.CH_RplayVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RplayVideo setTag:currentIndex];
+            [cell.CH_Rheart setTag:currentIndex];
+            [cell.CH_Rheart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
+            cell.CH_RVideoTitle.text = tempVideos.title;
+            cell.CH_Rseen.text = tempVideos.seen_count;
+            cell.RimgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /6.2f;
+            if(IS_IPAD)
+                cell.RimgContainer.layer.cornerRadius  = cell.RimgContainer.frame.size.width /7.4f;
+            cell.RimgContainer.layer.masksToBounds = YES;
+            [cell.CH_RVideo_Thumbnail roundCorners];;
+
+            cell.CH_RheartCountlbl.text             = tempVideos.like_count;
+            if([tempVideos.comments_count isEqualToString:@"0"])
+            {
+                cell.CH_RCommentscountLbl.hidden = YES;
+                cell.rightreplImg.hidden = YES;
+            }
+            else{
+                cell.CH_RCommentscountLbl.text = tempVideos.comments_count;
+            }
+            cell.CH_RuserName.text = tempVideos.userName;
+            cell.CH_RVideo_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            NSURL *url = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+            if([tempVideos.is_anonymous  isEqualToString: @"0"]){
+
+            }
+            else{
+                //cell.CH_RVideo_Thumbnail.image =[UIImage imageNamed:@"anonymousDp.png"];
+                cell.CH_RuserName.text = @"Anonymous";
+            }
+            if ([tempVideos.like_by_me isEqualToString:@"1"]) {
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+            }else{
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
+            }
+            currentIndex++;
+        }
+        else{
+            cell.CH_RprofileImage.hidden = YES;
+            cell.CH_Rseen.hidden = YES;
+            cell.CH_RcommentsBtn.hidden = YES;
+            cell.CH_RuserName.hidden = YES;
+            cell.CH_Rheart.hidden = YES;
+            cell.RimgContainer.hidden = YES;
+            cell.CH_RplayVideo.hidden = YES;
+            cell.Rtransthumb.hidden = YES;
+            cell.CH_RVideoTitle.hidden = YES;
+            cell.rightreplImg.hidden = YES;
+            cell.CH_RCommentscountLbl.hidden = YES;
+            cell.playImage.hidden = YES;
+        }
+        [cell setBackgroundColor:[UIColor clearColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
         return cell;
         
     }
     if (tableView.tag == 2 ) {
         
-        if(indexPath.row == 0 && appDelegate.IS_celeb) {
-            AdvertismentCell *cell;
-            IsStatus = NO;
-            if (IS_IPAD) {
-                
-                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"AdvertismentCell_iPad" owner:self options:nil];
-                cell = [nib objectAtIndex:0];
-            }
-            else{
-                
-                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"AdvertismentCell" owner:self options:nil];
-                cell = [nib objectAtIndex:0];
-            }
-            [cell setBackgroundColor:BlueThemeColor(241, 245, 248)];
-            return cell;
-        }
-        else {
-            ChannelCell *cell;
-            IsStatus = NO;
-            if (IS_IPAD) {
-                
-                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell_iPad" owner:self options:nil];
-                cell = [nib objectAtIndex:0];
-            }
-            else{
-                
-                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"ChannelCell" owner:self options:nil];
-                cell = [nib objectAtIndex:0];
-            }
-            _TablemyChannel.contentSize = CGSizeMake(_TablemyChannel.frame.size.width,chPostArray.count * returnValue + _BottomBar.frame.size.height + 150);
-            myChannelModel *tempVideos = [[myChannelModel alloc]init];
-            if(appDelegate.IS_celeb) {
-                tempVideos  = [chPostArray objectAtIndex:indexPath.row-1];
-            }
-            else {
-                tempVideos  = [chPostArray objectAtIndex:indexPath.row];
-            }
+//        if(indexPath.row == 0 && appDelegate.IS_celeb) {
+//            AdvertismentCell *cell;
+//            IsStatus = NO;
+//            if (IS_IPAD) {
+//                
+//                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"AdvertismentCell_iPad" owner:self options:nil];
+//                cell = [nib objectAtIndex:0];
+//            }
+//            else{
+//                
+//                NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"AdvertismentCell" owner:self options:nil];
+//                cell = [nib objectAtIndex:0];
+//            }
+//            [cell setBackgroundColor:BlueThemeColor(241, 245, 248)];
+//            cell.selectionStyle = UITableViewCellSeparatorStyleNone;
+//            return cell;
+//        }
+//        else {
+        NewHomeCells *cell;
+        IsStatus = NO;
+        currentChanelIndex = (indexPath.row * 2);
+        if (IS_IPAD) {
             
-            cell.CH_userName.text = tempVideos.userName;
-            cell.CH_VideoTitle.text = tempVideos.title;
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells_iPad" owner:self options:nil];
+            cell = [nib objectAtIndex:0];
+        }
+        else if(IS_IPHONE_5){
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHome_iPhone5" owner:self options:nil];
+            cell = [nib objectAtIndex:0];
+        }
+        else{
+            
+            NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"NewHomeCells" owner:self options:nil];
+            cell = [nib objectAtIndex:0];
+        }
+        if(IS_IPHONE_6Plus){
+            cell.leftreplImg.frame = CGRectMake(cell.leftreplImg.frame.origin.x + 15, cell.leftreplImg.frame.origin.y, cell.leftreplImg.frame.size.width, cell.leftreplImg.frame.size.width);
+            cell.CH_CommentscountLbl.frame = CGRectMake(cell.CH_CommentscountLbl.frame.origin.x + 15, cell.CH_CommentscountLbl.frame.origin.y, cell.CH_CommentscountLbl.frame.size.width , cell.CH_CommentscountLbl.frame.size.height);
+        }
+        _TablemyChannel.contentSize = CGSizeMake(_TablemyChannel.frame.size.width,chPostArray.count/2 * returnValue + _BottomBar.frame.size.height + 150);
+        myChannelModel *tempVideos = [[myChannelModel alloc]init];
+        //            if(appDelegate.IS_celeb) {
+        //                tempVideos  = [channelVideos objectAtIndex:indexPath.row-1];
+        //            }
+        //            else {
+        tempVideos  = [channelVideos objectAtIndex:currentChanelIndex];
+        //}
+        
+        cell.CH_userName.text = tempVideos.userName;
+        cell.CH_VideoTitle.text = tempVideos.title;
+        if([tempVideos.comments_count isEqualToString:@"0"])
+        {
+            cell.CH_CommentscountLbl.hidden = YES;
+            cell.leftreplImg.hidden = YES;
+        }
+        else{
             cell.CH_CommentscountLbl.text = tempVideos.comments_count;
-            cell.CH_heartCountlbl.text = tempVideos.like_count;
-            cell.CH_seen.text = tempVideos.seen_count;
-            cell.Ch_videoLength.text = tempVideos.video_length;
-            
-            
-            
-            cell.CH_profileImage.imageURL = [NSURL URLWithString:tempVideos.profile_image];
-            NSURL *url = [NSURL URLWithString:tempVideos.profile_image];
-            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-            
-            NSURL *url1;
-            if(appDelegate.IS_celeb) {
-                cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:[chArrThumbnail objectAtIndex:indexPath.row-1]];
-                url1 = [NSURL URLWithString:[chArrThumbnail objectAtIndex:indexPath.row-1]];
-            }
-            else {
-                cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:[chArrThumbnail objectAtIndex:indexPath.row]];
-                url1 = [NSURL URLWithString:[chArrThumbnail objectAtIndex:indexPath.row]];
-            }
-            
-            if([tempVideos.video_thumbnail_link isEqualToString:@""] )
-            {
-                cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.image_link];
-                url1 = [NSURL URLWithString:tempVideos.image_link];
-                cell.CH_playVideo.hidden = YES;
-            }
-            [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
-            
-            cell.CH_profileImage.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-            for (UIView* subview in cell.CH_profileImage.subviews)
-                subview.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-            
-            cell.CH_profileImage.layer.shadowColor = [UIColor blackColor].CGColor;
-            cell.CH_profileImage.layer.shadowOpacity = 0.7f;
-            cell.CH_profileImage.layer.shadowOffset = CGSizeMake(0, 5);
-            cell.CH_profileImage.layer.shadowRadius = 5.0f;
-            cell.CH_profileImage.layer.masksToBounds = NO;
-            
-            cell.CH_profileImage.layer.cornerRadius = cell.CH_profileImage.frame.size.width / 2;
-            cell.CH_profileImage.layer.masksToBounds = NO;
-            cell.CH_profileImage.clipsToBounds = YES;
-            
-            cell.CH_profileImage.layer.backgroundColor = [UIColor clearColor].CGColor;
-            cell.CH_profileImage.layer.borderColor = [UIColor whiteColor].CGColor;
-            cell.CH_profileImage.layer.borderWidth = 0.0f;
-            
-            UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
-            [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
-            [cell addGestureRecognizer:sgr];
-            
-            [cell.CH_heart setTag:indexPath.row-1];
-            [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
-            
-            [cell.CH_flag addTarget:self action:@selector(editPost:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.CH_playVideo setTag:indexPath.row-1];
-            
-            [cell.CH_flag setTag:indexPath.row-1];
-            [cell.CH_commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.CH_commentsBtn setTag:indexPath.row-1];
-            
-            if ([tempVideos.like_by_me isEqualToString:@"1"]) {
-                [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
-            }else{
-                [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
-            }
-            [cell setBackgroundColor:BlueThemeColor(241, 245, 248)];
-            return cell;
         }
+        cell.CH_heartCountlbl.text = tempVideos.like_count;
+        cell.CH_seen.text = tempVideos.seen_count;
+        cell.Ch_videoLength.text = tempVideos.video_length;
+        
+        NSURL *url1;
+        cell.CH_Video_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        url1 = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+        [[AsyncImageLoader sharedLoader] loadImageWithURL:url1];
+        cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /6.2f;
+        if(IS_IPAD)
+            cell.imgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /7.4f;
+        cell.imgContainer.layer.masksToBounds = YES;
+        [cell.CH_Video_Thumbnail roundCorners];
+        cell.CH_commentsBtn.enabled = YES;
+        cell.CH_RcommentsBtn.enabled = YES;
+        UISwipeGestureRecognizer* sgr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(cellSwiped:)];
+        [sgr setDirection:UISwipeGestureRecognizerDirectionRight];
+        [cell addGestureRecognizer:sgr];
+        
+        [cell.CH_heart setTag:currentChanelIndex];
+        [cell.CH_playVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_heart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.CH_flag addTarget:self action:@selector(editPost:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_playVideo setTag:currentChanelIndex];
+        
+        [cell.CH_flag setTag:currentChanelIndex];
+        [cell.CH_commentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.CH_commentsBtn setTag:currentChanelIndex];
+        
+        if ([tempVideos.like_by_me isEqualToString:@"1"]) {
+            [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+        }else{
+            [cell.CH_heart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
+        }
+        currentChanelIndex++;
+        if(currentChanelIndex < channelVideos.count)
+        {
+            myChannelModel *tempVideos = [[myChannelModel alloc]init];
+            tempVideos  = [channelVideos objectAtIndex:currentChanelIndex];
+            [cell.CH_RcommentsBtn addTarget:self action:@selector(ShowCommentspressed:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RcommentsBtn setTag:currentChanelIndex];
+            [cell.CH_RplayVideo addTarget:self action:@selector(playVideo:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.CH_RplayVideo setTag:currentChanelIndex];
+            [cell.CH_Rheart setTag:currentChanelIndex];
+            [cell.CH_Rheart addTarget:self action:@selector(LikeHearts:) forControlEvents:UIControlEventTouchUpInside];
+            cell.CH_RVideoTitle.text = tempVideos.title;
+            cell.CH_Rseen.text = tempVideos.seen_count;
+            cell.RimgContainer.layer.cornerRadius  = cell.imgContainer.frame.size.width /6.2f;
+            if(IS_IPAD)
+                cell.RimgContainer.layer.cornerRadius  = cell.RimgContainer.frame.size.width /7.4f;
+            cell.RimgContainer.layer.masksToBounds = YES;
+            
+            
+            cell.CH_RheartCountlbl.text             = tempVideos.like_count;
+            if([tempVideos.comments_count isEqualToString:@"0"])
+            {
+                cell.CH_RCommentscountLbl.hidden = YES;
+                cell.rightreplImg.hidden = YES;
+            }
+            else{
+                cell.CH_RCommentscountLbl.text = tempVideos.comments_count;
+            }
+            cell.CH_RuserName.text = tempVideos.userName;
+            cell.CH_RVideo_Thumbnail.imageURL = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            NSURL *url = [NSURL URLWithString:tempVideos.video_thumbnail_link];
+            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+            [cell.CH_RVideo_Thumbnail roundCorners];
+            if ([tempVideos.like_by_me isEqualToString:@"1"]) {
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likeblue.png"] forState:UIControlStateNormal];
+            }else{
+                [cell.CH_Rheart setBackgroundImage:[UIImage imageNamed:@"likenew.png"] forState:UIControlStateNormal];
+            }
+            currentChanelIndex++;
+        }else{
+            cell.CH_RprofileImage.hidden = YES;
+            cell.CH_Rseen.hidden = YES;
+            cell.CH_RcommentsBtn.hidden = YES;
+            cell.CH_RuserName.hidden = YES;
+            cell.CH_Rheart.hidden = YES;
+            cell.RimgContainer.hidden = YES;
+            cell.CH_RplayVideo.hidden = YES;
+            cell.Rtransthumb.hidden = YES;
+            cell.CH_RVideoTitle.hidden = YES;
+            cell.rightreplImg.hidden = YES;
+            cell.CH_RCommentscountLbl.hidden = YES;
+            cell.playImage.hidden = YES;
+        }
+        [cell setBackgroundColor:[UIColor clearColor]];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        return cell;
+        // }
     }
     if (tableView.tag == 20) {
         SearchCell *cell;
@@ -1398,13 +1698,13 @@
             NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"SearchCell" owner:self options:nil];
             cell = [nib objectAtIndex:0];
         }
-        if(loadFollowings == false){
-            PopularUsersModel *tempUsers = [[PopularUsersModel alloc]init];
-            tempUsers  = [usersArray objectAtIndex:indexPath.row];
-            cell.friendsName.text = tempUsers.full_name;
+//        if(!searchcorners){
+            Followings *tempUsers = [[Followings alloc]init];
+            tempUsers = [FollowingsAM objectAtIndex:indexPath.row];
+            cell.friendsName.text = tempUsers.fullName;
             
-            cell.profilePic.imageURL = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
-            NSURL *url = [NSURL URLWithString:[arrImages objectAtIndex:indexPath.row]];
+            cell.profilePic.imageURL = [NSURL URLWithString:tempUsers.profile_link];
+            NSURL *url = [NSURL URLWithString:tempUsers.profile_link];
             [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
             
             cell.profilePic.layer.cornerRadius = cell.profilePic.frame.size.width / 2;
@@ -1427,68 +1727,109 @@
             
             [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
             [cell.statusImage setTag:indexPath.row];
+            cell.statusImage.hidden = false;
             cell.activityInd.hidden = true;
             [cell.activityInd stopAnimating];
             if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
                 
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"PENDING"]){
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
+            }else if ([tempUsers.status isEqualToString:@"FRIEND"]){
+                
+                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
+            }
+            
+            if ([tempUsers.status isEqualToString:@"PENDING"]) {
+                cell.statusImage.hidden = true;
                 cell.activityInd.hidden = false;
                 [cell.activityInd startAnimating];
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"FRIEND"]) {
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"ACCEPT_REQUEST"]){
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
-                [self sendDeleteFriend];
-                
             }
-            
             [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
             [cell.friendsChannelBtn setTag:indexPath.row];
             
-            if (SearchforTag == YES) {
-                cell.tagbtn.hidden = NO;
-                cell.statusImage.hidden = YES;
-                
-            }else{
-                cell.tagbtn.hidden = YES;
-                cell.statusImage.hidden = NO;
-            }
+//            if (SearchforTag == YES) {
+//                cell.tagbtn.hidden = NO;
+//                cell.statusImage.hidden = YES;
+//                
+//            }else{
+//                cell.tagbtn.hidden = YES;
+//                cell.statusImage.hidden = NO;
+//            }
             [cell.tagbtn addTarget:self action:@selector(TagFriend:) forControlEvents:UIControlEventTouchUpInside];
             [cell.tagbtn setTag:indexPath.row];
+            [cell setBackgroundColor:[UIColor clearColor]];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
-        }
-        else{
-            Followings *tempUsers = [[Followings alloc]init];
-            tempUsers = [FollowingsAM objectAtIndex:indexPath.row];
-            cell.friendsName.text = tempUsers.fullName;
-            
-            cell.profilePic.imageURL = [NSURL URLWithString:tempUsers.profile_link];
-            NSURL *url = [NSURL URLWithString:tempUsers.profile_link];
-            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
-            [cell.profilePic roundImageCorner];
-            
-            [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.statusImage setTag:indexPath.row];
-            
-            if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
-                
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"PENDING"]){
-                
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"FRIEND"]) {
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
-            }else if ([tempUsers.status isEqualToString:@"ACCEPT_REQUEST"]){
-                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
-                [self sendDeleteFriend];
-            }
-            [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.friendsChannelBtn setTag:indexPath.row];
-            cell.statusImage.hidden = NO;
-            return cell;
-        }
+        //}
+//        else {
+//            PopularUsersModel *tempUsers = [[PopularUsersModel alloc] init];
+//            tempUsers =  [UsersModel.PopUsersArray objectAtIndex:indexPath.row];
+//            cell.friendsName.text = tempUsers.full_name;
+//            
+//            cell.profilePic.imageURL = [NSURL URLWithString:tempUsers.profile_link];
+//            NSURL *url = [NSURL URLWithString:tempUsers.profile_link];
+//            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+//            [cell.profilePic roundImageCorner];
+//            
+//            [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.statusImage setTag:indexPath.row];
+//            cell.statusImage.hidden = false;
+//            cell.activityInd.hidden = true;
+//            [cell.activityInd stopAnimating];
+//            if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
+//                
+//                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
+//            }else if ([tempUsers.status isEqualToString:@"FRIEND"]){
+//                
+//                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
+//            }
+//            
+//            if ([tempUsers.status isEqualToString:@"PENDING"]) {
+//                cell.statusImage.hidden = true;
+//                cell.activityInd.hidden = false;
+//                [cell.activityInd startAnimating];
+//            }
+//            [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.friendsChannelBtn setTag:indexPath.row];
+//            [cell setBackgroundColor:[UIColor clearColor]];
+//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//            return cell;
+//            
+//        }
+//        else{
+//            
+//            Followings *tempUsers = [[Followings alloc]init];
+//            tempUsers = [FollowingsAM objectAtIndex:indexPath.row];
+//            cell.friendsName.text = tempUsers.fullName;
+//            
+//            cell.profilePic.imageURL = [NSURL URLWithString:tempUsers.profile_link];
+//            NSURL *url = [NSURL URLWithString:tempUsers.profile_link];
+//            [[AsyncImageLoader sharedLoader] loadImageWithURL:url];
+//            [cell.profilePic roundImageCorner];
+//            
+//            [cell.statusImage addTarget:self action:@selector(statusPressed:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.statusImage setTag:indexPath.row];
+//            cell.statusImage.hidden = false;
+//            cell.activityInd.hidden = true;
+//            [cell.activityInd stopAnimating];
+//            if ([tempUsers.status isEqualToString:@"ADD_FRIEND"]) {
+//                
+//                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
+//            }else if ([tempUsers.status isEqualToString:@"FRIEND"]){
+//                
+//                [cell.statusImage setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
+//            }
+//            
+//            if ([tempUsers.status isEqualToString:@"PENDING"]) {
+//                cell.statusImage.hidden = true;
+//                cell.activityInd.hidden = false;
+//                [cell.activityInd startAnimating];
+//            }
+//            [cell.friendsChannelBtn addTarget:self action:@selector(OpenFriendsChannelPressed:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.friendsChannelBtn setTag:indexPath.row];
+//            [cell setBackgroundColor:[UIColor clearColor]];
+//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//            return cell;
+//        }
     }
     
     if (tableView.tag == 25) {
@@ -1703,23 +2044,32 @@
         int page = scrollView.contentOffset.x / scrollView.frame.size.width;
         if(page == 0){
             [self ShowBottomBar];
-            [btnHome setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
+            [btnHome setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [btnChannel setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnTrending setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             currentState = 0;
+            tabLineHome.hidden      = false;
+            tabLineChannel.hidden   = true;
+            tabLineTrending.hidden  = true;
         }
         else if (page == 1) {
             [self ShowBottomBar];
-            [btnChannel setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
+            [btnChannel setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [btnHome setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnTrending setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             currentState = 3;
+            tabLineHome.hidden      = true;
+            tabLineChannel.hidden   = false;
+            tabLineTrending.hidden  = true;
         }
         else {
             currentState = 2;
-            [btnTrending setTitleColor:[UIColor colorWithRed:54.0/256.0 green:78.0/256.0 blue:141.0/256.0 alpha:1.0] forState:UIControlStateNormal];
+            [btnTrending setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [btnChannel setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             [btnHome setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+            tabLineHome.hidden      = true;
+            tabLineChannel.hidden   = true;
+            tabLineTrending.hidden  = false;
         }
     }
     else if(scrollView.tag == 10) {
@@ -1800,14 +2150,14 @@
     else if (scrollView.tag == 2) {
         if (_lastContentOffset < (int)scrollView.contentOffset.y) {
             // moved up
-            CGRect changedFrame = CGRectMake(0, 86, originalChannelFrame.size.width, 568);
+            CGRect changedFrame = CGRectMake(0, 86, originalChannelFrame.size.width, 600);
             
             if (IS_IPAD) {
                 changedFrame = CGRectMake(0, 100, originalChannelFrame.size.width, 1024);
             }
-            
-            CGRect changedFrameForInner = CGRectMake(0, 0, originalChannelFrame.size.width, 0);
-            
+            else if(IS_IPHONE_6Plus)
+                changedFrame = CGRectMake(0, 100, 414, 700);
+            CGRect changedFrameForInner = CGRectMake(0,-40, originalChannelFrame.size.width, 0);
             [UIView animateWithDuration:0.5 animations:^{
                 
                 channelContainerView.frame = changedFrameForInner;
@@ -1850,22 +2200,10 @@
         {
             [self ShowBottomBar];
         }
-        //        self.lastContentPoint = currentOffset;
-        //        if(self.forumTable.contentOffset.y >= (self.forumTable.contentSize.height - self.forumTable.bounds.size.height)) {
-        //            //            if(self.isLoading == NO)
-        //            //            {
-        //            //                self.isLoading  = YES;
-        //            //                forumPageNumber++;
-        //            //                [self getTrendingVideos];
-        //            //            }
-        //        }
     }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    //    if(scrollView.tag == 2) {
-    //        _lastContentOffset = scrollView.contentOffset.x;
-    //    }
     
 }
 
@@ -1892,9 +2230,9 @@
             NSArray *visibleRows = [_TableHome visibleCells];
             UITableViewCell *lastVisibleCell = [visibleRows lastObject];
             NSIndexPath *path = [_TableHome indexPathForCell:lastVisibleCell];
-            if(path.section == 0 && path.row == newsfeedPostArray.count-1)
+            if(path.section == 0 && path.row == newsfeedsVideos.count/2 - 1)
             {
-                if(!cannotScroll) {
+                if(!cannotScroll && !fetchingContent) {
                     if(goSearch) {
                         searchPageNum++;
                     }
@@ -1911,9 +2249,9 @@
             NSArray *visibleRows = [_forumTable visibleCells];
             UITableViewCell *lastVisibleCell = [visibleRows lastObject];
             NSIndexPath *path = [_forumTable indexPathForCell:lastVisibleCell];
-            if(path.section == 0 && path.row == trendArray.count-1)
+            if(path.section == 0 && path.row == forumsVideo.count/2 - 1)
             {
-                if(!cannotScrollForum) {
+                if(!cannotScrollForum && !fetchingFroum) {
                     if(goSearch) {
                         searchPageNum++;
                     }
@@ -1943,7 +2281,7 @@
                 
             }
         }
-    }
+   }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView
@@ -2001,13 +2339,12 @@
 -(void)HideBottomBar{
     [UIView animateWithDuration:0.5 animations:^{
         _BottomBar.frame =  CGRectMake(0, 700, 375, 100);
-        _BottomBar.center = CGPointMake(0, 1060);
+        _BottomBar.center = CGPointMake(0, 1500);
     }];
 }
 -(void)ShowBottomBar{
     
     [UIView animateWithDuration:0.5 animations:^{
-        // _BottomBar.frame =  CGRectMake(0, 567, 375, 100);
         _BottomBar.frame = TabBarFrame;
     }];
 }
@@ -2049,95 +2386,153 @@
     
     UIButton *playBtn = (UIButton *)sender;
     currentSelectedIndex = playBtn.tag;
-    NSString *screen = [NSString stringWithFormat:@"%d", currentState];
+    
     if(currentState == 3) {
-        myChannelModel *model = [channelVideos objectAtIndex:currentSelectedIndex];
-        postID = model.VideoID;
         [videoObj removeAllObjects];
-        VideoModel *temp = [[VideoModel alloc]init];
-        temp.title                  = model.title;
-        temp.comments_count         = model.comments_count;
-        temp.userName               = model.userName;
-        temp.topic_id               = model.topic_id;
-        temp.user_id                = model.user_id;
-        temp.profile_image          = model.profile_image;
-        temp.video_link             = model.video_link;
-        temp.video_thumbnail_link   = model.video_thumbnail_link;
-        temp.image_link             = model.image_link;
-        temp.videoID                = model.VideoID;
-        temp.video_length           = model.video_length;
-        [videoObj addObject:temp];
-        if(![model.comments_count isEqualToString:@"0"])
-        {
-            ParentCommentID = @"-1";
-            [self getCommentsToPlay];
+         myChannelModel *modelss = [channelVideos objectAtIndex:currentSelectedIndex];
+         postID = modelss.Post_ID;
+        for(int i = 0; i < channelVideos.count ; i++){
+            myChannelModel *models = [channelVideos objectAtIndex:i];
+            VideoModel *temp = [[VideoModel alloc] init];
+            temp.is_anonymous           = models.is_anonymous;
+            temp.title                  = models.title;
+            temp.comments_count         = models.comments_count;
+            temp.userName               = models.userName;
+            temp.topic_id               = models.topic_id;
+            temp.user_id                = models.user_id;
+            temp.profile_image          = models.profile_image;
+            temp.video_link             = models.video_link;
+            temp.video_thumbnail_link   = models.video_thumbnail_link;
+            temp.image_link             = models.image_link;
+            temp.videoID                = models.VideoID;
+            temp.video_length           = models.video_length;
+            temp.like_count             = models.like_count;
+            temp.like_by_me             = models.like_by_me;
+            temp.seen_count             = models.seen_count;
+            temp.reply_count            = models.reply_count;
+            [videoObj addObject:temp];
         }
-        else{
-            VideoPlayerVC *videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
-            videoPlayer.videoObjs = videoObj;
-            [[self navigationController] pushViewController:videoPlayer animated:YES];
-        }
+        VideoPlayerVC *videoPlayer;
+        if(IS_IPAD)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPad" bundle:nil];
+        else if(IS_IPHONE_6Plus)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPhonePlus" bundle:nil];
+        else
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+        videoPlayer.videoObjs       = videoObj;
+        videoPlayer.indexToDisplay  = currentSelectedIndex;
+        videoPlayer.isComment       = FALSE;
+        videoPlayer.isFirst         = TRUE;
+        videoPlayer.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [UIView animateWithDuration:0.6
+                         animations:^{
+                             [self.view addSubview:videoPlayer.view];
+                             videoPlayer.view.transform=CGAffineTransformMakeScale(1, 1);
+                         }
+                         completion:^(BOOL finished){
+                             [videoPlayer.view removeFromSuperview];
+                             [self.navigationController pushViewController:videoPlayer animated:NO];
+                         }];
 
         [self SeenPost];
     }
     else if (currentState == 2) {
-        GetTrendingVideos *model = [forumsVideo objectAtIndex:currentSelectedIndex];
-        postID = model.VideoID;
         [videoObj removeAllObjects];
-        VideoModel *temp = [[VideoModel alloc]init];
-        temp.title                  = model.title;
-        temp.comments_count         = model.comments_count;
-        temp.userName               = model.userName;
-        temp.topic_id               = model.topic_id;
-        temp.user_id                = model.user_id;
-        temp.profile_image          = model.profile_image;
-        temp.video_link             = model.video_link;
-        temp.video_thumbnail_link   = model.video_thumbnail_link;
-        temp.image_link             = model.image_link;
-        temp.videoID                = model.VideoID;
-        temp.video_length           = model.video_length;
-        [videoObj addObject:temp];
-        if(![model.comments_count isEqualToString:@"0"])
-        {
-            ParentCommentID = @"-1";
-            [self getCommentsToPlay];
+         GetTrendingVideos *modelss = [forumsVideo objectAtIndex:currentSelectedIndex];
+        postID = modelss.Post_ID;
+        for(int i = 0; i < forumsVideo.count ; i++){
+            GetTrendingVideos *model = [forumsVideo objectAtIndex:i];
+            VideoModel *temp = [[VideoModel alloc] init];
+            temp.is_anonymous           = model.is_anonymous;
+            temp.title                  = model.title;
+            temp.comments_count         = model.comments_count;
+            temp.userName               = model.userName;
+            temp.topic_id               = model.topic_id;
+            temp.user_id                = model.user_id;
+            temp.profile_image          = model.profile_image;
+            temp.video_link             = model.video_link;
+            temp.video_thumbnail_link   = model.video_thumbnail_link;
+            temp.image_link             = model.image_link;
+            temp.videoID                = model.VideoID;
+            temp.video_length           = model.video_length;
+            temp.like_count             = model.like_count;
+            temp.like_by_me             = model.like_by_me;
+            temp.seen_count             = model.seen_count;
+            temp.reply_count            = model.reply_count;
+            [videoObj addObject:temp];
         }
-        else{
-            VideoPlayerVC *videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
-            videoPlayer.videoObjs = videoObj;
-            [[self navigationController] pushViewController:videoPlayer animated:YES];
-        }
+        VideoPlayerVC *videoPlayer;
+        if(IS_IPAD)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPad" bundle:nil];
+        else if(IS_IPHONE_6Plus)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPhonePlus" bundle:nil];
+        else
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+        videoPlayer.videoObjs = videoObj;
+        videoPlayer.indexToDisplay = currentSelectedIndex;
+        videoPlayer.isComment       = FALSE;
+        videoPlayer.isFirst         = TRUE;
+        videoPlayer.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [UIView animateWithDuration:0.6
+                         animations:^{
+                             [self.view addSubview:videoPlayer.view];
+                             videoPlayer.view.transform=CGAffineTransformMakeScale(1, 1);
+                         }
+                         completion:^(BOOL finished){
+                             [videoPlayer.view removeFromSuperview];
+                             [self.navigationController pushViewController:videoPlayer animated:NO];
+                         }];
+        
         [self SeenPost];
-        //[[NavigationHandler getInstance]MoveToPlayer];
     }
     else if(currentState == 0){
-        GetTrendingVideos *model = [newsfeedsVideos objectAtIndex:currentSelectedIndex];
-        postID = model.VideoID;
         [videoObj removeAllObjects];
-        VideoModel *temp = [[VideoModel alloc]init];
-        temp.title                  = model.title;
-        temp.comments_count         = model.comments_count;
-        temp.userName               = model.userName;
-        temp.topic_id               = model.topic_id;
-        temp.user_id                = model.user_id;
-        temp.profile_image          = model.profile_image;
-        temp.video_link             = model.video_link;
-        temp.video_thumbnail_link   = model.video_thumbnail_link;
-        temp.image_link             = model.image_link;
-        temp.videoID                = model.VideoID;
-        temp.video_length           = model.video_length;
-        [videoObj addObject:temp];
-        if(![model.comments_count isEqualToString:@"0"])
-        {
-            ParentCommentID = @"-1";
-            [self getCommentsToPlay];
+        GetTrendingVideos *modelss = [newsfeedsVideos objectAtIndex:currentSelectedIndex];
+        postID = modelss.Post_ID;
+        for(int i = 0; i < newsfeedsVideos.count ; i++){
+            GetTrendingVideos *model = [newsfeedsVideos objectAtIndex:i];
+            VideoModel *temp = [[VideoModel alloc] init];
+            temp.is_anonymous           = model.is_anonymous;
+            temp.title                  = model.title;
+            temp.comments_count         = model.comments_count;
+            temp.userName               = model.userName;
+            temp.topic_id               = model.topic_id;
+            temp.user_id                = model.user_id;
+            temp.profile_image          = model.profile_image;
+            temp.video_link             = model.video_link;
+            temp.video_thumbnail_link   = model.video_thumbnail_link;
+            temp.image_link             = model.image_link;
+            temp.videoID                = model.VideoID;
+            temp.video_length           = model.video_length;
+            temp.like_count             = model.like_count;
+            temp.like_by_me             = model.like_by_me;
+            temp.seen_count             = model.seen_count;
+            temp.reply_count            = model.reply_count;
+            [videoObj addObject:temp];
         }
-        else{
-            VideoPlayerVC *videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
-            videoPlayer.videoObjs = videoObj;
-            [[self navigationController] pushViewController:videoPlayer animated:YES];
-        }
-
+        
+        VideoPlayerVC *videoPlayer;
+        if(IS_IPAD)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPad" bundle:nil];
+        else if(IS_IPHONE_6Plus)
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPhonePlus" bundle:nil];
+        else
+            videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+        videoPlayer.videoObjs = videoObj;
+        videoPlayer.indexToDisplay = currentSelectedIndex;
+        videoPlayer.isComment       = FALSE;
+        videoPlayer.isFirst         = TRUE;
+        videoPlayer.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [UIView animateWithDuration:0.6
+                         animations:^{
+                             [self.view addSubview:videoPlayer.view];
+                             videoPlayer.view.transform=CGAffineTransformMakeScale(1, 1);
+                         }
+                         completion:^(BOOL finished){
+                             [videoPlayer.view removeFromSuperview];
+                             [self.navigationController pushViewController:videoPlayer animated:NO];
+                         }];
+        
         [self SeenPost];
     }
     
@@ -2209,10 +2604,9 @@
     }
     else if(currentState == 3){
         chantempVideos = [[myChannelModel alloc]init];
-        chantempVideos  = [myChannelObj.trendingArray objectAtIndex:currentSelectedIndex];
+        chantempVideos  = [channelVideos objectAtIndex:currentSelectedIndex];
         
     }
-    NSString *Comments;
     if(currentState == 2 || currentState == 0)
     {
         videomodel.videoID = tempVideos.VideoID;
@@ -2226,8 +2620,10 @@
         videomodel.like_by_me = tempVideos.like_by_me;
         videomodel.seen_count = tempVideos.seen_count;
         videomodel.title = tempVideos.title;
-        
+        videomodel.comments_count = tempVideos.comments_count;
         postID = tempVideos.VideoID;
+        videomodel.reply_count  = tempVideos.reply_count;
+        videomodel.user_id      = tempVideos.user_id;
     }
     else if(currentState == 3)
     {
@@ -2242,8 +2638,10 @@
         videomodel.like_by_me = chantempVideos.like_by_me;
         videomodel.seen_count = chantempVideos.seen_count;
         videomodel.title = chantempVideos.title;
-        
         postID = chantempVideos.VideoID;
+        videomodel.comments_count = chantempVideos.comments_count;
+        videomodel.reply_count    = chantempVideos.reply_count;
+        videomodel.user_id      =   chantempVideos.user_id;
     }
     
     
@@ -2330,12 +2728,32 @@
                     _comment.image_link = [tempDict objectForKey:@"image_link"];
                     _comment.videoID = [tempDict objectForKey:@"id"];
                     _comment.video_length = [tempDict objectForKey:@"video_length"];
-                    
+                    _comment.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
                     [videoObj addObject:_comment];
                 }
-                VideoPlayerVC *videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+                VideoPlayerVC *videoPlayer;
+                if(IS_IPAD)
+                    videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPad" bundle:nil];
+                else if(IS_IPHONE_6Plus)
+                    videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC_iPhonePlus" bundle:nil];
+                else
+                    videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
                 videoPlayer.videoObjs = videoObj;
-                [[self navigationController] pushViewController:videoPlayer animated:YES];
+                videoPlayer.view.transform = CGAffineTransformMakeScale(0.01, 0.01);
+                
+                [UIView animateWithDuration:0.6
+                                 animations:^{
+                                     [self.view addSubview:videoPlayer.view];
+                                     videoPlayer.view.transform=CGAffineTransformMakeScale(1, 1);
+                                 }
+                                 completion:^(BOOL finished){
+                                     [videoPlayer.view removeFromSuperview];
+                                     [self.navigationController pushViewController:videoPlayer animated:NO];
+                                 }];
+
+//                VideoPlayerVC *videoPlayer = [[VideoPlayerVC alloc] initWithNibName:@"VideoPlayerVC" bundle:nil];
+//                videoPlayer.videoObjs = videoObj;
+//                [[self navigationController] pushViewController:videoPlayer animated:YES];
             }
         }
         else{
@@ -2385,6 +2803,7 @@
                     _comment.title = [tempDict objectForKey:@"caption"];
                     _comment.comments_count = [tempDict objectForKey:@"comment_count"];
                     _comment.comment_like_count = [tempDict objectForKey:@"comment_like_count"];
+                    _comment.seen_count = [tempDict objectForKey:@"seen_count"];
                     _comment.userName = [tempDict objectForKey:@"full_name"];
                     _comment.topic_id = [tempDict objectForKey:@"topic_id"];
                     _comment.user_id = [tempDict objectForKey:@"user_id"];
@@ -2397,7 +2816,8 @@
                     _comment.VideoID = [tempDict objectForKey:@"id"];
                     _comment.video_length = [tempDict objectForKey:@"video_length"];
                     _comment.timestamp = [tempDict objectForKey:@"timestamp"];
-                    
+                    _comment.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                    _comment.reply_count  = [tempDict objectForKey:@"reply_count"];
                     [CommentsModelObj.ImagesArray addObject:_comment.profile_link];
                     [CommentsModelObj.ThumbnailsArray addObject:_comment.video_thumbnail_link];
                     [CommentsModelObj.mainArray addObject:_comment.video_link];
@@ -2409,9 +2829,17 @@
                     chArrThumbnail = CommentsModelObj.ThumbnailsArray;
                     
                 }
-                CommentsVC *commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
-                commentController.commentsObj = CommentsModelObj;
-                commentController.postArray = videomodel;
+                CommentsVC *commentController ;
+                if(IS_IPAD)
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC_iPad" bundle:nil];
+                else
+                    commentController = [[CommentsVC alloc] initWithNibName:@"CommentsVC" bundle:nil];
+                
+                commentController.commentsObj   = CommentsModelObj;
+                commentController.postArray     = videomodel;
+                commentController.cPostId       = postID;
+                commentController.isFirstComment = TRUE;
+                commentController.isComment     = FALSE;
                 [[self navigationController] pushViewController:commentController animated:YES];
             }
         }
@@ -2443,10 +2871,7 @@
     [self SeenPost];
     
     if (seenPost == YES) {
-        
-        
     }else if (seenPost == NO){
-        
     }
     
 }
@@ -2470,18 +2895,10 @@
     
     UIButton *statusBtn = (UIButton *)sender;
     currentSelectedIndex = statusBtn.tag;
-    
-    PopularUsersModel *PopUser = [[PopularUsersModel alloc]init];
-    PopUser  = [UsersModel.PopUsersArray objectAtIndex:currentSelectedIndex];
-    friendId = PopUser.friendID;
-    UserRelation = PopUser.status;
-    if(loadFollowings)
-    {
-        Followings *tempUsers = [[Followings alloc]init];
-        tempUsers = [FollowingsAM objectAtIndex:currentSelectedIndex];
-        friendId = tempUsers.f_id;
-        UserRelation = tempUsers.status;
-    }
+    Followings *_responseData = [[Followings alloc] init];
+    _responseData  = [FollowingsAM objectAtIndex:currentSelectedIndex];
+    friendId = _responseData.f_id;
+    UserRelation = _responseData.status;
     if ([UserRelation isEqualToString:@"ADD_FRIEND"]) {
         
         [friendsStatusbtn setTitle:@"Add Friend" forState:UIControlStateNormal];
@@ -2500,24 +2917,67 @@
     
     
 }
-
+-(IBAction)openBBC:(id)sender{
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.bbc.com"]];
+}
+-(IBAction)openEmirates:(id)sender{
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.emirates.com"]];
+}
+-(IBAction)openREDBull:(id)sender{
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.redbull.com/en"]];
+}
+-(IBAction)MoveToSearchView:(id)sender{
+    [FollowingsAM removeAllObjects];
+    [_searchTable reloadData];
+    [searchField2 becomeFirstResponder];
+    [self.view addSubview:searchView];
+}
 - (IBAction)showFollowings:(id)sender {
     loadFollowings = true;
-    FollowingsAM  = nil;
-    FollowingsAM = [[NSMutableArray alloc]init];
+    searchcorners = false;
+    [FollowingsAM removeAllObjects];
+    [_searchTable reloadData];
     [self getFollowing];
+    nousersFound.hidden = YES;
     [self.view addSubview:searchView];
     
 }
 
 - (IBAction)showFollowers:(id)sender {
-    loadFollowings = true;
-    FollowingsAM  = nil;
-    FollowingsAM = [[NSMutableArray alloc]init];
+    loadFollowings = false;
+    searchcorners = false;
+    [FollowingsAM removeAllObjects];
+    [_searchTable reloadData];
     [self getFollowers];
+    nousersFound.hidden = YES;
     [self.view addSubview:searchView];
 }
-
+-(void) GetFollowersCall{
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    NSString *userId = [[NSUserDefaults standardUserDefaults] stringForKey:@"User_Id"];
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:@"getFollowersFollowing",@"method",
+                              token,@"session_token",@"1",@"page_no",userId,@"user_id",@"1",@"following",nil];
+    NSData *postData = [Utils encodeDictionary:postDict];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setHTTPBody:postData];
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response , NSData  *data, NSError *error) {
+        if ( [(NSHTTPURLResponse *)response statusCode] == 200 )
+        {
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            int success = [[result objectForKey:@"success"] intValue];
+            if(success == 1){
+                FollowingsArray = [result objectForKey:@"following"];
+                userFriends.text = [[NSString alloc]initWithFormat:@"%lu Following",(unsigned long)FollowingsArray.count];
+            }
+        }
+    }];
+}
 - (IBAction)userChannelBackbtn:(id)sender {
     [friendsChannelView removeFromSuperview];
     [SVProgressHUD dismiss];
@@ -2629,7 +3089,8 @@
                     _Videos.Tags = [tempDict objectForKey:@"tag_friends"];
                     _Videos.video_length = [tempDict objectForKey:@"video_length"];
                     _Videos.like_by_me = [tempDict objectForKey:@"like_by_me"];
-                    
+                    _Videos.is_anonymous = [tempDict objectForKey:@"is_anonymous"];
+                    _Videos.reply_count  = [tempDict objectForKey:@"reply_count"];
                     [userChannelObj.ImagesArray addObject:_Videos.profile_image];
                     [userChannelObj.ThumbnailsArray addObject:_Videos.video_thumbnail_link];
                     [userChannelObj.mainArray addObject:_Videos.video_link];
@@ -2672,9 +3133,11 @@
     [searchField resignFirstResponder];
     [searchField2 resignFirstResponder];
     loadFollowings = false;
-    FollowingsAM = nil;
-    [searchTable reloadData];
+    [FollowingsAM removeAllObjects];
+    searchcorners = true;
+    [_searchTable reloadData];
     [self SearchCorners];
+    nousersFound.hidden = YES;
     [self.view addSubview:searchView];
     SearchforTag = NO;
 }
@@ -2683,6 +3146,10 @@
     [searchView removeFromSuperview];
     loadFollowings = false;
     [tagFriendsView removeFromSuperview];
+    [self GetFollowersCall];
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"TestNotification"
+     object:self];
     [SVProgressHUD dismiss];
 }
 
@@ -2712,35 +3179,55 @@
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             NSDictionary *result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             int success = [[result objectForKey:@"success"] intValue];
-            NSString *users = [result objectForKey:@"users_found"];
-            
             if(success == 1) {
+               
                 searchField.text = nil;
                 searchField2.text = nil;
+//
+//                usersArray = [result objectForKey:@"users_found"];
+//                UsersModel.PopUsersArray = [[NSMutableArray alloc] init];
+//                UsersModel.imagesArray = [[NSMutableArray alloc] init];
+//                
+//                for(NSDictionary *tempDict in usersArray){
+//                    
+//                    PopularUsersModel *_Popusers = [[PopularUsersModel alloc] init];
+//                    _Popusers.full_name = [tempDict objectForKey:@"full_name"];
+//                    _Popusers.friendID = [tempDict objectForKey:@"id"];
+//                    _Popusers.profile_link = [tempDict objectForKey:@"profile_link"];
+//                    _Popusers.profile_type = [tempDict objectForKey:@"profile_type"];
+//                    _Popusers.status = [tempDict objectForKey:@"state"];
+//                    
+//                    [UsersModel.imagesArray addObject:_Popusers.profile_link];
+//                    [UsersModel.PopUsersArray addObject:_Popusers];
+//                    usersArray = UsersModel.PopUsersArray;
+//                    arrImages = UsersModel.imagesArray;
+//                }
+                FollowingsArray = [result objectForKey:@"users_found"];
                 
-                usersArray = [result objectForKey:@"users_found"];
-                UsersModel.PopUsersArray = [[NSMutableArray alloc] init];
-                UsersModel.imagesArray = [[NSMutableArray alloc] init];
-                
-                for(NSDictionary *tempDict in usersArray){
+                for(NSDictionary *tempDict in FollowingsArray){
+                    Followings *_responseData = [[Followings alloc] init];
                     
-                    PopularUsersModel *_Popusers = [[PopularUsersModel alloc] init];
-                    _Popusers.full_name = [tempDict objectForKey:@"full_name"];
-                    _Popusers.friendID = [tempDict objectForKey:@"id"];
-                    _Popusers.profile_link = [tempDict objectForKey:@"profile_link"];
-                    _Popusers.profile_type = [tempDict objectForKey:@"profile_type"];
-                    _Popusers.status = [tempDict objectForKey:@"state"];
-                    
-                    [UsersModel.imagesArray addObject:_Popusers.profile_link];
-                    [UsersModel.PopUsersArray addObject:_Popusers];
-                    usersArray = UsersModel.PopUsersArray;
-                    arrImages = UsersModel.imagesArray;
+                    _responseData.f_id = [tempDict objectForKey:@"id"];
+                    _responseData.fullName = [tempDict objectForKey:@"full_name"];
+                    _responseData.is_celeb = [tempDict objectForKey:@"is_celeb"];
+                    _responseData.profile_link = [tempDict objectForKey:@"profile_link"];
+                    _responseData.status = [tempDict objectForKey:@"state"];
+                    [FollowingsAM addObject:_responseData];
                 }
-                
-                [searchTable reloadData];
+                [_searchTable reloadData];
+
+            }
+            else if(success == 0)
+            {
+                searchField.text = nil;
+                searchField2.text = nil;
+                [searchField2 becomeFirstResponder];
+                nousersFound.hidden = NO;
             }
         }
         else{
+            searchField.text = nil;
+            searchField2.text = nil;
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Network Problem. Try Again" delegate:self cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alert show];
@@ -2753,28 +3240,27 @@
     UIButton *statusBtn = (UIButton *)sender;
     currentSelectedIndex = statusBtn.tag;
     
-    PopularUsersModel *PopUser = [[PopularUsersModel alloc]init];
-    PopUser  = [UsersModel.PopUsersArray objectAtIndex:currentSelectedIndex];
-    friendId = PopUser.friendID;
+    Followings *_responseData = [[Followings alloc] init];
+    _responseData  = [FollowingsAM objectAtIndex:currentSelectedIndex];
+    friendId = _responseData.f_id;
     
-    [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+    [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
     
-    if ([PopUser.status isEqualToString:@"ADD_FRIEND"]) {
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+    if ([_responseData.status isEqualToString:@"ADD_FRIEND"]) {
+        _responseData.status = @"PENDING";
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+        NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+        [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"follow.png"] forState:UIControlStateNormal];
         [self sendFriendRequest];
         
-    }else if ([PopUser.status isEqualToString:@"PENDING"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"requestsent.png"] forState:UIControlStateNormal];
-        [self sendCancelRequest];
-        
-    }else if ([PopUser.status isEqualToString:@"FRIEND"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"friends.png"] forState:UIControlStateNormal];
+    }else if ([_responseData.status isEqualToString:@"PENDING"] || [_responseData.status isEqualToString:@"FRIEND"]){
+        _responseData.status = @"PENDING";
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+        NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+        [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+        [statusBtn setBackgroundImage:[UIImage imageNamed:@"unfollow.png"] forState:UIControlStateNormal];
         [self sendDeleteFriend];
-        
-    }else if ([PopUser.status isEqualToString:@"ACCEPT_REQUEST"]){
-        [statusBtn setBackgroundImage:[UIImage imageNamed:@"requestaccept.png"] forState:UIControlStateNormal];
-        [self sendDeleteFriend];
-        
     }
 }
 
@@ -2822,7 +3308,7 @@
                     usersArray = UsersModel.PopUsersArray;
                     arrImages = UsersModel.imagesArray;
                 }
-                [searchTable reloadData];
+                [_searchTable reloadData];
             }
         }else{
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -2834,7 +3320,8 @@
 
 - (void) sendDeleteFriend{
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
-    
+    Followings *_responseData = [[Followings alloc] init];
+    _responseData  = [FollowingsAM objectAtIndex:currentSelectedIndex];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_DELETE_FRIEND,@"method",
                               token,@"session_token",friendId,@"friend_id",nil];
@@ -2855,9 +3342,22 @@
             NSDictionary *users = [result objectForKey:@"users"];
             
             if(success == 1) {
-                
-                [self getUsers];
-                [searchTable reloadData];
+                if(loadFollowings){
+                    // [self getFollowing];
+                    _responseData.status = @"ADD_FRIEND";
+                    
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+                    NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                    [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                }
+                else{
+                    //[self getFollowers];
+                    _responseData.status = @"ADD_FRIEND";
+                    
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+                    NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                    [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                }
             }
         }else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
@@ -2893,7 +3393,7 @@
             if(success == 1) {
                 
                 [self getUsers];
-                [searchTable reloadData];
+                [_searchTable reloadData];
             }
         }else{
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Something went wrong" message:@"Please try again later!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
@@ -2905,6 +3405,9 @@
 
 - (void) sendFriendRequest{
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    Followings *_responseData = [[Followings alloc] init];
+    _responseData  = [FollowingsAM objectAtIndex:currentSelectedIndex];
+//     [FollowingsAM removeAllObjects];
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
     NSURL *url = [NSURL URLWithString:SERVER_URL];
     NSDictionary *postDict = [NSDictionary dictionaryWithObjectsAndKeys:METHOD_SEND_REQUEST,@"method",
@@ -2927,8 +3430,22 @@
             NSDictionary *users = [result objectForKey:@"users"];
             
             if(success == 1) {
-                [self getUsers];
-                [searchTable reloadData];
+                if(loadFollowings){
+                       // [self getFollowing];
+                    _responseData.status = @"FRIEND";
+                    
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+                    NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                    [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                }
+                else{
+                        //[self getFollowers];
+                    _responseData.status = @"FRIEND";
+                    
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentSelectedIndex inSection:0];
+                    NSArray *indexPaths = [[NSArray alloc] initWithObjects:indexPath, nil];
+                    [_searchTable reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                }
             }
         }else{
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -3017,13 +3534,18 @@
 }
 
 - (IBAction)findFriends:(id)sender {
-    
+     nousersFound.hidden = YES;
+    [searchField2 becomeFirstResponder];
+    [FollowingsAM removeAllObjects];
+    [_searchTable reloadData];
     [self.view addSubview:searchView];
 }
 #pragma mark - EditCover
 - (IBAction)EditCoverImg:(id)sender {
     [[NSUserDefaults standardUserDefaults] setInteger:CurrentImageCategoryCover forKey:@"currentImageCategory"];
     [[NSUserDefaults standardUserDefaults] synchronize];
+    fromImagePicker = TRUE;
+    coverimagetocache =  channelCover.image;
     [SVProgressHUD dismiss];
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
     picker.delegate = self;
@@ -3031,7 +3553,7 @@
     picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     
     [self presentViewController:picker animated:YES completion:NULL];
-    [self setUserCoverImage];
+    //[self setUserCoverImage];
     
     //[self.view addSubview:uploadimageView];
     
@@ -3121,7 +3643,16 @@
     channelCover.image = img1;
     
 }
-
+- (IBAction)uploadProfilePic:(id)sender{
+    [[NSUserDefaults standardUserDefaults] setInteger:ProfilePIC forKey:@"currentImageCategory"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    fromImagePicker = TRUE;
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.allowsEditing = YES;
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    [self presentViewController:picker animated:YES completion:NULL];
+}
 - (void) updateCover{
     
     NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
@@ -3136,6 +3667,27 @@
     
     NSData *profileDatas = UIImagePNGRepresentation(channelCover.image);
     [requestc setData:profileDatas withFileName:[NSString stringWithFormat:@"%@.png",@"thumbnail"] andContentType:@"image/png" forKey:@"cover_link"];
+    
+    [requestc setPostValue:METHOD_UPDATE_PROFILE forKey:@"method"];
+    
+    [requestc setRequestMethod:@"POST"];
+    [requestc setTimeOutSeconds:300];
+    [requestc setDelegate:self];
+    [requestc startAsynchronous];
+}
+-(void) UpdateProfilePic{
+    NSString *token = (NSString *)[[NSUserDefaults standardUserDefaults]objectForKey:@"session_token"];
+    
+    NSURL *url = [NSURL URLWithString:SERVER_URL];
+    
+    
+    requestc = [ASIFormDataRequest requestWithURL:url];
+    [requestc addRequestHeader:@"Content-Type" value:@"application/json; encoding=utf-8"];
+    
+    [requestc setPostValue:token forKey:@"session_token"];
+    
+    NSData *profileDatas = UIImagePNGRepresentation(User_pic.image);
+    [requestc setData:profileDatas withFileName:[NSString stringWithFormat:@"%@.png",@"thumbnail"] andContentType:@"image/png" forKey:@"profile_link"];
     
     [requestc setPostValue:METHOD_UPDATE_PROFILE forKey:@"method"];
     
@@ -3269,7 +3821,7 @@
         NSArray *mediaTypes = [[NSArray alloc]initWithObjects:(NSString *)kUTTypeMovie, nil];
         
         picker.mediaTypes = mediaTypes;
-        picker.videoMaximumDuration = 10;
+        picker.videoMaximumDuration = 60;
         
         [self presentViewController:picker animated:YES completion:nil];
         
@@ -3364,8 +3916,6 @@
 #pragma mark - Delegate Methods
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    
-    // user hit cancel
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
@@ -3375,6 +3925,13 @@
         channelCover.image = chosenImage;
         [picker dismissViewControllerAnimated:YES completion:NULL];
         [self updateCover];
+    }
+    else if([[NSUserDefaults standardUserDefaults] integerForKey:@"currentImageCategory"] == ProfilePIC)
+    {
+        UIImage *chosenImage = info[UIImagePickerControllerEditedImage];
+        User_pic.image = chosenImage;
+        [picker dismissViewControllerAnimated:YES completion:NULL];
+        [self UpdateProfilePic];
     }
     else if([[NSUserDefaults standardUserDefaults] integerForKey:@"currentImageCategory"] ==CurrentImageCategoryCommentPhoto)
     {
@@ -3413,16 +3970,20 @@
         [self dismissViewControllerAnimated:YES completion:nil];
         [self PrivacyEveryOne:nil];
         [self UnlimitedPressed:nil];
-        
-        [self.view addSubview:_uploadBeamView];
         AVAssetImageGenerator *imageGenerator = [[AVAssetImageGenerator alloc]initWithAsset:asset];
+        imageGenerator.appliesPreferredTrackTransform = YES;
         CMTime time = [asset duration];
         time.value = 0;
         CGImageRef imageRef = [imageGenerator copyCGImageAtTime:time actualTime:NULL error:NULL];
-        UIImage *thumbnail = [UIImage imageWithCGImage:imageRef];
+        thumbnail = [UIImage imageWithCGImage:imageRef];
+        
         CGImageRelease(imageRef);
         _thumbnailImageView.image = thumbnail;
         profileData = UIImagePNGRepresentation(thumbnail);
+        [self movetoUploadBeamController];
+        
+        //[self.view addSubview:_uploadBeamView];
+      
         
         // int i = 0;
         //        if(i == 0) {
@@ -3484,7 +4045,21 @@
         
     }
 }
-
+-(void) movetoUploadBeamController{
+    BeamUploadVC *uploadController = [[BeamUploadVC alloc] initWithNibName:@"BeamUploadVC" bundle:nil];
+    uploadController.dataToUpload = movieData;
+    uploadController.video_duration = video_duration;
+    uploadController.ParentCommentID = @"-1";
+    uploadController.postID = @"-1";
+    uploadController.isAudio = false;
+    uploadController.profileData = profileData;
+    uploadController.thumbnailImage = thumbnail;
+    if(uploadAnonymous)
+        uploadController.isAnonymous = true;
+    else
+        uploadController.isAnonymous = false;
+    [[self navigationController] pushViewController:uploadController animated:YES];
+}
 -(void) uploadBeam :(NSData*)file {
     totalBytestoUpload = file.length;
     NSString *userSession = [[NSUserDefaults standardUserDefaults] objectForKey:@"session_token"];
@@ -3537,20 +4112,20 @@
 {
     NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[request responseData] options:0 error:nil];
     NSLog(@"This is respone ::: %@",result);
+    fromImagePicker = FALSE;
     [_progressview setProgress:1.0];
-    if(currentState == 0)
-        [self getHomeContent];
+    //if(currentState == 0)
+        //[self getHomeContent];
     
     AudioServicesPlaySystemSound(1003);
 }
 
 - (void)requestFailed:(ASIHTTPRequest *)theRequest {
-    
+    fromImagePicker = FALSE;
     NSString *response = [[NSString alloc] initWithData:[theRequest responseData] encoding:NSUTF8StringEncoding];
     NSLog(@"This is respone ::: %@",response);
-    
-    
 }
+
 
 - (IBAction)thumbnail2Pressed:(id)sender {
     
@@ -3887,18 +4462,21 @@
     
     NSDictionary *recordSettings = [NSDictionary
                                     dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithInt:AVAudioQualityMin],
+                                   //[NSNumber numberWithInt:kAudioFormatMPEGLayer3], AVFormatIDKey,
+                                    [NSNumber numberWithInt:AVAudioQualityHigh],
                                     AVEncoderAudioQualityKey,
                                     [NSNumber numberWithInt:16],
                                     AVEncoderBitRateKey,
-                                    [NSNumber numberWithInt: 2],
+                                    [NSNumber numberWithInt: 1],
                                     AVNumberOfChannelsKey,
                                     [NSNumber numberWithFloat:44100.0],
                                     AVSampleRateKey,
                                     nil];
-    
+
     NSError *error = nil;
-    
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
+                        error:nil];
     _audioRecorder = [[AVAudioRecorder alloc]
                       initWithURL:soundFileURL
                       settings:recordSettings
@@ -3968,9 +4546,16 @@
     countDownlabel.text = @"01:00";
     secondsLeft = 60;
     audioData = [NSData dataWithContentsOfURL:_audioRecorder.url];
-    [self PrivacyEveryOne:nil];
-    [self UnlimitedPressed:nil];
-    [self.view addSubview:_uploadBeamView];
+    [_uploadAudioView removeFromSuperview];
+    BeamUploadVC *uploadController = [[BeamUploadVC alloc] initWithNibName:@"BeamUploadVC" bundle:nil];
+    uploadController.dataToUpload = audioData;
+    uploadController.video_duration = secondsConsumed;
+    uploadController.ParentCommentID = @"-1";
+    uploadController.postID = @"-1";
+    uploadController.isAudio = true;
+    [[self navigationController] pushViewController:uploadController animated:YES];
+ 
+    //[self.view addSubview:_uploadBeamView];
 }
 -(void)audioRecorderEncodeErrorDidOccur:
 (AVAudioRecorder *)recorder
@@ -4053,6 +4638,14 @@
     }
     else{
         textView.typingAttributes = normalAttrdict;
+    }
+    return YES;
+}
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if(textField == searchField || searchField2){
+        [textField resignFirstResponder]; // Dismiss the keyboard.
+        [self hideShowsearchbar:self];
     }
     return YES;
 }
